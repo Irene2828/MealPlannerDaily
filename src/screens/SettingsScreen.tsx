@@ -260,7 +260,13 @@ export default function SettingsScreen() {
     <View style={styles.root}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Add New Meals</Text>
+          <View style={styles.headerTitleContainer}>
+            <Text style={styles.headerTitle}>Add New Meals</Text>
+            <View style={styles.underlineContainer}>
+              <View style={[styles.underlineSegment, { transform: [{ rotate: '-2deg' }], opacity: 0.9 }]} />
+              <View style={[styles.underlineSegment, { transform: [{ rotate: '-0.5deg' }], marginTop: -1, opacity: 0.8, width: '90%', alignSelf: 'center' }]} />
+            </View>
+          </View>
         </View>
       </SafeAreaView>
 
@@ -298,6 +304,23 @@ const styles = StyleSheet.create({
     lineHeight: 26,
     letterSpacing: -0.3,
     textAlign: 'center',
+  },
+  headerTitleContainer: {
+    position: 'relative',
+    alignItems: 'center',
+  },
+  underlineContainer: {
+    position: 'absolute',
+    bottom: -6,
+    left: '10%',
+    right: '10%',
+    height: 6,
+  },
+  underlineSegment: {
+    height: 2,
+    backgroundColor: '#FF7A45',
+    borderRadius: 999,
+    width: '100%',
   },
   scrollContent: {
     paddingHorizontal: 20,

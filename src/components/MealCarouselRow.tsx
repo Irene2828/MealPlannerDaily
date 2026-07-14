@@ -28,14 +28,7 @@ const CARD_HORIZONTAL_MARGIN = 20;
 const CARD_GAP = 12;
 
 const getNeonColor = (slotId: string) => {
-  switch (slotId) {
-    case 'breakfast': return '#FFE600'; // Neon Yellow
-    case 'morning-snack': return '#CCFF00'; // Neon Yellow-Green
-    case 'lunch': return '#00E5FF'; // Teal Blue
-    case 'afternoon-snack': return '#FFB04C'; // Light Orange
-    case 'dinner': return '#D494FF'; // Light Purple
-    default: return '#CCFF00';
-  }
+  return '#CCFF00'; // Lime green for all as requested
 };
 
 interface Props {
@@ -61,6 +54,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
   const [activeTrashMealId, setActiveTrashMealId] = useState<string | null>(null);
+  const [pendingDeletions, setPendingDeletions] = useState<{ [mealId: string]: ReturnType<typeof setTimeout> }>({});
   const { 
     groceryList, 
     inventoryList, 
@@ -96,9 +90,34 @@ export const MealCarouselRow: React.FC<Props> = ({
   };
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
+    const isTrashActive = activeTrashMealId === item.id;
+    const isPendingDeletion = !!pendingDeletions[item.id];
+
+    if (isPendingDeletion) {
+      return (
+        <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
+          <View style={{ flex: 1, backgroundColor: '#374151', justifyContent: 'center', alignItems: 'center' }}>
+            <Text style={{ color: '#FFF', fontFamily: 'DMSans_700Bold', marginBottom: 12, fontSize: 16 }}>Meal Removed</Text>
+            <Pressable 
+              style={{ backgroundColor: '#FFF', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 999 }}
+              onPress={() => {
+                clearTimeout(pendingDeletions[item.id]);
+                setPendingDeletions(prev => {
+                  const next = { ...prev };
+                  delete next[item.id];
+                  return next;
+                });
+              }}
+            >
+              <Text style={{ color: '#374151', fontFamily: 'DMSans_700Bold', fontSize: 14 }}>Undo</Text>
+            </Pressable>
+          </View>
+        </View>
+      );
+    }
+
     const mealId = `${day}_${slot.slotId}_${item.id}`;
     const isConfirmed = confirmedMeals.has(mealId);
-    const isTrashActive = activeTrashMealId === item.id;
 
     return (
       <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
@@ -128,7 +147,16 @@ export const MealCarouselRow: React.FC<Props> = ({
           style={[styles.moreButton, isTrashActive && styles.moreButtonActive]}
           onPress={() => {
             if (isTrashActive) {
-              removeMealOption(slot.slotId, item.id, isKids);
+              const timeout = setTimeout(() => {
+                removeMealOption(slot.slotId, item.id, isKids);
+                setPendingDeletions(prev => {
+                  const next = { ...prev };
+                  delete next[item.id];
+                  return next;
+                });
+              }, 4000);
+              
+              setPendingDeletions(prev => ({ ...prev, [item.id]: timeout }));
               setActiveTrashMealId(null);
             } else {
               setActiveTrashMealId(item.id);
@@ -290,7 +318,7 @@ export const MealCarouselRow: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 40,
+    marginBottom: 28,
   },
   carouselWrapper: {
     position: 'relative',
@@ -461,8 +489,8 @@ const styles = StyleSheet.create({
   },
   moreButton: {
     position: 'absolute',
-    top: 14,
-    right: 50,
+    bottom: 14,
+    right: 14,
     width: 28,
     height: 28,
     borderRadius: 14,
