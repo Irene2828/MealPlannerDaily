@@ -354,11 +354,9 @@ const styles = StyleSheet.create({
   inlineGenerateBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 999,
-    marginLeft: 8,
   },
   inlineGenerateBtnText: {
     fontFamily: 'DMSans_700Bold',
