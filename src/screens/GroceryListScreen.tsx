@@ -80,8 +80,8 @@ export default function GroceryListScreen() {
               style={styles.smsButton}
               onPress={() => alert('Sending grocery list via SMS... (eventually)')}
             >
-              <Ionicons name="phone-portrait-outline" size={16} color="#374151" style={{ marginRight: 8 }} />
-              <Text style={styles.smsButtonText}>Send to My Phone</Text>
+              <Text style={styles.smsButtonText}>SMS it</Text>
+              <Ionicons name="arrow-forward-outline" size={16} color="#374151" style={{ marginLeft: 6 }} />
             </Pressable>
           </>
         )}
