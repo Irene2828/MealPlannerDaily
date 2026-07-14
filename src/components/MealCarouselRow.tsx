@@ -33,7 +33,7 @@ const getNeonColor = (slotId: string) => {
     case 'morning-snack': return '#CCFF00'; // Neon Yellow-Green
     case 'lunch': return '#00E5FF'; // Teal Blue
     case 'afternoon-snack': return '#FFB04C'; // Light Orange
-    case 'dinner': return '#00FFFF'; // Neon Cyan
+    case 'dinner': return '#D494FF'; // Light Purple
     default: return '#CCFF00';
   }
 };
