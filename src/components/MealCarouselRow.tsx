@@ -31,8 +31,8 @@ const getNeonColor = (slotId: string) => {
   switch (slotId) {
     case 'breakfast': return '#FFE600'; // Neon Yellow
     case 'morning-snack': return '#CCFF00'; // Neon Yellow-Green
-    case 'lunch': return '#39FF14'; // Neon Green
-    case 'afternoon-snack': return '#E5E7EB'; // Silver grey light
+    case 'lunch': return '#00E5FF'; // Teal Blue
+    case 'afternoon-snack': return '#FFB04C'; // Light Orange
     case 'dinner': return '#00FFFF'; // Neon Cyan
     default: return '#CCFF00';
   }
