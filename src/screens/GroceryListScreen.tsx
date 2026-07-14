@@ -25,17 +25,27 @@ export default function GroceryListScreen() {
             <Text style={styles.emptySubText}>Add ingredients from your meals!</Text>
           </View>
         ) : (
-          items.map((item, index) => (
-            <View key={index} style={styles.listItem}>
-              <Pressable 
-                style={styles.checkbox} 
-                onPress={() => removeFromGrocery(item)}
-              >
-                <View style={styles.checkboxInner} />
-              </Pressable>
-              <Text style={styles.listText}>{item}</Text>
-            </View>
-          ))
+          <>
+            {items.map((item, index) => (
+              <View key={index} style={styles.listItem}>
+                <Pressable 
+                  style={styles.checkbox} 
+                  onPress={() => removeFromGrocery(item)}
+                >
+                  <View style={styles.checkboxInner} />
+                </Pressable>
+                <Text style={styles.listText}>{item}</Text>
+              </View>
+            ))}
+
+            <Pressable 
+              style={styles.smsButton}
+              onPress={() => alert('Sending grocery list via SMS... (eventually)')}
+            >
+              <Text style={styles.smsButtonText}>SMS it</Text>
+              <Ionicons name="arrow-forward-outline" size={16} color="#374151" />
+            </Pressable>
+          </>
         )}
       </ScrollView>
     </View>
@@ -119,5 +129,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1A1A1A',
     flex: 1,
+  },
+  smsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#374151',
+    borderRadius: 999,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 24,
+    alignSelf: 'center',
+  },
+  smsButtonText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 14,
+    color: '#374151',
+    marginRight: 6,
   },
 });

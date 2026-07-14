@@ -3,9 +3,11 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 interface GroceryContextType {
   groceryList: Set<string>;
   inventoryList: Set<string>;
+  confirmedMeals: Set<string>;
   addToGrocery: (item: string) => void;
   removeFromGrocery: (item: string) => void;
   toggleInventory: (item: string) => void;
+  toggleConfirmMeal: (mealId: string) => void;
 }
 
 const GroceryContext = createContext<GroceryContextType | undefined>(undefined);
@@ -13,6 +15,7 @@ const GroceryContext = createContext<GroceryContextType | undefined>(undefined);
 export const GroceryProvider = ({ children }: { children: ReactNode }) => {
   const [groceryList, setGroceryList] = useState<Set<string>>(new Set());
   const [inventoryList, setInventoryList] = useState<Set<string>>(new Set());
+  const [confirmedMeals, setConfirmedMeals] = useState<Set<string>>(new Set());
 
   const addToGrocery = (item: string) => {
     setGroceryList((prev) => {
@@ -53,14 +56,28 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const toggleConfirmMeal = (mealId: string) => {
+    setConfirmedMeals((prev) => {
+      const next = new Set(prev);
+      if (next.has(mealId)) {
+        next.delete(mealId);
+      } else {
+        next.add(mealId);
+      }
+      return next;
+    });
+  };
+
   return (
     <GroceryContext.Provider
       value={{
         groceryList,
         inventoryList,
+        confirmedMeals,
         addToGrocery,
         removeFromGrocery,
         toggleInventory,
+        toggleConfirmMeal,
       }}
     >
       {children}

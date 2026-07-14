@@ -39,12 +39,14 @@ const getNeonColor = (slotId: string) => {
 };
 
 interface Props {
+  day: string;
   slot: MealSlot;
   selectedIndex: number;
   onSelectIndex: (index: number) => void;
 }
 
 export const MealCarouselRow: React.FC<Props> = ({
+  day,
   slot,
   selectedIndex,
   onSelectIndex,
@@ -56,7 +58,14 @@ export const MealCarouselRow: React.FC<Props> = ({
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
-  const { groceryList, inventoryList, addToGrocery, toggleInventory } = useGrocery();
+  const { 
+    groceryList, 
+    inventoryList, 
+    confirmedMeals, 
+    addToGrocery, 
+    toggleInventory,
+    toggleConfirmMeal 
+  } = useGrocery();
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -83,6 +92,9 @@ export const MealCarouselRow: React.FC<Props> = ({
   };
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
+    const mealId = `${day}_${slot.slotId}_${item.id}`;
+    const isConfirmed = confirmedMeals.has(mealId);
+
     return (
       <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
         <Image
@@ -95,6 +107,18 @@ export const MealCarouselRow: React.FC<Props> = ({
           colors={['transparent', 'rgba(0,0,0,0.85)']}
           style={styles.gradientOverlay}
         />
+
+        {/* Confirmation Checkbox Overlay */}
+        <Pressable 
+          style={[styles.confirmCheckbox, isConfirmed && styles.confirmCheckboxActive]}
+          onPress={() => toggleConfirmMeal(mealId)}
+        >
+          {isConfirmed ? (
+            <Ionicons name="checkmark" size={14} color="#FFFFFF" />
+          ) : (
+            <View style={styles.confirmCheckboxInner} />
+          )}
+        </Pressable>
 
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>{item.title}</Text>
@@ -238,6 +262,28 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     borderWidth: 4,
     borderColor: '#FFFFFF',
+  },
+  confirmCheckbox: {
+    position: 'absolute',
+    top: 14,
+    right: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 11,
+  },
+  confirmCheckboxActive: {
+    backgroundColor: '#10B981',
+  },
+  confirmCheckboxInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   gradientOverlay: {
     position: 'absolute',

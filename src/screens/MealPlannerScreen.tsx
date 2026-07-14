@@ -114,6 +114,7 @@ export default function MealPlannerScreen() {
         {currentSlots.map((slot) => (
           <MealCarouselRow
             key={slot.slotId}
+            day={selectedDay}
             slot={slot}
             selectedIndex={Math.min(
               currentIndices[slot.slotId] ?? 0,
