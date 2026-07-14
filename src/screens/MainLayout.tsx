@@ -14,7 +14,8 @@ export default function MainLayout() {
 
   return (
     <LinearGradient 
-      colors={['#FFEAD9', '#FEF5F0', '#FFFFFF']} 
+      colors={['#FFEAD9', '#FFFFFF', '#FFFFFF', '#FFEAD9']} 
+      locations={[0, 0.25, 0.75, 1]}
       style={styles.container}
     >
       {/* Content Area */}
@@ -24,7 +25,7 @@ export default function MainLayout() {
 
       {/* Custom Bottom Tab Bar - Blending Gradient */}
       <LinearGradient 
-        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', '#FFFFFF', '#FFFFFF']} 
+        colors={['rgba(255,234,217,0)', 'rgba(255,234,217,0.85)', '#FFEAD9', '#FFEAD9']} 
         locations={[0, 0.4, 0.8, 1]}
         style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) }]}
         pointerEvents="box-none"
