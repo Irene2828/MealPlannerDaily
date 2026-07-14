@@ -9,7 +9,9 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { MEAL_SLOTS } from '../data/meals';
+import { KIDS_MEAL_SLOTS } from '../data/kidsMeals';
 import { MealCarouselRow } from '../components/MealCarouselRow';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -26,8 +28,14 @@ const DAYS_OF_WEEK = [
 
 export default function MealPlannerScreen() {
   const [selectedDay, setSelectedDay] = useState('mon');
-  const [selectedIndices, setSelectedIndices] = useState<Record<string, number>>(
+  const [mode, setMode] = useState<'adults' | 'kids'>('adults');
+  
+  // Create indices state for both sets of data independently
+  const [adultsIndices, setAdultsIndices] = useState<Record<string, number>>(
     Object.fromEntries(MEAL_SLOTS.map((s) => [s.slotId, 0]))
+  );
+  const [kidsIndices, setKidsIndices] = useState<Record<string, number>>(
+    Object.fromEntries(KIDS_MEAL_SLOTS.map((s) => [s.slotId, 0]))
   );
 
   const handleSelectDay = (dayId: string) => {
@@ -35,11 +43,15 @@ export default function MealPlannerScreen() {
   };
 
   const handleSelectIndex = (slotId: string, index: number) => {
-    setSelectedIndices((prev) => ({ ...prev, [slotId]: index }));
+    if (mode === 'adults') {
+      setAdultsIndices((prev) => ({ ...prev, [slotId]: index }));
+    } else {
+      setKidsIndices((prev) => ({ ...prev, [slotId]: index }));
+    }
   };
 
-  // We are not filtering by mood anymore, so we show all slots.
-  const filteredSlots = MEAL_SLOTS;
+  const currentSlots = mode === 'adults' ? MEAL_SLOTS : KIDS_MEAL_SLOTS;
+  const currentIndices = mode === 'adults' ? adultsIndices : kidsIndices;
 
   return (
     <View style={styles.root}>
@@ -48,7 +60,23 @@ export default function MealPlannerScreen() {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* ─── Header ─── */}
         <View style={styles.header}>
+          <Pressable style={styles.headerIconLeft} onPress={() => setMode('adults')}>
+            <Ionicons 
+              name={mode === 'adults' ? 'person' : 'person-outline'} 
+              size={24} 
+              color={mode === 'adults' ? '#1A1A1A' : '#A3A3A3'} 
+            />
+          </Pressable>
+
           <Text style={styles.headerTitle}>Today's Menu</Text>
+
+          <Pressable style={styles.headerIconRight} onPress={() => setMode('kids')}>
+            <Ionicons 
+              name={mode === 'kids' ? 'happy' : 'happy-outline'} 
+              size={26} 
+              color={mode === 'kids' ? '#1A1A1A' : '#A3A3A3'} 
+            />
+          </Pressable>
         </View>
 
         {/* ─── Days of the week strip ─── */}
@@ -81,12 +109,12 @@ export default function MealPlannerScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {filteredSlots.map((slot) => (
+        {currentSlots.map((slot) => (
           <MealCarouselRow
             key={slot.slotId}
             slot={slot}
             selectedIndex={Math.min(
-              selectedIndices[slot.slotId] ?? 0,
+              currentIndices[slot.slotId] ?? 0,
               slot.options.length - 1
             )}
             onSelectIndex={(index) => handleSelectIndex(slot.slotId, index)}
@@ -99,7 +127,6 @@ export default function MealPlannerScreen() {
   );
 }
 
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -109,26 +136,30 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   header: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: 24,
+    position: 'relative',
   },
-  headerEyebrow: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 12,
-    color: '#888',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-    marginBottom: 4,
+  headerIconLeft: {
+    position: 'absolute',
+    left: 24,
+    padding: 8, // Increase touch target
+  },
+  headerIconRight: {
+    position: 'absolute',
+    right: 24,
+    padding: 8, // Increase touch target
   },
   headerTitle: {
-    fontFamily: 'Fraunces_900Black', // Elegant serif font
-    fontSize: 34,
+    fontFamily: 'Lora_500Medium', // Elegant serif font, less thick than Fraunces Black
+    fontSize: 32,
     color: '#1A1A1A',
     lineHeight: 40,
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
     textAlign: 'center',
   },
   moodStripWrapper: {

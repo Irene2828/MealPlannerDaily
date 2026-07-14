@@ -14,6 +14,7 @@ import {
   UIManager,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import { MealOption, MealSlot } from '../data/meals';
 
 if (Platform.OS === 'android') {
@@ -150,7 +151,11 @@ export const MealCarouselRow: React.FC<Props> = ({
         <View style={styles.column}>
           <Pressable style={styles.columnHeader} onPress={toggleInstructions}>
             <Text style={styles.columnTitle}>How to cook</Text>
-            <Text style={styles.columnIcon}>{instructionsExpanded ? 'ᐱ' : 'ᐯ'}</Text>
+            <Ionicons 
+              name={instructionsExpanded ? 'chevron-up' : 'chevron-down'} 
+              size={20} 
+              color="#9CA3AF" 
+            />
           </Pressable>
           {instructionsExpanded && (
             <View style={styles.columnBody}>
@@ -165,7 +170,11 @@ export const MealCarouselRow: React.FC<Props> = ({
         <View style={styles.column}>
           <Pressable style={styles.columnHeader} onPress={toggleIngredients}>
             <Text style={styles.columnTitle}>Ingredients</Text>
-            <Text style={styles.columnIcon}>{ingredientsExpanded ? 'ᐱ' : 'ᐯ'}</Text>
+            <Ionicons 
+              name={ingredientsExpanded ? 'chevron-up' : 'chevron-down'} 
+              size={20} 
+              color="#9CA3AF" 
+            />
           </Pressable>
           {ingredientsExpanded && (
             <View style={styles.columnBody}>
@@ -289,11 +298,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  columnIcon: {
-    fontSize: 12,
-    color: '#EA580C',
-    fontWeight: 'bold',
-  },
   columnBody: {
     paddingTop: 4,
   },
@@ -341,6 +345,3 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
 });
-
-
-

@@ -7,6 +7,11 @@ import {
   Fraunces_900Black,
 } from '@expo-google-fonts/fraunces';
 import {
+  Lora_400Regular,
+  Lora_500Medium,
+  Lora_600SemiBold,
+} from '@expo-google-fonts/lora';
+import {
   DMSans_400Regular,
   DMSans_500Medium,
   DMSans_700Bold,
@@ -16,6 +21,9 @@ export default function App() {
   let [fontsLoaded] = useFonts({
     Fraunces_700Bold,
     Fraunces_900Black,
+    Lora_400Regular,
+    Lora_500Medium,
+    Lora_600SemiBold,
     DMSans_400Regular,
     DMSans_500Medium,
     DMSans_700Bold,
