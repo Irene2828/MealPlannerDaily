@@ -118,6 +118,7 @@ export default function MealPlannerScreen() {
             key={slot.slotId}
             day={selectedDay}
             slot={slot}
+            isKids={mode === 'kids'}
             selectedIndex={Math.min(
               currentIndices[slot.slotId] ?? 0,
               slot.options.length - 1

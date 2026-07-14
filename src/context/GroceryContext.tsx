@@ -14,6 +14,7 @@ interface GroceryContextType {
   toggleConfirmMeal: (mealId: string) => void;
   updateGroceryItem: (oldItem: string, newItem: string) => void;
   addCustomMeals: (slotId: string, newOptions: MealOption[]) => void;
+  removeMealOption: (slotId: string, mealId: string, isKids: boolean) => void;
 }
 
 const GroceryContext = createContext<GroceryContextType | undefined>(undefined);
@@ -113,6 +114,20 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
           };
         }
         return slot;
+    });
+  };
+
+  const removeMealOption = (slotId: string, mealId: string, isKids: boolean) => {
+    const setter = isKids ? setKidsMeals : setAdultsMeals;
+    setter((prev) => {
+      return prev.map((slot) => {
+        if (slot.slotId === slotId) {
+          return {
+            ...slot,
+            options: slot.options.filter((opt) => opt.id !== mealId),
+          };
+        }
+        return slot;
       });
     });
   };
@@ -131,6 +146,7 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
         toggleConfirmMeal,
         updateGroceryItem,
         addCustomMeals,
+        removeMealOption,
       }}
     >
       {children}

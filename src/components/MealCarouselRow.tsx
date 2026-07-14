@@ -41,6 +41,7 @@ const getNeonColor = (slotId: string) => {
 interface Props {
   day: string;
   slot: MealSlot;
+  isKids: boolean;
   selectedIndex: number;
   onSelectIndex: (index: number) => void;
 }
@@ -48,6 +49,7 @@ interface Props {
 export const MealCarouselRow: React.FC<Props> = ({
   day,
   slot,
+  isKids,
   selectedIndex,
   onSelectIndex,
 }) => {
@@ -58,13 +60,15 @@ export const MealCarouselRow: React.FC<Props> = ({
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
+  const [activeTrashMealId, setActiveTrashMealId] = useState<string | null>(null);
   const { 
     groceryList, 
     inventoryList, 
     confirmedMeals, 
     addToGrocery, 
     toggleInventory,
-    toggleConfirmMeal 
+    toggleConfirmMeal,
+    removeMealOption
   } = useGrocery();
 
   const handleScroll = useCallback(
@@ -94,6 +98,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
     const mealId = `${day}_${slot.slotId}_${item.id}`;
     const isConfirmed = confirmedMeals.has(mealId);
+    const isTrashActive = activeTrashMealId === item.id;
 
     return (
       <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
@@ -118,6 +123,25 @@ export const MealCarouselRow: React.FC<Props> = ({
           )}
         </Pressable>
 
+        {/* Subtle more button (3 dots) that turns into trash */}
+        <Pressable 
+          style={[styles.moreButton, isTrashActive && styles.moreButtonActive]}
+          onPress={() => {
+            if (isTrashActive) {
+              removeMealOption(slot.slotId, item.id, isKids);
+              setActiveTrashMealId(null);
+            } else {
+              setActiveTrashMealId(item.id);
+            }
+          }}
+        >
+          <Ionicons 
+            name={isTrashActive ? "trash" : "ellipsis-horizontal"} 
+            size={isTrashActive ? 14 : 16} 
+            color="#FFFFFF" 
+          />
+        </Pressable>
+
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>{item.title}</Text>
         </View>
@@ -125,8 +149,30 @@ export const MealCarouselRow: React.FC<Props> = ({
     );
   };
 
-  const selected = slot.options[selectedIndex];
   const neonColor = getNeonColor(slot.slotId);
+
+  if (!slot.options || slot.options.length === 0) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.carouselWrapper}>
+          <View style={[styles.cardEmpty, { width: CARD_WIDTH }]}>
+            <Text style={styles.emptyCardText}>No meals in this slot. Add some in Settings!</Text>
+          </View>
+          <View 
+            style={[
+              styles.neonTag, 
+              { backgroundColor: neonColor, shadowColor: neonColor }
+            ]} 
+            pointerEvents="none"
+          >
+            <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  const selected = slot.options[selectedIndex];
 
   return (
     <View style={styles.container}>
@@ -411,6 +457,39 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   addedText: {
+    color: '#6B7280',
+  },
+  moreButton: {
+    position: 'absolute',
+    top: 14,
+    right: 50,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 11,
+  },
+  moreButtonActive: {
+    backgroundColor: '#EF4444',
+    borderColor: '#EF4444',
+  },
+  cardEmpty: {
+    height: 154,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  emptyCardText: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 14,
     color: '#6B7280',
   },
 });
