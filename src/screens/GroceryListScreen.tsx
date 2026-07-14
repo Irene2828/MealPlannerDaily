@@ -80,7 +80,7 @@ export default function GroceryListScreen() {
               style={styles.smsButton}
               onPress={() => alert('Sending grocery list via SMS... (eventually)')}
             >
-              <Ionicons name="phone-portrait-outline" size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
+              <Ionicons name="phone-portrait-outline" size={16} color="#374151" style={{ marginRight: 8 }} />
               <Text style={styles.smsButtonText}>Send to My Phone</Text>
             </Pressable>
           </>
@@ -173,21 +173,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#374151', // Charcoal grey fill
+    backgroundColor: '#FFFFFF', // White background fill
+    borderWidth: 1,
+    borderColor: '#374151', // Thin 1px charcoal border
     borderRadius: 999,
     paddingVertical: 12,
     paddingHorizontal: 24,
     marginTop: 24,
     alignSelf: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   smsButtonText: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 14,
-    color: '#FFFFFF', // White text
+    color: '#374151', // Charcoal text
   },
 });
