@@ -159,9 +159,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: 'Lora_500Medium', // Elegant serif font, less thick than Fraunces Black
-    fontSize: 32,
+    fontSize: 20,
     color: '#1A1A1A',
-    lineHeight: 40,
+    lineHeight: 26,
     letterSpacing: -0.3,
     textAlign: 'center',
   },
