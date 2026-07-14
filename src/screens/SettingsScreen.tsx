@@ -276,11 +276,11 @@ export default function SettingsScreen() {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
+            <ActivityIndicator color="#374151" size="small" />
           ) : (
             <>
               <Text style={styles.generateBtnText}>Generate Visuals & Details</Text>
-              <Ionicons name="sparkles-outline" size={15} color="#FFFFFF" style={{ marginLeft: 6 }} />
+              <Ionicons name="sparkles-outline" size={15} color="#374151" style={{ marginLeft: 6 }} />
             </>
           )}
         </Pressable>
@@ -332,7 +332,7 @@ export default function SettingsScreen() {
 
             <Pressable style={styles.saveBtn} onPress={handleSave}>
               <Text style={styles.saveBtnText}>Add all to Menu Options</Text>
-              <Ionicons name="add-circle-outline" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
+              <Ionicons name="add-circle-outline" size={16} color="#374151" style={{ marginLeft: 6 }} />
             </Pressable>
           </View>
         )}
@@ -423,7 +423,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#374151',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#374151',
     borderRadius: 999,
     paddingVertical: 12,
     marginTop: 8,
@@ -432,7 +434,7 @@ const styles = StyleSheet.create({
   generateBtnText: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 14,
-    color: '#FFFFFF',
+    color: '#374151',
   },
   btnDisabled: {
     opacity: 0.7,
@@ -514,14 +516,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#10B981',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#374151',
     borderRadius: 999,
-    paddingVertical: 12,
+    paddingVertical: 14,
     marginTop: 8,
   },
   saveBtnText: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 14,
-    color: '#FFFFFF',
+    color: '#374151',
   },
 });
