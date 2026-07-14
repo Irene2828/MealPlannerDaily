@@ -304,10 +304,10 @@ const styles = StyleSheet.create({
   },
   columnTitle: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 13,
-    color: '#1A1A1A',
+    fontSize: 12,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
+    color: '#4B5563',
   },
   columnBody: {
     paddingTop: 4,
