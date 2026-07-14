@@ -474,8 +474,8 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   moreButtonActive: {
-    backgroundColor: '#EF4444',
-    borderColor: '#EF4444',
+    backgroundColor: '#374151',
+    borderColor: '#374151',
   },
   cardEmpty: {
     height: 154,

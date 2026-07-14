@@ -245,7 +245,7 @@ export default function SettingsScreen() {
                      <Ionicons name="arrow-forward-outline" size={14} color="#374151" style={{ marginLeft: 4 }} />
                    </Pressable>
                    <Pressable style={styles.trashBtn} onPress={() => handleTrashSingle(category, idx)}>
-                     <Ionicons name="trash-outline" size={16} color="#EF4444" />
+                     <Ionicons name="trash-outline" size={16} color="#374151" />
                    </Pressable>
                  </View>
               )}
@@ -409,7 +409,9 @@ const styles = StyleSheet.create({
   sendMenuBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#374151',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 999,
