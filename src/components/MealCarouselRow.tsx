@@ -172,37 +172,40 @@ export const MealCarouselRow: React.FC<Props> = ({
                 const isAddedToGrocery = groceryList.has(item);
 
                 return (
-                  <View key={i} style={styles.ingredientRow}>
-                    <Pressable 
-                      style={styles.circleButton}
-                      onPress={() => toggleInventory(item)}
-                    >
-                      <Ionicons 
-                        name={isHave ? "checkmark-circle" : "ellipse-outline"} 
-                        size={20} 
-                        color={isHave ? "#10B981" : "#D1D5DB"} 
-                      />
-                    </Pressable>
+                  <View key={i} style={styles.ingredientItemContainer}>
+                    <View style={styles.ingredientRowMain}>
+                      <Pressable 
+                        style={styles.circleButton}
+                        onPress={() => toggleInventory(item)}
+                      >
+                        <Ionicons 
+                          name={isHave ? "checkmark-circle" : "ellipse-outline"} 
+                          size={20} 
+                          color={isHave ? "#10B981" : "#D1D5DB"} 
+                        />
+                      </Pressable>
 
-                    <Text 
-                      style={[
-                        styles.ingredientText, 
-                        isHave && styles.ingredientTextChecked
-                      ]}
-                      numberOfLines={2}
-                    >
-                      {item}
-                    </Text>
+                      <Text 
+                        style={[
+                          styles.ingredientText, 
+                          isHave && styles.ingredientTextChecked
+                        ]}
+                      >
+                        {item}
+                      </Text>
+                    </View>
 
                     {!isHave && (
-                      <Pressable 
-                        style={[styles.needToBuyPill, isAddedToGrocery && styles.addedPill]}
-                        onPress={() => addToGrocery(item)}
-                      >
-                        <Text style={[styles.needToBuyText, isAddedToGrocery && styles.addedText]}>
-                          {isAddedToGrocery ? 'ADDED' : 'NEED TO BUY'}
-                        </Text>
-                      </Pressable>
+                      <View style={styles.ingredientActionRow}>
+                        <Pressable 
+                          style={[styles.needToBuyPill, isAddedToGrocery && styles.addedPill]}
+                          onPress={() => addToGrocery(item)}
+                        >
+                          <Text style={[styles.needToBuyText, isAddedToGrocery && styles.addedText]}>
+                            {isAddedToGrocery ? 'ADDED' : 'TO BUY'}
+                          </Text>
+                        </Pressable>
+                      </View>
                     )}
                   </View>
                 );
@@ -315,15 +318,23 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 6,
   },
-  ingredientRow: {
+  ingredientItemContainer: {
+    marginBottom: 12,
+  },
+  ingredientRowMain: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    paddingRight: 4,
+    alignItems: 'flex-start',
     gap: 8,
+    paddingRight: 4,
+  },
+  ingredientActionRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 6,
   },
   circleButton: {
     padding: 2,
+    marginTop: -2, // to align with text visually
   },
   ingredientText: {
     fontFamily: 'DMSans_400Regular',
