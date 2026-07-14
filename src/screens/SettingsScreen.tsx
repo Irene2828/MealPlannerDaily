@@ -173,6 +173,15 @@ export default function SettingsScreen() {
     }
   };
 
+  const handleTrashSingle = (category: string, index: number) => {
+    const key = `${category}-${index}`;
+    setGeneratedMeals(prev => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
+
   const renderInputSection = (category: string, label: string) => {
     const categoryInputs = inputs[category] || [''];
     return (
@@ -234,6 +243,9 @@ export default function SettingsScreen() {
                    <Pressable style={styles.sendMenuBtn} onPress={() => handleSaveSingle(category, idx)}>
                      <Text style={styles.sendMenuBtnText}>Send to Menu Page</Text>
                      <Ionicons name="arrow-forward-outline" size={14} color="#374151" style={{ marginLeft: 4 }} />
+                   </Pressable>
+                   <Pressable style={styles.trashBtn} onPress={() => handleTrashSingle(category, idx)}>
+                     <Ionicons name="trash-outline" size={16} color="#EF4444" />
                    </Pressable>
                  </View>
               )}
@@ -407,5 +419,11 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_700Bold',
     fontSize: 11,
     color: '#374151',
+  },
+  trashBtn: {
+    padding: 6,
+    marginLeft: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
