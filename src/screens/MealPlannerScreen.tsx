@@ -74,7 +74,7 @@ export default function MealPlannerScreen() {
             <Ionicons 
               name={mode === 'kids' ? 'happy' : 'happy-outline'} 
               size={26} 
-              color={mode === 'kids' ? '#1A1A1A' : '#A3A3A3'} 
+              color={mode === 'kids' ? '#374151' : '#A3A3A3'} 
             />
           </Pressable>
         </View>
