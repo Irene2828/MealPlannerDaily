@@ -260,8 +260,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     justifyContent: 'flex-end',
-    borderWidth: 4,
-    borderColor: '#FFFFFF',
   },
   confirmCheckbox: {
     position: 'absolute',
