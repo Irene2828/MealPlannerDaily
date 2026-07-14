@@ -27,6 +27,17 @@ const CARD_HORIZONTAL_MARGIN = 20;
 const CARD_GAP = 12;
 const CARD_WIDTH = SCREEN_WIDTH - CARD_HORIZONTAL_MARGIN * 2;
 
+const getNeonColor = (slotId: string) => {
+  switch (slotId) {
+    case 'breakfast': return '#FF5E00'; // Neon Orange
+    case 'morning-snack': return '#CCFF00'; // Neon Yellow-Green
+    case 'lunch': return '#39FF14'; // Neon Green
+    case 'afternoon-snack': return '#FF00FF'; // Neon Magenta
+    case 'dinner': return '#00FFFF'; // Neon Cyan
+    default: return '#CCFF00';
+  }
+};
+
 interface Props {
   slot: MealSlot;
   selectedIndex: number;
@@ -88,6 +99,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   };
 
   const selected = slot.options[selectedIndex];
+  const neonColor = getNeonColor(slot.slotId);
 
   return (
     <View style={styles.container}>
@@ -108,7 +120,13 @@ export const MealCarouselRow: React.FC<Props> = ({
         />
         
         {/* Sticky Neon Office Tag */}
-        <View style={styles.neonTag} pointerEvents="none">
+        <View 
+          style={[
+            styles.neonTag, 
+            { backgroundColor: neonColor, shadowColor: neonColor }
+          ]} 
+          pointerEvents="none"
+        >
           <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
         </View>
       </View>
@@ -153,6 +171,9 @@ const styles = StyleSheet.create({
   container: {
     marginBottom: 40,
   },
+  carouselWrapper: {
+    position: 'relative',
+  },
   flatListContent: {
     paddingHorizontal: CARD_HORIZONTAL_MARGIN,
     paddingBottom: 16,
@@ -175,12 +196,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 14,
     left: 14,
-    backgroundColor: '#CCFF00', // Neon Yellow-Green
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 2,
     transform: [{ rotate: '-2deg' }],
-    shadowColor: '#CCFF00',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 6,
