@@ -156,7 +156,7 @@ export const MEAL_SLOTS: MealSlot[] = [
   },
   {
     slotId: 'morning-snack',
-    slotLabel: 'Morning Snack',
+    slotLabel: 'Snack 1',
     slotEmoji: '☀️',
     options: [
       {
@@ -398,7 +398,7 @@ export const MEAL_SLOTS: MealSlot[] = [
   },
   {
     slotId: 'afternoon-snack',
-    slotLabel: 'Afternoon Snack',
+    slotLabel: 'Snack 2',
     slotEmoji: '🌤️',
     options: [
       {

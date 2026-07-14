@@ -39,7 +39,8 @@ export const MealCarouselRow: React.FC<Props> = ({
   onSelectIndex,
 }) => {
   const flatListRef = useRef<FlatList<MealOption>>(null);
-  const [expanded, setExpanded] = useState(false);
+  const [instructionsExpanded, setInstructionsExpanded] = useState(false);
+  const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -48,15 +49,21 @@ export const MealCarouselRow: React.FC<Props> = ({
       const clamped = Math.max(0, Math.min(index, slot.options.length - 1));
       if (clamped !== selectedIndex) {
         onSelectIndex(clamped);
-        setExpanded(false); // Collapse when swiping to a new meal
+        setInstructionsExpanded(false);
+        setIngredientsExpanded(false);
       }
     },
     [selectedIndex, onSelectIndex, slot.options.length]
   );
 
-  const toggleExpanded = () => {
+  const toggleInstructions = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpanded(!expanded);
+    setInstructionsExpanded(!instructionsExpanded);
+  };
+
+  const toggleIngredients = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIngredientsExpanded(!ingredientsExpanded);
   };
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
@@ -72,8 +79,13 @@ export const MealCarouselRow: React.FC<Props> = ({
           colors={['transparent', 'rgba(0,0,0,0.85)']}
           style={styles.gradientOverlay}
         />
+        
+        {/* Neon Office Tag */}
+        <View style={styles.neonTag}>
+          <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
+        </View>
+
         <View style={styles.cardContent}>
-          <Text style={styles.cardEyebrow}>{slot.slotLabel}</Text>
           <Text style={styles.cardTitle}>{item.title}</Text>
         </View>
       </View>
@@ -99,32 +111,37 @@ export const MealCarouselRow: React.FC<Props> = ({
         scrollEventThrottle={16}
       />
 
-      {/* Collapsible Recipe Details Area */}
-      <View style={styles.recipeDetailsWrapper}>
-        <Pressable style={styles.recipeDetailsHeader} onPress={toggleExpanded}>
-          <Text style={styles.recipeDetailsHeaderTitle}>View Recipe Details</Text>
-          <Text style={styles.recipeDetailsHeaderIcon}>{expanded ? 'ᐱ' : 'ᐯ'}</Text>
-        </Pressable>
-
-        {expanded && (
-          <View style={styles.contentContainer}>
-            {/* Column 1: Instructions */}
-            <View style={styles.column}>
-              <Text style={styles.columnTitle}>Instructions</Text>
+      {/* 2-Column Expandable Area */}
+      <View style={styles.contentContainer}>
+        {/* Column 1: Instructions */}
+        <View style={styles.column}>
+          <Pressable style={styles.columnHeader} onPress={toggleInstructions}>
+            <Text style={styles.columnTitle}>How to cook</Text>
+            <Text style={styles.columnIcon}>{instructionsExpanded ? 'ᐱ' : 'ᐯ'}</Text>
+          </Pressable>
+          {instructionsExpanded && (
+            <View style={styles.columnBody}>
               {selected.instructions.map((step, i) => (
                 <Text key={i} style={styles.columnText}>{i + 1}. {step}</Text>
               ))}
             </View>
+          )}
+        </View>
 
-            {/* Column 2: Ingredients */}
-            <View style={styles.column}>
-              <Text style={styles.columnTitle}>Ingredients</Text>
+        {/* Column 2: Ingredients */}
+        <View style={styles.column}>
+          <Pressable style={styles.columnHeader} onPress={toggleIngredients}>
+            <Text style={styles.columnTitle}>Ingredients</Text>
+            <Text style={styles.columnIcon}>{ingredientsExpanded ? 'ᐱ' : 'ᐯ'}</Text>
+          </Pressable>
+          {ingredientsExpanded && (
+            <View style={styles.columnBody}>
               {selected.shoppingList.map((item, i) => (
                 <Text key={i} style={styles.columnText}>• {item}</Text>
               ))}
             </View>
-          </View>
-        )}
+          )}
+        </View>
       </View>
     </View>
   );
@@ -152,18 +169,32 @@ const styles = StyleSheet.create({
     bottom: 0,
     height: '60%', // Gradient only covers the bottom half
   },
+  neonTag: {
+    position: 'absolute',
+    top: 14,
+    left: 14,
+    backgroundColor: '#CCFF00', // Neon Yellow-Green
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 2,
+    transform: [{ rotate: '-2deg' }],
+    shadowColor: '#CCFF00',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  neonTagText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 10,
+    color: '#1A1A1A',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
   cardContent: {
     paddingHorizontal: 16,
     paddingBottom: 16,
     width: '100%',
-  },
-  cardEyebrow: {
-    fontFamily: 'DMSans_500Medium',
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 2,
   },
   cardTitle: {
     fontFamily: 'DMSans_700Bold',
@@ -173,45 +204,39 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
   },
-  recipeDetailsWrapper: {
-    marginHorizontal: CARD_HORIZONTAL_MARGIN,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#FDE6D4', // light orange border
-  },
-  recipeDetailsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-  },
-  recipeDetailsHeaderTitle: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 14,
-    color: '#1A1A1A',
-  },
-  recipeDetailsHeaderIcon: {
-    fontSize: 14,
-    color: '#EA580C',
-    fontWeight: 'bold',
-  },
   contentContainer: {
     flexDirection: 'row',
+    marginHorizontal: CARD_HORIZONTAL_MARGIN,
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingTop: 4,
-    paddingBottom: 16,
+    gap: 16, // Adds space between the two columns
   },
   column: {
     flex: 1,
+  },
+  columnHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderColor: '#FDE6D4', // light orange border
+    marginBottom: 8,
   },
   columnTitle: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 13,
     color: '#1A1A1A',
-    marginBottom: 8,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  columnIcon: {
+    fontSize: 12,
+    color: '#EA580C',
+    fontWeight: 'bold',
+  },
+  columnBody: {
+    paddingTop: 4,
   },
   columnText: {
     fontFamily: 'DMSans_500Medium',
@@ -219,8 +244,8 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     lineHeight: 20,
     marginBottom: 6,
-    paddingRight: 12,
   },
 });
+
 
 
