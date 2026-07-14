@@ -1,14 +1,19 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { MEAL_SLOTS, MealSlot, MealOption } from '../data/meals';
+import { KIDS_MEAL_SLOTS } from '../data/kidsMeals';
 
 interface GroceryContextType {
   groceryList: Set<string>;
   inventoryList: Set<string>;
   confirmedMeals: Set<string>;
+  adultsMeals: MealSlot[];
+  kidsMeals: MealSlot[];
   addToGrocery: (item: string) => void;
   removeFromGrocery: (item: string) => void;
   toggleInventory: (item: string) => void;
   toggleConfirmMeal: (mealId: string) => void;
   updateGroceryItem: (oldItem: string, newItem: string) => void;
+  addCustomBreakfasts: (newOptions: MealOption[]) => void;
 }
 
 const GroceryContext = createContext<GroceryContextType | undefined>(undefined);
@@ -17,6 +22,8 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
   const [groceryList, setGroceryList] = useState<Set<string>>(new Set());
   const [inventoryList, setInventoryList] = useState<Set<string>>(new Set());
   const [confirmedMeals, setConfirmedMeals] = useState<Set<string>>(new Set());
+  const [adultsMeals, setAdultsMeals] = useState<MealSlot[]>(MEAL_SLOTS);
+  const [kidsMeals, setKidsMeals] = useState<MealSlot[]>(KIDS_MEAL_SLOTS);
 
   const addToGrocery = (item: string) => {
     setGroceryList((prev) => {
@@ -88,17 +95,34 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const addCustomBreakfasts = (newOptions: MealOption[]) => {
+    setAdultsMeals((prev) => {
+      return prev.map((slot) => {
+        if (slot.slotId === 'breakfast') {
+          return {
+            ...slot,
+            options: [...slot.options, ...newOptions],
+          };
+        }
+        return slot;
+      });
+    });
+  };
+
   return (
     <GroceryContext.Provider
       value={{
         groceryList,
         inventoryList,
         confirmedMeals,
+        adultsMeals,
+        kidsMeals,
         addToGrocery,
         removeFromGrocery,
         toggleInventory,
         toggleConfirmMeal,
         updateGroceryItem,
+        addCustomBreakfasts,
       }}
     >
       {children}

@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { MEAL_SLOTS } from '../data/meals';
 import { KIDS_MEAL_SLOTS } from '../data/kidsMeals';
 import { MealCarouselRow } from '../components/MealCarouselRow';
+import { useGrocery } from '../context/GroceryContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -29,6 +30,7 @@ const DAYS_OF_WEEK = [
 export default function MealPlannerScreen() {
   const [selectedDay, setSelectedDay] = useState('mon');
   const [mode, setMode] = useState<'adults' | 'kids'>('adults');
+  const { adultsMeals, kidsMeals } = useGrocery();
   
   // Create indices state for both sets of data independently
   const [adultsIndices, setAdultsIndices] = useState<Record<string, number>>(
@@ -50,7 +52,7 @@ export default function MealPlannerScreen() {
     }
   };
 
-  const currentSlots = mode === 'adults' ? MEAL_SLOTS : KIDS_MEAL_SLOTS;
+  const currentSlots = mode === 'adults' ? adultsMeals : kidsMeals;
   const currentIndices = mode === 'adults' ? adultsIndices : kidsIndices;
 
   return (

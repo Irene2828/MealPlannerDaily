@@ -5,10 +5,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import MealPlannerScreen from './MealPlannerScreen';
 import GroceryListScreen from './GroceryListScreen';
+import SettingsScreen from './SettingsScreen';
 import { useGrocery } from '../context/GroceryContext';
 
 export default function MainLayout() {
-  const [activeTab, setActiveTab] = useState<'home' | 'grocery'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'grocery' | 'settings'>('home');
   const insets = useSafeAreaInsets();
   const { groceryList } = useGrocery();
 
@@ -20,7 +21,9 @@ export default function MainLayout() {
     >
       {/* Content Area */}
       <View style={styles.content}>
-        {activeTab === 'home' ? <MealPlannerScreen /> : <GroceryListScreen />}
+        {activeTab === 'home' && <MealPlannerScreen />}
+        {activeTab === 'grocery' && <GroceryListScreen />}
+        {activeTab === 'settings' && <SettingsScreen />}
       </View>
 
       {/* Custom Bottom Tab Bar - Blending Gradient */}
@@ -60,6 +63,18 @@ export default function MainLayout() {
               )}
             </View>
             <Text style={[styles.tabText, activeTab === 'grocery' && styles.tabTextActive]}>Grocery List</Text>
+          </Pressable>
+
+          <Pressable 
+            style={styles.tabItem} 
+            onPress={() => setActiveTab('settings')}
+          >
+            <Ionicons 
+              name="settings-outline"
+              size={25} 
+              color={activeTab === 'settings' ? '#374151' : '#9CA3AF'} 
+            />
+            <Text style={[styles.tabText, activeTab === 'settings' && styles.tabTextActive]}>Settings</Text>
           </Pressable>
         </View>
       </LinearGradient>
