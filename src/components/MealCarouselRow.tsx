@@ -79,11 +79,6 @@ export const MealCarouselRow: React.FC<Props> = ({
           colors={['transparent', 'rgba(0,0,0,0.85)']}
           style={styles.gradientOverlay}
         />
-        
-        {/* Neon Office Tag */}
-        <View style={styles.neonTag}>
-          <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
-        </View>
 
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>{item.title}</Text>
@@ -96,20 +91,27 @@ export const MealCarouselRow: React.FC<Props> = ({
 
   return (
     <View style={styles.container}>
-      {/* Carousel */}
-      <FlatList
-        ref={flatListRef}
-        data={slot.options}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCard}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_WIDTH + CARD_GAP}
-        decelerationRate="fast"
-        contentContainerStyle={styles.flatListContent}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-      />
+      {/* Carousel Area */}
+      <View style={styles.carouselWrapper}>
+        <FlatList
+          ref={flatListRef}
+          data={slot.options}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCard}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_WIDTH + CARD_GAP}
+          decelerationRate="fast"
+          contentContainerStyle={styles.flatListContent}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        />
+        
+        {/* Sticky Neon Office Tag */}
+        <View style={styles.neonTag} pointerEvents="none">
+          <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
+        </View>
+      </View>
 
       {/* 2-Column Expandable Area */}
       <View style={styles.contentContainer}>
@@ -183,6 +185,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.6,
     shadowRadius: 6,
     elevation: 4,
+    zIndex: 10,
   },
   neonTagText: {
     fontFamily: 'DMSans_700Bold',
