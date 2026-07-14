@@ -52,8 +52,8 @@ export const MealCarouselRow: React.FC<Props> = ({
   onSelectIndex,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
-  // 85% of screen width leaves room to hint that there are more cards to scroll
-  const CARD_WIDTH = screenWidth * 0.85;
+  // Card width fits exactly the same width as the text below it (screenWidth - 40)
+  const CARD_WIDTH = screenWidth - CARD_HORIZONTAL_MARGIN * 2;
 
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
