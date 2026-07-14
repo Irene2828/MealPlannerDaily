@@ -224,11 +224,11 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     paddingHorizontal: CARD_HORIZONTAL_MARGIN,
-    paddingBottom: 16,
+    paddingBottom: 4,
   },
   card: {
     width: CARD_WIDTH,
-    height: 140,
+    height: 154,
     borderRadius: 16,
     overflow: 'hidden',
     justifyContent: 'flex-end', // Aligns content to bottom
@@ -281,6 +281,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexDirection: 'row',
     marginHorizontal: CARD_HORIZONTAL_MARGIN,
+    marginTop: 4,
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     gap: 16, // Adds space between the two columns
