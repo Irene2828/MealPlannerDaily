@@ -9,6 +9,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MealOption, MealSlot } from '../data/meals';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -49,12 +50,14 @@ export const MealCarouselRow: React.FC<Props> = ({
           style={StyleSheet.absoluteFillObject}
           resizeMode="cover"
         />
-        {/* Dark overlay to make text pop */}
-        <View style={styles.overlay} />
+        {/* Subtle gradient overlay at bottom for text legibility */}
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.85)']}
+          style={styles.gradientOverlay}
+        />
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>
-            {slot.slotLabel} – {item.title}
-          </Text>
+          <Text style={styles.cardEyebrow}>{slot.slotLabel}</Text>
+          <Text style={styles.cardTitle}>{item.title}</Text>
         </View>
       </View>
     );
@@ -114,25 +117,35 @@ const styles = StyleSheet.create({
     height: 140,
     borderRadius: 16,
     overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'flex-end', // Aligns content to bottom
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+  gradientOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: '60%', // Gradient only covers the bottom half
   },
   cardContent: {
-    paddingHorizontal: 24,
-    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    width: '100%',
+  },
+  cardEyebrow: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 2,
   },
   cardTitle: {
-    fontFamily: 'Fraunces_900Black',
-    fontSize: 22,
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 18,
     color: '#FFFFFF',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
+    textShadowRadius: 3,
   },
   contentContainer: {
     flexDirection: 'row',
@@ -160,4 +173,5 @@ const styles = StyleSheet.create({
     paddingRight: 12,
   },
 });
+
 
