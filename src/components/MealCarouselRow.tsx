@@ -232,6 +232,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     justifyContent: 'flex-end', // Aligns content to bottom
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
   },
   gradientOverlay: {
     position: 'absolute',
@@ -253,6 +255,8 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
     zIndex: 10,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
   },
   neonTagText: {
     fontFamily: 'DMSans_700Bold',
