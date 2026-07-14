@@ -10,65 +10,141 @@ const UNSPLASH_IMAGES: Record<string, string> = {
   waffle: 'https://images.unsplash.com/photo-1562376502-6f769499c886?w=600&q=80',
   egg: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80',
   toast: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80',
-  cereal: 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=600&q=80',
   smoothie: 'https://images.unsplash.com/photo-1553530979-7ee52a2670c4?w=600&q=80',
   oatmeal: 'https://images.unsplash.com/photo-1517881917430-e70dfb3610aa?w=600&q=80',
-  fruit: 'https://images.unsplash.com/photo-1490818621748-5b128611f092?w=600&q=80',
-  crepe: 'https://images.unsplash.com/photo-1519676867240-f03562e64548?w=600&q=80',
+  salad: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+  sandwich: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=600&q=80',
+  soup: 'https://images.unsplash.com/photo-1547592165-e1d17fed6006?w=600&q=80',
+  pasta: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&q=80',
+  steak: 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80',
+  taco: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80',
+  salmon: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80',
 };
 
-const getUnsplashImage = (title: string): string => {
+const getUnsplashImage = (title: string, category: string): string => {
   const t = title.toLowerCase();
   for (const key of Object.keys(UNSPLASH_IMAGES)) {
     if (t.includes(key)) return UNSPLASH_IMAGES[key];
   }
-  return 'https://images.unsplash.com/photo-1496412705862-a0088f16f791?w=600&q=80';
+  
+  if (category === 'breakfast') return 'https://images.unsplash.com/photo-1496412705862-a0088f16f791?w=600&q=80';
+  if (category === 'snack') return 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80';
+  if (category === 'lunch') return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&q=80';
+  return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80';
 };
 
-const generateDetails = (title: string): { shoppingList: string[]; instructions: string[] } => {
+const generateDetails = (title: string, category: string): { shoppingList: string[]; instructions: string[] } => {
   const t = title.toLowerCase();
-  let shoppingList = ['Salt', 'Black pepper', 'Cooking oil'];
-  let instructions = ['Prep your ingredients carefully.', 'Cook in a preheated pan over medium heat.', 'Garnish and serve fresh.'];
-
-  if (t.includes('pancake')) {
-    shoppingList = ['1 cup pancake mix', '¾ cup milk', '1 egg', 'Butter', 'Maple syrup'];
-    instructions = ['Whisk pancake mix, milk, and egg together.', 'Pour batter onto a hot, greased griddle.', 'Flip when bubbles form, cook until golden.', 'Serve with butter and maple syrup.'];
-  } else if (t.includes('egg') || t.includes('scramble') || t.includes('omelet')) {
-    shoppingList = ['2 eggs', '1 tbsp butter', 'Salt & pepper', '1 slice bread'];
-    instructions = ['Crack eggs into a bowl and whisk with salt.', 'Melt butter in a skillet over low-medium heat.', 'Pour in eggs and scramble gently until soft curls form.', 'Toast bread and serve eggs on top.'];
-  } else if (t.includes('toast') || t.includes('avocado')) {
-    shoppingList = ['1 ripe avocado', '2 slices bread', 'Lemon juice', 'Chili flakes', 'Cherry tomatoes'];
-    instructions = ['Toast bread slices until golden brown.', 'Mash avocado in a bowl with lemon juice and salt.', 'Spread avocado mix onto toast.', 'Top with halved cherry tomatoes and chili flakes.'];
-  } else if (t.includes('smoothie')) {
-    shoppingList = ['1 banana', '½ cup frozen berries', '1 cup almond milk', '1 tbsp honey'];
-    instructions = ['Add banana, berries, milk, and honey to a blender.', 'Blend on high speed until completely smooth.', 'Pour into a tall glass and enjoy cold.'];
-  } else if (t.includes('oatmeal') || t.includes('porridge')) {
-    shoppingList = ['½ cup rolled oats', '1 cup milk or water', '1 banana, sliced', 'Cinnamon', 'Honey'];
-    instructions = ['Combine oats and milk/water in a saucepan.', 'Bring to a gentle boil, then simmer for 5 mins stirring constantly.', 'Pour into a bowl, top with banana slices, honey, and cinnamon.'];
-  } else {
-    shoppingList = [`Ingredients for ${title}`, 'Fresh herbs', 'Olive oil', 'Garlic'];
-    instructions = [`Wash and prepare all ingredients for ${title}.`, `Cook combined items in a pan until done.`, 'Serve hot and season to taste.'];
+  
+  if (category === 'breakfast') {
+    if (t.includes('pancake')) {
+      return {
+        shoppingList: ['Pancake mix', 'Milk', '1 egg', 'Maple syrup'],
+        instructions: ['Whisk ingredients together.', 'Cook on a hot buttered griddle.', 'Serve with syrup.']
+      };
+    }
+    return {
+      shoppingList: ['Eggs', 'Butter', 'Bread toast'],
+      instructions: ['Scramble eggs in butter.', 'Serve warm with toast.']
+    };
   }
-  return { shoppingList, instructions };
+  
+  if (category === 'snack') {
+    return {
+      shoppingList: ['Mixed berries', 'Greek yogurt', 'Honey'],
+      instructions: ['Layer yogurt and berries in a bowl.', 'Drizzle with honey and serve.']
+    };
+  }
+
+  if (category === 'lunch') {
+    if (t.includes('salad')) {
+      return {
+        shoppingList: ['Romaine lettuce', 'Cherry tomatoes', 'Cucumber', 'Olive oil'],
+        instructions: ['Chop vegetables.', 'Toss in a bowl with olive oil dressing.']
+      };
+    }
+    return {
+      shoppingList: ['Bread slices', 'Sliced turkey', 'Cheese', 'Mayo'],
+      instructions: ['Assemble sandwich with turkey and cheese.', 'Toast lightly if desired.']
+    };
+  }
+
+  // Dinner
+  if (t.includes('pasta')) {
+    return {
+      shoppingList: ['Pasta noodles', 'Marinara sauce', 'Parmesan cheese'],
+      instructions: ['Boil pasta until al dente.', 'Drain and mix with heated marinara.', 'Top with cheese.']
+    };
+  }
+  return {
+    shoppingList: ['Chicken breast', 'Asparagus', 'Olive oil', 'Garlic'],
+    instructions: ['Season chicken and asparagus.', 'Pan-sear chicken until cooked through.', 'Roast asparagus and serve.']
+  };
 };
+
+type MealInputs = Record<string, string[]>;
 
 export default function SettingsScreen() {
-  const { addCustomBreakfasts } = useGrocery();
-  const [names, setNames] = useState<string[]>(['', '', '', '', '']);
-  const [loading, setLoading] = useState(false);
-  const [generatedMeals, setGeneratedMeals] = useState<MealOption[]>([]);
-  const [success, setSuccess] = useState(false);
+  const { addCustomMeals } = useGrocery();
+  
+  // Dynamic inputs state for each category
+  const [inputs, setInputs] = useState<MealInputs>({
+    breakfast: [''],
+    snack: [''],
+    lunch: [''],
+    dinner: [''],
+  });
 
-  const handleNameChange = (text: string, index: number) => {
-    const updated = [...names];
-    updated[index] = text;
-    setNames(updated);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  
+  // Generated meals ready for preview and editing, keyed by slotId
+  const [generatedMeals, setGeneratedMeals] = useState<Record<string, MealOption[]>>({});
+
+  const handleAddInput = (category: string) => {
+    setInputs((prev) => ({
+      ...prev,
+      [category]: [...prev[category], ''],
+    }));
+  };
+
+  const handleRemoveInput = (category: string, index: number) => {
+    setInputs((prev) => {
+      const categoryInputs = [...prev[category]];
+      categoryInputs.splice(index, 1);
+      return {
+        ...prev,
+        [category]: categoryInputs.length > 0 ? categoryInputs : [''],
+      };
+    });
+  };
+
+  const handleTextChange = (category: string, index: number, text: string) => {
+    setInputs((prev) => {
+      const categoryInputs = [...prev[category]];
+      categoryInputs[index] = text;
+      return {
+        ...prev,
+        [category]: categoryInputs,
+      };
+    });
   };
 
   const handleGenerate = () => {
-    const validNames = names.filter((n) => n.trim() !== '');
-    if (validNames.length === 0) {
-      alert('Please enter at least one breakfast name!');
+    // Collect all valid inputs
+    const generationPayload: Record<string, string[]> = {};
+    let totalItems = 0;
+
+    Object.keys(inputs).forEach((cat) => {
+      const valid = inputs[cat].filter((v) => v.trim() !== '');
+      if (valid.length > 0) {
+        generationPayload[cat] = valid;
+        totalItems += valid.length;
+      }
+    });
+
+    if (totalItems === 0) {
+      alert('Please enter at least one meal option!');
       return;
     }
 
@@ -77,32 +153,42 @@ export default function SettingsScreen() {
 
     // Simulate AI generation lag
     setTimeout(() => {
-      const generated: MealOption[] = validNames.map((name, i) => {
-        const { shoppingList, instructions } = generateDetails(name);
-        return {
-          id: `custom-bf-${Date.now()}-${i}`,
-          title: name,
-          emoji: '🍳',
-          moodTag: 'quick',
-          moodLabel: 'Custom Meal',
-          accentColor: '#10B981',
-          gradientFrom: '#059669',
-          gradientTo: '#34D399',
-          imageUrl: getUnsplashImage(name),
-          shoppingList,
-          instructions,
-        };
+      const results: Record<string, MealOption[]> = {};
+      
+      Object.keys(generationPayload).forEach((cat) => {
+        results[cat] = generationPayload[cat].map((name, i) => {
+          const { shoppingList, instructions } = generateDetails(name, cat);
+          return {
+            id: `custom-${cat}-${Date.now()}-${i}`,
+            title: name,
+            emoji: '🍳',
+            moodTag: 'quick',
+            moodLabel: 'Custom Meal',
+            accentColor: '#374151',
+            gradientFrom: '#374151',
+            gradientTo: '#4B5563',
+            imageUrl: getUnsplashImage(name, cat),
+            shoppingList,
+            instructions,
+          };
+        });
       });
 
-      setGeneratedMeals(generated);
+      setGeneratedMeals(results);
       setLoading(false);
-    }, 1500);
+    }, 1200);
   };
 
-  const handleUpdateMealField = (index: number, field: 'title' | 'ingredientsText' | 'instructionsText', text: string) => {
+  const handleUpdateGeneratedField = (
+    category: string,
+    index: number,
+    field: 'title' | 'ingredientsText' | 'instructionsText',
+    text: string
+  ) => {
     setGeneratedMeals((prev) => {
-      const updated = [...prev];
-      const meal = { ...updated[index] };
+      const categoryMeals = [...(prev[category] || [])];
+      const meal = { ...categoryMeals[index] };
+      
       if (field === 'title') {
         meal.title = text;
       } else if (field === 'ingredientsText') {
@@ -110,103 +196,143 @@ export default function SettingsScreen() {
       } else if (field === 'instructionsText') {
         meal.instructions = text.split('\n').map((x) => x.trim()).filter((x) => x !== '');
       }
-      updated[index] = meal;
-      return updated;
+      
+      categoryMeals[index] = meal;
+      return {
+        ...prev,
+        [category]: categoryMeals,
+      };
     });
   };
 
   const handleSave = () => {
-    if (generatedMeals.length === 0) return;
-    addCustomBreakfasts(generatedMeals);
-    setGeneratedMeals([]);
-    setNames(['', '', '', '', '']);
+    // Add all generated meals to their respective slots
+    Object.keys(generatedMeals).forEach((cat) => {
+      if (generatedMeals[cat] && generatedMeals[cat].length > 0) {
+        addCustomMeals(cat, generatedMeals[cat]);
+      }
+    });
+
+    setGeneratedMeals({});
+    setInputs({
+      breakfast: [''],
+      snack: [''],
+      lunch: [''],
+      dinner: [''],
+    });
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
+  };
+
+  const renderInputSection = (category: string, label: string) => {
+    const categoryInputs = inputs[category] || [''];
+    return (
+      <View style={styles.sectionCard}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionLabel}>{label}</Text>
+          <Pressable onPress={() => handleAddInput(category)} style={styles.plusButton}>
+            <Ionicons name="add" size={18} color="#374151" />
+          </Pressable>
+        </View>
+
+        {categoryInputs.map((val, idx) => (
+          <View key={idx} style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              placeholder={`Add meal option`}
+              placeholderTextColor="#9CA3AF"
+              value={val}
+              onChangeText={(txt) => handleTextChange(category, idx, txt)}
+            />
+            {categoryInputs.length > 1 && (
+              <Pressable onPress={() => handleRemoveInput(category, idx)} style={styles.removeButton}>
+                <Ionicons name="close-outline" size={18} color="#9CA3AF" />
+              </Pressable>
+            )}
+          </View>
+        ))}
+      </View>
+    );
   };
 
   return (
     <View style={styles.root}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Settings</Text>
+          <Text style={styles.headerTitle}>Select Meals to Add:</Text>
         </View>
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.sectionTitle}>Create Custom Breakfasts</Text>
-        <Text style={styles.sectionSubtitle}>Type up to 5 breakfast ideas you'd like to add to your menu options.</Text>
+        
+        {renderInputSection('breakfast', 'Breakfast')}
+        {renderInputSection('snack', 'Snack options')}
+        {renderInputSection('lunch', 'Lunch')}
+        {renderInputSection('dinner', 'Dinner')}
 
-        <View style={styles.formContainer}>
-          {names.map((name, idx) => (
-            <TextInput
-              key={idx}
-              style={styles.input}
-              placeholder={`Breakfast option #${idx + 1}`}
-              placeholderTextColor="#9CA3AF"
-              value={name}
-              onChangeText={(txt) => handleNameChange(txt, idx)}
-            />
-          ))}
-
-          <Pressable 
-            style={[styles.btn, loading && styles.btnDisabled]} 
-            onPress={handleGenerate}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" size="small" />
-            ) : (
-              <>
-                <Text style={styles.btnText}>Generate Visuals & Details</Text>
-                <Ionicons name="sparkles-outline" size={16} color="#FFFFFF" style={{ marginLeft: 8 }} />
-              </>
-            )}
-          </Pressable>
-        </View>
+        <Pressable 
+          style={[styles.generateBtn, loading && styles.btnDisabled]} 
+          onPress={handleGenerate}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFFFFF" size="small" />
+          ) : (
+            <>
+              <Text style={styles.generateBtnText}>Generate Visuals & Details</Text>
+              <Ionicons name="sparkles-outline" size={15} color="#FFFFFF" style={{ marginLeft: 6 }} />
+            </>
+          )}
+        </Pressable>
 
         {success && (
           <View style={styles.successBadge}>
-            <Ionicons name="checkmark-circle-outline" size={20} color="#10B981" />
-            <Text style={styles.successText}>Successfully added to Breakfast Menu!</Text>
+            <Ionicons name="checkmark-circle-outline" size={18} color="#10B981" />
+            <Text style={styles.successText}>Successfully added to your Menu options!</Text>
           </View>
         )}
 
-        {generatedMeals.length > 0 && (
+        {Object.keys(generatedMeals).length > 0 && (
           <View style={styles.resultsContainer}>
-            <Text style={styles.resultsHeader}>Edit & Confirm Your Options</Text>
-            {generatedMeals.map((meal, idx) => (
-              <View key={meal.id} style={styles.mealCard}>
-                <Image source={{ uri: meal.imageUrl }} style={styles.mealImage} />
-                <View style={styles.mealForm}>
-                  <Text style={styles.label}>Meal Title</Text>
-                  <TextInput
-                    style={styles.formInput}
-                    value={meal.title}
-                    onChangeText={(txt) => handleUpdateMealField(idx, 'title', txt)}
-                  />
+            <Text style={styles.resultsHeader}>Confirm Generated Options</Text>
+            
+            {Object.keys(generatedMeals).map((cat) => (
+              <View key={cat}>
+                {generatedMeals[cat].map((meal, idx) => (
+                  <View key={meal.id} style={styles.mealCard}>
+                    <Image source={{ uri: meal.imageUrl }} style={styles.mealImage} />
+                    <View style={styles.mealForm}>
+                      <TextInput
+                        style={styles.mealTitleInput}
+                        value={meal.title}
+                        onChangeText={(txt) => handleUpdateGeneratedField(cat, idx, 'title', txt)}
+                        placeholder="Meal title"
+                      />
 
-                  <Text style={styles.label}>Ingredients (comma separated)</Text>
-                  <TextInput
-                    style={[styles.formInput, { height: 60 }]}
-                    multiline
-                    value={meal.shoppingList.join(', ')}
-                    onChangeText={(txt) => handleUpdateMealField(idx, 'ingredientsText', txt)}
-                  />
+                      <Text style={styles.label}>Ingredients (comma separated)</Text>
+                      <TextInput
+                        style={[styles.formInput, { height: 50 }]}
+                        multiline
+                        value={meal.shoppingList.join(', ')}
+                        onChangeText={(txt) => handleUpdateGeneratedField(cat, idx, 'ingredientsText', txt)}
+                      />
 
-                  <Text style={styles.label}>Instructions (each line is a step)</Text>
-                  <TextInput
-                    style={[styles.formInput, { height: 100 }]}
-                    multiline
-                    value={meal.instructions.join('\n')}
-                    onChangeText={(txt) => handleUpdateMealField(idx, 'instructionsText', txt)}
-                  />
-                </View>
+                      <Text style={styles.label}>Instructions (each line is a step)</Text>
+                      <TextInput
+                        style={[styles.formInput, { height: 80 }]}
+                        multiline
+                        value={meal.instructions.join('\n')}
+                        onChangeText={(txt) => handleUpdateGeneratedField(cat, idx, 'instructionsText', txt)}
+                      />
+                    </View>
+                  </View>
+                ))}
               </View>
             ))}
 
             <Pressable style={styles.saveBtn} onPress={handleSave}>
-              <Text style={styles.saveBtnText}>Add to Breakfast Menu</Text>
-              <Ionicons name="add-circle-outline" size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />
+              <Text style={styles.saveBtnText}>Add all to Menu Options</Text>
+              <Ionicons name="add-circle-outline" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
             </Pressable>
           </View>
         )}
@@ -231,7 +357,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 24,
-    paddingBottom: 24,
+    paddingBottom: 16,
   },
   headerTitle: {
     fontFamily: 'Lora_500Medium',
@@ -239,46 +365,61 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     lineHeight: 26,
     letterSpacing: -0.3,
+    textAlign: 'center',
   },
   scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 8,
+    paddingHorizontal: 20,
+    paddingTop: 4,
   },
-  sectionTitle: {
-    fontFamily: 'Lora_500Medium',
-    fontSize: 20,
-    color: '#1A1A1A',
-    marginBottom: 6,
-  },
-  sectionSubtitle: {
-    fontFamily: 'DMSans_500Medium',
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 20,
-    lineHeight: 20,
-  },
-  formContainer: {
+  sectionCard: {
     backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 16,
+    padding: 16,
+    borderRadius: 14,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-    marginBottom: 24,
-  },
-  input: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-    fontFamily: 'DMSans_500Medium',
-    color: '#1F2937',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
     marginBottom: 12,
   },
-  btn: {
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sectionLabel: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 14,
+    color: '#374151',
+  },
+  plusButton: {
+    padding: 4,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 6,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  input: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    fontFamily: 'DMSans_500Medium',
+    color: '#1F2937',
+  },
+  removeButton: {
+    padding: 6,
+    marginLeft: 6,
+  },
+  generateBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -286,14 +427,15 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     paddingVertical: 12,
     marginTop: 8,
+    marginBottom: 16,
+  },
+  generateBtnText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 14,
+    color: '#FFFFFF',
   },
   btnDisabled: {
     opacity: 0.7,
-  },
-  btnText: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 15,
-    color: '#FFFFFF',
   },
   successBadge: {
     flexDirection: 'row',
@@ -303,57 +445,68 @@ const styles = StyleSheet.create({
     borderColor: '#A7F3D0',
     borderWidth: 1,
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 24,
+    padding: 10,
+    marginBottom: 16,
   },
   successText: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 14,
+    fontSize: 13,
     color: '#065F46',
-    marginLeft: 8,
+    marginLeft: 6,
   },
   resultsContainer: {
-    marginTop: 12,
+    marginTop: 8,
   },
   resultsHeader: {
     fontFamily: 'Lora_500Medium',
-    fontSize: 20,
+    fontSize: 16,
     color: '#1A1A1A',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   mealCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 14,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-    marginBottom: 20,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
+    marginBottom: 16,
   },
   mealImage: {
     width: '100%',
-    height: 150,
+    height: 120,
   },
   mealForm: {
-    padding: 16,
+    padding: 12,
+  },
+  mealTitleInput: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 15,
+    color: '#1F2937',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+    paddingVertical: 4,
+    marginBottom: 10,
   },
   label: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 12,
-    color: '#4B5563',
+    fontSize: 10,
+    color: '#6B7280',
     textTransform: 'uppercase',
-    marginBottom: 6,
-    marginTop: 12,
+    marginBottom: 4,
+    marginTop: 8,
     letterSpacing: 0.5,
   },
   formInput: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
+    backgroundColor: '#F9FAFB',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 13,
     fontFamily: 'DMSans_500Medium',
     color: '#1F2937',
   },
@@ -363,12 +516,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#10B981',
     borderRadius: 999,
-    paddingVertical: 14,
-    marginTop: 12,
+    paddingVertical: 12,
+    marginTop: 8,
   },
   saveBtnText: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 15,
+    fontSize: 14,
     color: '#FFFFFF',
   },
 });

@@ -13,7 +13,7 @@ interface GroceryContextType {
   toggleInventory: (item: string) => void;
   toggleConfirmMeal: (mealId: string) => void;
   updateGroceryItem: (oldItem: string, newItem: string) => void;
-  addCustomBreakfasts: (newOptions: MealOption[]) => void;
+  addCustomMeals: (slotId: string, newOptions: MealOption[]) => void;
 }
 
 const GroceryContext = createContext<GroceryContextType | undefined>(undefined);
@@ -95,10 +95,18 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const addCustomBreakfasts = (newOptions: MealOption[]) => {
+  const addCustomMeals = (slotId: string, newOptions: MealOption[]) => {
     setAdultsMeals((prev) => {
       return prev.map((slot) => {
-        if (slot.slotId === 'breakfast') {
+        // If they add 'snack', we add to both morning-snack and afternoon-snack
+        if (slotId === 'snack') {
+          if (slot.slotId === 'morning-snack' || slot.slotId === 'afternoon-snack') {
+            return {
+              ...slot,
+              options: [...slot.options, ...newOptions],
+            };
+          }
+        } else if (slot.slotId === slotId) {
           return {
             ...slot,
             options: [...slot.options, ...newOptions],
@@ -122,7 +130,7 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
         toggleInventory,
         toggleConfirmMeal,
         updateGroceryItem,
-        addCustomBreakfasts,
+        addCustomMeals,
       }}
     >
       {children}
