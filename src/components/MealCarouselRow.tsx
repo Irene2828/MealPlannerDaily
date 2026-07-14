@@ -358,6 +358,7 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     lineHeight: 20,
     marginBottom: 6,
+    opacity: 0.8,
   },
   ingredientItemContainer: {
     marginBottom: 12,
@@ -383,10 +384,12 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     lineHeight: 18,
     flex: 1,
+    opacity: 0.8,
   },
   ingredientTextChecked: {
     textDecorationLine: 'line-through',
     color: '#9CA3AF',
+    opacity: 0.6,
   },
   needToBuyPill: {
     backgroundColor: '#FFFFFF',

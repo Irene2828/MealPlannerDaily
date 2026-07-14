@@ -69,7 +69,6 @@ const generateDetails = (title: string, category: string): { shoppingList: strin
     };
   }
 
-  // Dinner
   if (t.includes('pasta')) {
     return {
       shoppingList: ['Pasta noodles', 'Marinara sauce', 'Parmesan cheese'],
@@ -87,7 +86,6 @@ type MealInputs = Record<string, string[]>;
 export default function SettingsScreen() {
   const { addCustomMeals } = useGrocery();
   
-  // Dynamic inputs state for each category
   const [inputs, setInputs] = useState<MealInputs>({
     breakfast: [''],
     snack: [''],
@@ -95,11 +93,8 @@ export default function SettingsScreen() {
     dinner: [''],
   });
 
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  
-  // Generated meals ready for preview and editing, keyed by slotId
-  const [generatedMeals, setGeneratedMeals] = useState<Record<string, MealOption[]>>({});
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
+  const [generatedMeals, setGeneratedMeals] = useState<Record<string, MealOption>>({});
 
   const handleAddInput = (category: string) => {
     setInputs((prev) => ({
@@ -130,104 +125,58 @@ export default function SettingsScreen() {
     });
   };
 
-  const handleGenerate = () => {
-    // Collect all valid inputs
-    const generationPayload: Record<string, string[]> = {};
-    let totalItems = 0;
+  const handleGenerateSingle = (category: string, index: number) => {
+    const text = inputs[category][index];
+    if (!text.trim()) return;
 
-    Object.keys(inputs).forEach((cat) => {
-      const valid = inputs[cat].filter((v) => v.trim() !== '');
-      if (valid.length > 0) {
-        generationPayload[cat] = valid;
-        totalItems += valid.length;
-      }
-    });
+    const key = `${category}-${index}`;
+    setLoadingItems(prev => ({ ...prev, [key]: true }));
 
-    if (totalItems === 0) {
-      alert('Please enter at least one meal option!');
-      return;
-    }
-
-    setLoading(true);
-    setSuccess(false);
-
-    // Simulate AI generation lag
     setTimeout(() => {
-      const results: Record<string, MealOption[]> = {};
+      const { shoppingList, instructions } = generateDetails(text, category);
+      const meal = {
+        id: `custom-${category}-${Date.now()}-${index}`,
+        title: text,
+        emoji: '🍳',
+        moodTag: 'quick',
+        moodLabel: 'Custom Meal',
+        accentColor: '#374151',
+        gradientFrom: '#374151',
+        gradientTo: '#4B5563',
+        imageUrl: getUnsplashImage(text, category),
+        shoppingList,
+        instructions,
+      };
       
-      Object.keys(generationPayload).forEach((cat) => {
-        results[cat] = generationPayload[cat].map((name, i) => {
-          const { shoppingList, instructions } = generateDetails(name, cat);
-          return {
-            id: `custom-${cat}-${Date.now()}-${i}`,
-            title: name,
-            emoji: '🍳',
-            moodTag: 'quick',
-            moodLabel: 'Custom Meal',
-            accentColor: '#374151',
-            gradientFrom: '#374151',
-            gradientTo: '#4B5563',
-            imageUrl: getUnsplashImage(name, cat),
-            shoppingList,
-            instructions,
-          };
-        });
-      });
-
-      setGeneratedMeals(results);
-      setLoading(false);
+      setGeneratedMeals(prev => ({ ...prev, [key]: meal }));
+      setLoadingItems(prev => ({ ...prev, [key]: false }));
     }, 1200);
   };
 
-  const handleUpdateGeneratedField = (
-    category: string,
-    index: number,
-    field: 'title' | 'ingredientsText' | 'instructionsText',
-    text: string
-  ) => {
-    setGeneratedMeals((prev) => {
-      const categoryMeals = [...(prev[category] || [])];
-      const meal = { ...categoryMeals[index] };
+  const handleSaveSingle = (category: string, index: number) => {
+    const key = `${category}-${index}`;
+    const meal = generatedMeals[key];
+    if (meal) {
+      addCustomMeals(category, [meal]);
       
-      if (field === 'title') {
-        meal.title = text;
-      } else if (field === 'ingredientsText') {
-        meal.shoppingList = text.split(',').map((x) => x.trim()).filter((x) => x !== '');
-      } else if (field === 'instructionsText') {
-        meal.instructions = text.split('\n').map((x) => x.trim()).filter((x) => x !== '');
-      }
+      setGeneratedMeals(prev => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
       
-      categoryMeals[index] = meal;
-      return {
-        ...prev,
-        [category]: categoryMeals,
-      };
-    });
-  };
-
-  const handleSave = () => {
-    // Add all generated meals to their respective slots
-    Object.keys(generatedMeals).forEach((cat) => {
-      if (generatedMeals[cat] && generatedMeals[cat].length > 0) {
-        addCustomMeals(cat, generatedMeals[cat]);
-      }
-    });
-
-    setGeneratedMeals({});
-    setInputs({
-      breakfast: [''],
-      snack: [''],
-      lunch: [''],
-      dinner: [''],
-    });
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000);
+      setInputs(prev => {
+        const catInputs = [...prev[category]];
+        catInputs[index] = '';
+        return { ...prev, [category]: catInputs };
+      });
+    }
   };
 
   const renderInputSection = (category: string, label: string) => {
     const categoryInputs = inputs[category] || [''];
     return (
-      <View style={styles.sectionCard}>
+      <View style={styles.sectionContainer}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionLabel}>{label}</Text>
           <Pressable onPress={() => handleAddInput(category)} style={styles.plusButton}>
@@ -235,22 +184,61 @@ export default function SettingsScreen() {
           </Pressable>
         </View>
 
-        {categoryInputs.map((val, idx) => (
-          <View key={idx} style={styles.inputWrapper}>
-            <TextInput
-              style={styles.input}
-              placeholder={`Add meal option`}
-              placeholderTextColor="#9CA3AF"
-              value={val}
-              onChangeText={(txt) => handleTextChange(category, idx, txt)}
-            />
-            {categoryInputs.length > 1 && (
-              <Pressable onPress={() => handleRemoveInput(category, idx)} style={styles.removeButton}>
-                <Ionicons name="close-outline" size={18} color="#9CA3AF" />
-              </Pressable>
-            )}
-          </View>
-        ))}
+        {categoryInputs.map((val, idx) => {
+          const key = `${category}-${idx}`;
+          const isGenerating = loadingItems[key];
+          const generatedMeal = generatedMeals[key];
+
+          return (
+            <View key={idx} style={styles.inputItemContainer}>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.input}
+                  placeholder={`Add meal option`}
+                  placeholderTextColor="#9CA3AF"
+                  value={val}
+                  onChangeText={(txt) => handleTextChange(category, idx, txt)}
+                />
+                
+                <Pressable 
+                  style={[styles.inlineGenerateBtn, (!val.trim() || isGenerating) && styles.btnDisabled]}
+                  onPress={() => handleGenerateSingle(category, idx)}
+                  disabled={isGenerating || !val.trim()}
+                >
+                  {isGenerating ? (
+                    <ActivityIndicator color="#374151" size="small" />
+                  ) : (
+                    <>
+                      <Ionicons name="color-wand-outline" size={14} color="#374151" style={{ marginRight: 4 }} />
+                      <Text style={styles.inlineGenerateBtnText}>Generate Option</Text>
+                    </>
+                  )}
+                </Pressable>
+
+                {categoryInputs.length > 1 && (
+                  <Pressable onPress={() => handleRemoveInput(category, idx)} style={styles.removeButton}>
+                    <Ionicons name="close-circle" size={20} color="#D1D5DB" />
+                  </Pressable>
+                )}
+              </View>
+
+              {generatedMeal && (
+                 <View style={styles.mealCard}>
+                   <Image source={{ uri: generatedMeal.imageUrl }} style={styles.mealImageSmall} />
+                   <View style={styles.mealCardContent}>
+                     <Text style={styles.mealCardTitle} numberOfLines={1}>{generatedMeal.title}</Text>
+                     <Text style={styles.mealCardSub} numberOfLines={1}>
+                       {generatedMeal.shoppingList.length} items • {generatedMeal.instructions.length} steps
+                     </Text>
+                   </View>
+                   <Pressable style={styles.addIconBtn} onPress={() => handleSaveSingle(category, idx)}>
+                     <Ionicons name="add-circle" size={32} color="#10B981" />
+                   </Pressable>
+                 </View>
+              )}
+            </View>
+          );
+        })}
       </View>
     );
   };
@@ -264,82 +252,10 @@ export default function SettingsScreen() {
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
         {renderInputSection('breakfast', 'Breakfast')}
         {renderInputSection('snack', 'Snacks')}
         {renderInputSection('lunch', 'Lunch')}
         {renderInputSection('dinner', 'Dinner')}
-
-        <Pressable 
-          style={[styles.generateBtn, loading && styles.btnDisabled]} 
-          onPress={handleGenerate}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#374151" size="small" />
-          ) : (
-            <>
-              <Ionicons name="image-outline" size={16} color="#374151" style={{ marginRight: 4 }} />
-              <Ionicons name="restaurant-outline" size={16} color="#374151" style={{ marginRight: 4 }} />
-              <Ionicons name="list-outline" size={16} color="#374151" style={{ marginRight: 8 }} />
-              <Text style={styles.generateBtnText}>Generate Visual, Recipe & List</Text>
-              <Ionicons name="sparkles-outline" size={15} color="#374151" style={{ marginLeft: 6 }} />
-            </>
-          )}
-        </Pressable>
-
-        {success && (
-          <View style={styles.successBadge}>
-            <Ionicons name="checkmark-circle-outline" size={18} color="#10B981" />
-            <Text style={styles.successText}>Successfully added to your Menu options!</Text>
-          </View>
-        )}
-
-        {Object.keys(generatedMeals).length > 0 && (
-          <View style={styles.resultsContainer}>
-            <Text style={styles.resultsHeader}>Confirm Generated Options</Text>
-            
-            {Object.keys(generatedMeals).map((cat) => (
-              <View key={cat}>
-                {generatedMeals[cat].map((meal, idx) => (
-                  <View key={meal.id} style={styles.mealCard}>
-                    <Image source={{ uri: meal.imageUrl }} style={styles.mealImage} />
-                    <View style={styles.mealForm}>
-                      <TextInput
-                        style={styles.mealTitleInput}
-                        value={meal.title}
-                        onChangeText={(txt) => handleUpdateGeneratedField(cat, idx, 'title', txt)}
-                        placeholder="Meal title"
-                      />
-
-                      <Text style={styles.label}>Ingredients (comma separated)</Text>
-                      <TextInput
-                        style={[styles.formInput, { height: 50 }]}
-                        multiline
-                        value={meal.shoppingList.join(', ')}
-                        onChangeText={(txt) => handleUpdateGeneratedField(cat, idx, 'ingredientsText', txt)}
-                      />
-
-                      <Text style={styles.label}>Instructions (each line is a step)</Text>
-                      <TextInput
-                        style={[styles.formInput, { height: 80 }]}
-                        multiline
-                        value={meal.instructions.join('\n')}
-                        onChangeText={(txt) => handleUpdateGeneratedField(cat, idx, 'instructionsText', txt)}
-                      />
-                    </View>
-                  </View>
-                ))}
-              </View>
-            ))}
-
-            <Pressable style={styles.saveBtn} onPress={handleSave}>
-              <Ionicons name="paper-plane-outline" size={16} color="#374151" style={{ marginRight: 8 }} />
-              <Text style={styles.saveBtnText}>Ship to Menu Options</Text>
-            </Pressable>
-          </View>
-        )}
-
         <View style={{ height: 120 }} />
       </ScrollView>
     </View>
@@ -374,16 +290,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 4,
   },
-  sectionCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 1,
-    marginBottom: 12,
+  sectionContainer: {
+    marginBottom: 24,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -398,137 +306,95 @@ const styles = StyleSheet.create({
   },
   plusButton: {
     padding: 4,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF',
     borderRadius: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  inputItemContainer: {
+    marginBottom: 12,
   },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 13,
-    fontFamily: 'DMSans_500Medium',
-    color: '#1F2937',
-  },
-  removeButton: {
-    padding: 6,
-    marginLeft: 6,
-  },
-  generateBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#374151',
     borderRadius: 999,
-    paddingVertical: 12,
-    marginTop: 8,
-    marginBottom: 16,
-  },
-  generateBtnText: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 14,
-    color: '#374151',
-  },
-  btnDisabled: {
-    opacity: 0.7,
-  },
-  successBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#D1FAE5',
-    borderColor: '#A7F3D0',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 16,
-  },
-  successText: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 13,
-    color: '#065F46',
-    marginLeft: 6,
-  },
-  resultsContainer: {
-    marginTop: 8,
-  },
-  resultsHeader: {
-    fontFamily: 'Lora_500Medium',
-    fontSize: 16,
-    color: '#1A1A1A',
-    marginBottom: 12,
-  },
-  mealCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    overflow: 'hidden',
+    paddingLeft: 16,
+    paddingRight: 6,
+    paddingVertical: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
-    shadowRadius: 6,
+    shadowRadius: 4,
     elevation: 1,
-    marginBottom: 16,
   },
-  mealImage: {
-    width: '100%',
-    height: 120,
-  },
-  mealForm: {
-    padding: 12,
-  },
-  mealTitleInput: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 15,
-    color: '#1F2937',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-    paddingVertical: 4,
-    marginBottom: 10,
-  },
-  label: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 10,
-    color: '#6B7280',
-    textTransform: 'uppercase',
-    marginBottom: 4,
-    marginTop: 8,
-    letterSpacing: 0.5,
-  },
-  formInput: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    fontSize: 13,
+  input: {
+    flex: 1,
+    fontSize: 14,
     fontFamily: 'DMSans_500Medium',
     color: '#1F2937',
+    paddingVertical: 8,
   },
-  saveBtn: {
+  inlineGenerateBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#374151',
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 999,
-    paddingVertical: 14,
-    marginTop: 8,
+    marginLeft: 8,
   },
-  saveBtnText: {
+  inlineGenerateBtnText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 12,
+    color: '#374151',
+  },
+  btnDisabled: {
+    opacity: 0.5,
+  },
+  removeButton: {
+    padding: 4,
+    marginLeft: 4,
+  },
+  mealCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    marginTop: 8,
+    padding: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  mealImageSmall: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
+  },
+  mealCardContent: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  mealCardTitle: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 14,
-    color: '#374151',
+    color: '#1F2937',
+    marginBottom: 2,
+  },
+  mealCardSub: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 12,
+    color: '#6B7280',
+  },
+  addIconBtn: {
+    padding: 4,
+    marginLeft: 8,
   },
 });
