@@ -1,11 +1,52 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useGrocery } from '../context/GroceryContext';
 
+const GroceryItemRow = ({ 
+  item, 
+  onRemove, 
+  onUpdate 
+}: { 
+  item: string; 
+  onRemove: () => void; 
+  onUpdate: (newItem: string) => void; 
+}) => {
+  const [localValue, setLocalValue] = useState(item);
+
+  useEffect(() => {
+    setLocalValue(item);
+  }, [item]);
+
+  const handleBlur = () => {
+    if (localValue !== item) {
+      onUpdate(localValue);
+    }
+  };
+
+  return (
+    <View style={styles.listItem}>
+      <Pressable 
+        style={styles.checkbox} 
+        onPress={onRemove}
+      >
+        <View style={styles.checkboxInner} />
+      </Pressable>
+      <TextInput
+        style={styles.listInput}
+        value={localValue}
+        onChangeText={setLocalValue}
+        onBlur={handleBlur}
+        onSubmitEditing={handleBlur}
+        returnKeyType="done"
+      />
+    </View>
+  );
+};
+
 export default function GroceryListScreen() {
-  const { groceryList, removeFromGrocery } = useGrocery();
+  const { groceryList, removeFromGrocery, updateGroceryItem } = useGrocery();
   
   const items = Array.from(groceryList);
 
@@ -26,16 +67,13 @@ export default function GroceryListScreen() {
           </View>
         ) : (
           <>
-            {items.map((item, index) => (
-              <View key={index} style={styles.listItem}>
-                <Pressable 
-                  style={styles.checkbox} 
-                  onPress={() => removeFromGrocery(item)}
-                >
-                  <View style={styles.checkboxInner} />
-                </Pressable>
-                <Text style={styles.listText}>{item}</Text>
-              </View>
+            {items.map((item) => (
+              <GroceryItemRow
+                key={item}
+                item={item}
+                onRemove={() => removeFromGrocery(item)}
+                onUpdate={(newItem) => updateGroceryItem(item, newItem)}
+              />
             ))}
 
             <Pressable 
@@ -43,7 +81,7 @@ export default function GroceryListScreen() {
               onPress={() => alert('Sending grocery list via SMS... (eventually)')}
             >
               <Ionicons name="phone-portrait-outline" size={16} color="#FFFFFF" style={{ marginRight: 8 }} />
-              <Text style={styles.smsButtonText}>Send as SMS</Text>
+              <Text style={styles.smsButtonText}>Send to My Phone</Text>
             </Pressable>
           </>
         )}
@@ -124,11 +162,12 @@ const styles = StyleSheet.create({
     // When checked, we just remove it from the list entirely
     // But if we wanted a visual state before removing, we'd do it here
   },
-  listText: {
+  listInput: {
     fontFamily: 'DMSans_500Medium',
     fontSize: 16,
     color: '#1A1A1A',
     flex: 1,
+    padding: 0,
   },
   smsButton: {
     flexDirection: 'row',

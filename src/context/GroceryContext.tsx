@@ -8,6 +8,7 @@ interface GroceryContextType {
   removeFromGrocery: (item: string) => void;
   toggleInventory: (item: string) => void;
   toggleConfirmMeal: (mealId: string) => void;
+  updateGroceryItem: (oldItem: string, newItem: string) => void;
 }
 
 const GroceryContext = createContext<GroceryContextType | undefined>(undefined);
@@ -68,6 +69,25 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const updateGroceryItem = (oldItem: string, newItem: string) => {
+    if (!newItem.trim()) {
+      removeFromGrocery(oldItem);
+      return;
+    }
+    setGroceryList((prev) => {
+      const next = new Set();
+      // To preserve ordering as much as possible, we rebuild the set
+      prev.forEach((val) => {
+        if (val === oldItem) {
+          next.add(newItem);
+        } else {
+          next.add(val);
+        }
+      });
+      return next;
+    });
+  };
+
   return (
     <GroceryContext.Provider
       value={{
@@ -78,6 +98,7 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
         removeFromGrocery,
         toggleInventory,
         toggleConfirmMeal,
+        updateGroceryItem,
       }}
     >
       {children}
