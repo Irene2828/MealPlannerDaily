@@ -104,7 +104,7 @@ export const MealCarouselRow: React.FC<Props> = ({
       <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
         <Image
           source={{ uri: item.imageUrl }}
-          style={StyleSheet.absoluteFillObject}
+          style={StyleSheet.absoluteFill as any}
           resizeMode="cover"
         />
         {/* Subtle gradient overlay at bottom for text legibility */}

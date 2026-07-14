@@ -58,7 +58,7 @@ export const RecipeBottomSheet: React.FC<Props> = ({ option, visible, onClose })
       statusBarTranslucent
     >
       <View style={styles.backdrop}>
-        <Pressable style={StyleSheet.absoluteFillObject} onPress={onClose} />
+        <Pressable style={StyleSheet.absoluteFill as any} onPress={onClose} />
         <View style={styles.sheet}>
           {/* Pull handle */}
           <View style={styles.handle} />
@@ -163,10 +163,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   heroImage: {
-    ...StyleSheet.absoluteFillObject,
+    ...(StyleSheet.absoluteFill as any),
   },
   heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...(StyleSheet.absoluteFill as any),
     opacity: 0.6,
   },
   heroContent: {

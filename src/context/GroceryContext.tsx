@@ -83,7 +83,7 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     setGroceryList((prev) => {
-      const next = new Set();
+      const next = new Set<string>();
       // To preserve ordering as much as possible, we rebuild the set
       prev.forEach((val) => {
         if (val === oldItem) {
@@ -114,8 +114,10 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
           };
         }
         return slot;
+      });
     });
   };
+
 
   const removeMealOption = (slotId: string, mealId: string, isKids: boolean) => {
     const setter = isKids ? setKidsMeals : setAdultsMeals;

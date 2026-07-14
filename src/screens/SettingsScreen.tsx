@@ -138,7 +138,7 @@ export default function SettingsScreen() {
         id: `custom-${category}-${Date.now()}-${index}`,
         title: text,
         emoji: '🍳',
-        moodTag: 'quick',
+        moodTag: 'quick' as any,
         moodLabel: 'Custom Meal',
         accentColor: '#374151',
         gradientFrom: '#374151',
