@@ -64,7 +64,7 @@ export default function MealPlannerScreen() {
             <Ionicons 
               name={mode === 'adults' ? 'people' : 'people-outline'} 
               size={26} 
-              color={mode === 'adults' ? '#1A1A1A' : '#A3A3A3'} 
+              color={mode === 'adults' ? '#374151' : '#A3A3A3'} 
             />
           </Pressable>
 

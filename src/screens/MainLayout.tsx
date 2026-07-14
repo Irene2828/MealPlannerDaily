@@ -19,7 +19,7 @@ export default function MainLayout() {
       </View>
 
       {/* Custom Bottom Tab Bar */}
-      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
         <Pressable 
           style={styles.tabItem} 
           onPress={() => setActiveTab('home')}
@@ -27,7 +27,7 @@ export default function MainLayout() {
           <Ionicons 
             name={activeTab === 'home' ? 'restaurant' : 'restaurant-outline'} 
             size={24} 
-            color={activeTab === 'home' ? '#1A1A1A' : '#9CA3AF'} 
+            color={activeTab === 'home' ? '#374151' : '#9CA3AF'} 
           />
           <Text style={[styles.tabText, activeTab === 'home' && styles.tabTextActive]}>Menu</Text>
         </Pressable>
@@ -40,7 +40,7 @@ export default function MainLayout() {
             <Ionicons 
               name={activeTab === 'grocery' ? 'list' : 'list-outline'} 
               size={28} 
-              color={activeTab === 'grocery' ? '#1A1A1A' : '#9CA3AF'} 
+              color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
             />
             {groceryList.size > 0 && (
               <View style={styles.badge}>
@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
-    paddingTop: 12,
+    paddingTop: 8,
     justifyContent: 'space-around',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
