@@ -29,10 +29,10 @@ const CARD_WIDTH = SCREEN_WIDTH - CARD_HORIZONTAL_MARGIN * 2;
 
 const getNeonColor = (slotId: string) => {
   switch (slotId) {
-    case 'breakfast': return '#FF5E00'; // Neon Orange
+    case 'breakfast': return '#FFE600'; // Neon Yellow
     case 'morning-snack': return '#CCFF00'; // Neon Yellow-Green
     case 'lunch': return '#39FF14'; // Neon Green
-    case 'afternoon-snack': return '#FF00FF'; // Neon Magenta
+    case 'afternoon-snack': return '#E5E7EB'; // Silver grey light
     case 'dinner': return '#00FFFF'; // Neon Cyan
     default: return '#CCFF00';
   }
