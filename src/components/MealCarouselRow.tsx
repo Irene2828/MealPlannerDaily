@@ -5,13 +5,13 @@ import {
   StyleSheet,
   Pressable,
   Image,
-  Dimensions,
   FlatList,
   NativeSyntheticEvent,
   NativeScrollEvent,
   LayoutAnimation,
   Platform,
   UIManager,
+  useWindowDimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,10 +24,8 @@ if (Platform.OS === 'android') {
   }
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_HORIZONTAL_MARGIN = 20;
 const CARD_GAP = 12;
-const CARD_WIDTH = SCREEN_WIDTH - CARD_HORIZONTAL_MARGIN * 2;
 
 const getNeonColor = (slotId: string) => {
   switch (slotId) {
@@ -51,6 +49,10 @@ export const MealCarouselRow: React.FC<Props> = ({
   selectedIndex,
   onSelectIndex,
 }) => {
+  const { width: screenWidth } = useWindowDimensions();
+  // 85% of screen width leaves room to hint that there are more cards to scroll
+  const CARD_WIDTH = screenWidth * 0.85;
+
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
@@ -67,7 +69,7 @@ export const MealCarouselRow: React.FC<Props> = ({
         setIngredientsExpanded(false);
       }
     },
-    [selectedIndex, onSelectIndex, slot.options.length]
+    [selectedIndex, onSelectIndex, slot.options.length, CARD_WIDTH]
   );
 
   const toggleInstructions = () => {
@@ -82,7 +84,7 @@ export const MealCarouselRow: React.FC<Props> = ({
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
     return (
-      <View style={[styles.card, { marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
+      <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
         <Image
           source={{ uri: item.imageUrl }}
           style={StyleSheet.absoluteFillObject}
@@ -230,11 +232,10 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   card: {
-    width: CARD_WIDTH,
     height: 154,
     borderRadius: 16,
     overflow: 'hidden',
-    justifyContent: 'flex-end', // Aligns content to bottom
+    justifyContent: 'flex-end',
     borderWidth: 4,
     borderColor: '#FFFFFF',
   },
