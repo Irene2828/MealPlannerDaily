@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,45 +6,40 @@ import {
   ScrollView,
   StatusBar,
   Pressable,
-  Animated,
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MEAL_SLOTS, MealOption } from '../data/meals';
+import { MEAL_SLOTS } from '../data/meals';
 import { MealCarouselRow } from '../components/MealCarouselRow';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const MOODS = [
-  { id: 'all', label: 'All vibes', emoji: '✨' },
-  { id: 'cozy', label: 'Cozy', emoji: '🛋️' },
-  { id: 'energized', label: 'Energized', emoji: '⚡' },
-  { id: 'light', label: 'Light', emoji: '🌿' },
-  { id: 'indulgent', label: 'Indulgent', emoji: '🍫' },
-  { id: 'quick', label: 'Quick', emoji: '⏱️' },
+const DAYS_OF_WEEK = [
+  { id: 'mon', label: 'Mon' },
+  { id: 'tue', label: 'Tue' },
+  { id: 'wed', label: 'Wed' },
+  { id: 'thu', label: 'Thu' },
+  { id: 'fri', label: 'Fri' },
+  { id: 'sat', label: 'Sat' },
+  { id: 'sun', label: 'Sun' },
 ];
 
 export default function MealPlannerScreen() {
-  const [selectedMood, setSelectedMood] = useState('all');
+  const [selectedDay, setSelectedDay] = useState('mon');
   const [selectedIndices, setSelectedIndices] = useState<Record<string, number>>(
     Object.fromEntries(MEAL_SLOTS.map((s) => [s.slotId, 0]))
   );
 
-  const handleSelectMood = (moodId: string) => {
-    setSelectedMood(moodId);
+  const handleSelectDay = (dayId: string) => {
+    setSelectedDay(dayId);
   };
 
   const handleSelectIndex = (slotId: string, index: number) => {
     setSelectedIndices((prev) => ({ ...prev, [slotId]: index }));
   };
 
-  const filteredSlots = MEAL_SLOTS.map((slot) => ({
-    ...slot,
-    options:
-      selectedMood === 'all'
-        ? slot.options
-        : slot.options.filter((o) => o.moodTag === selectedMood),
-  })).filter((slot) => slot.options.length > 0);
+  // We are not filtering by mood anymore, so we show all slots.
+  const filteredSlots = MEAL_SLOTS;
 
   return (
     <View style={styles.root}>
@@ -53,30 +48,26 @@ export default function MealPlannerScreen() {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* ─── Header ─── */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.headerEyebrow}>Today's plan</Text>
-            <Text style={styles.headerTitle}>What do you{'\n'}feel like? 🍴</Text>
-          </View>
+          <Text style={styles.headerTitle}>What's for Today?</Text>
         </View>
 
-        {/* ─── Mood filter strip ─── */}
+        {/* ─── Days of the week strip ─── */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.moodStrip}
           style={styles.moodStripWrapper}
         >
-          {MOODS.map((mood) => {
-            const active = selectedMood === mood.id;
+          {DAYS_OF_WEEK.map((day) => {
+            const active = selectedDay === day.id;
             return (
               <Pressable
-                key={mood.id}
-                onPress={() => handleSelectMood(mood.id)}
+                key={day.id}
+                onPress={() => handleSelectDay(day.id)}
                 style={[styles.moodChip, active && styles.moodChipActive]}
               >
-                <Text style={styles.moodChipEmoji}>{mood.emoji}</Text>
                 <Text style={[styles.moodChipLabel, active && styles.moodChipLabelActive]}>
-                  {mood.label}
+                  {day.label}
                 </Text>
               </Pressable>
             );
@@ -102,19 +93,12 @@ export default function MealPlannerScreen() {
           />
         ))}
 
-        {filteredSlots.length === 0 && (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyEmoji}>🥺</Text>
-            <Text style={styles.emptyText}>No meals match this vibe.</Text>
-            <Text style={styles.emptySubText}>Try a different mood filter!</Text>
-          </View>
-        )}
-
         <View style={{ height: 80 }} />
       </ScrollView>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   root: {

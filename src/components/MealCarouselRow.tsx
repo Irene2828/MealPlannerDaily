@@ -1,26 +1,15 @@
-import React, { useRef, useState, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   Image,
-  Animated,
   Dimensions,
   FlatList,
   NativeSyntheticEvent,
   NativeScrollEvent,
-  LayoutAnimation,
-  Platform,
-  UIManager,
 } from 'react-native';
 import { MealOption, MealSlot } from '../data/meals';
-
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_HORIZONTAL_MARGIN = 20;
@@ -39,7 +28,6 @@ export const MealCarouselRow: React.FC<Props> = ({
   onSelectIndex,
 }) => {
   const flatListRef = useRef<FlatList<MealOption>>(null);
-  const [openSection, setOpenSection] = useState<'shopping' | 'instructions' | null>(null);
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -48,16 +36,10 @@ export const MealCarouselRow: React.FC<Props> = ({
       const clamped = Math.max(0, Math.min(index, slot.options.length - 1));
       if (clamped !== selectedIndex) {
         onSelectIndex(clamped);
-        setOpenSection(null); // Close accordions when swiping
       }
     },
     [selectedIndex, onSelectIndex, slot.options.length]
   );
-
-  const toggleSection = (section: 'shopping' | 'instructions') => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setOpenSection(openSection === section ? null : section);
-  };
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
     return (
@@ -97,33 +79,23 @@ export const MealCarouselRow: React.FC<Props> = ({
         scrollEventThrottle={16}
       />
 
-      {/* Accordions for selected item */}
-      <View style={styles.accordionContainer}>
-        {/* Shopping List */}
-        <Pressable style={styles.accordionHeader} onPress={() => toggleSection('shopping')}>
-          <Text style={styles.accordionTitle}>Shopping List</Text>
-          <Text style={styles.accordionIcon}>{openSection === 'shopping' ? 'ᐱ' : 'ᐯ'}</Text>
-        </Pressable>
-        {openSection === 'shopping' && (
-          <View style={styles.accordionBody}>
-            {selected.shoppingList.map((item, i) => (
-              <Text key={i} style={styles.accordionText}>• {item}</Text>
-            ))}
-          </View>
-        )}
+      {/* 2-Column Content Area */}
+      <View style={styles.contentContainer}>
+        {/* Column 1: Instructions */}
+        <View style={styles.column}>
+          <Text style={styles.columnTitle}>Instructions</Text>
+          {selected.instructions.map((step, i) => (
+            <Text key={i} style={styles.columnText}>{i + 1}. {step}</Text>
+          ))}
+        </View>
 
-        {/* Instructions */}
-        <Pressable style={[styles.accordionHeader, { borderBottomWidth: 0 }]} onPress={() => toggleSection('instructions')}>
-          <Text style={styles.accordionTitle}>Instructions</Text>
-          <Text style={styles.accordionIcon}>{openSection === 'instructions' ? 'ᐱ' : 'ᐯ'}</Text>
-        </Pressable>
-        {openSection === 'instructions' && (
-          <View style={styles.accordionBody}>
-            {selected.instructions.map((step, i) => (
-              <Text key={i} style={styles.accordionText}>{i + 1}. {step}</Text>
-            ))}
-          </View>
-        )}
+        {/* Column 2: Ingredients */}
+        <View style={styles.column}>
+          <Text style={styles.columnTitle}>Ingredients</Text>
+          {selected.shoppingList.map((item, i) => (
+            <Text key={i} style={styles.columnText}>• {item}</Text>
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -131,11 +103,11 @@ export const MealCarouselRow: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 32,
+    marginBottom: 40,
   },
   flatListContent: {
     paddingHorizontal: CARD_HORIZONTAL_MARGIN,
-    paddingBottom: 8,
+    paddingBottom: 16,
   },
   card: {
     width: CARD_WIDTH,
@@ -162,41 +134,30 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 4,
   },
-  accordionContainer: {
-    marginHorizontal: CARD_HORIZONTAL_MARGIN,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#FDE6D4', // light orange border
-    marginTop: 4,
-  },
-  accordionHeader: {
+  contentContainer: {
     flexDirection: 'row',
+    marginHorizontal: CARD_HORIZONTAL_MARGIN,
     justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderColor: '#FDE6D4',
+    alignItems: 'flex-start',
   },
-  accordionTitle: {
+  column: {
+    flex: 1,
+  },
+  columnTitle: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 14,
+    fontSize: 15,
     color: '#1A1A1A',
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
-  accordionIcon: {
-    fontSize: 14,
-    color: '#EA580C',
-    fontWeight: 'bold',
-  },
-  accordionBody: {
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-  },
-  accordionText: {
+  columnText: {
     fontFamily: 'DMSans_500Medium',
-    fontSize: 14,
+    fontSize: 13,
     color: '#4B5563',
-    lineHeight: 22,
+    lineHeight: 20,
     marginBottom: 6,
+    paddingRight: 12,
   },
 });
 
