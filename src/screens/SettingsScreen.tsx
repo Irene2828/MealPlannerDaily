@@ -259,14 +259,14 @@ export default function SettingsScreen() {
     <View style={styles.root}>
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Select Meals to Add:</Text>
+          <Text style={styles.headerTitle}>Add New Meals</Text>
         </View>
       </SafeAreaView>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
         {renderInputSection('breakfast', 'Breakfast')}
-        {renderInputSection('snack', 'Snack options')}
+        {renderInputSection('snack', 'Snacks')}
         {renderInputSection('lunch', 'Lunch')}
         {renderInputSection('dinner', 'Dinner')}
 
@@ -279,7 +279,10 @@ export default function SettingsScreen() {
             <ActivityIndicator color="#374151" size="small" />
           ) : (
             <>
-              <Text style={styles.generateBtnText}>Generate Visuals & Details</Text>
+              <Ionicons name="image-outline" size={16} color="#374151" style={{ marginRight: 4 }} />
+              <Ionicons name="restaurant-outline" size={16} color="#374151" style={{ marginRight: 4 }} />
+              <Ionicons name="list-outline" size={16} color="#374151" style={{ marginRight: 8 }} />
+              <Text style={styles.generateBtnText}>Generate Visual, Recipe & List</Text>
               <Ionicons name="sparkles-outline" size={15} color="#374151" style={{ marginLeft: 6 }} />
             </>
           )}
@@ -331,8 +334,8 @@ export default function SettingsScreen() {
             ))}
 
             <Pressable style={styles.saveBtn} onPress={handleSave}>
-              <Text style={styles.saveBtnText}>Add all to Menu Options</Text>
-              <Ionicons name="add-circle-outline" size={16} color="#374151" style={{ marginLeft: 6 }} />
+              <Ionicons name="paper-plane-outline" size={16} color="#374151" style={{ marginRight: 8 }} />
+              <Text style={styles.saveBtnText}>Ship to Menu Options</Text>
             </Pressable>
           </View>
         )}
