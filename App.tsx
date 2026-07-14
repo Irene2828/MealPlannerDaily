@@ -1,6 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import MealPlannerScreen from './src/screens/MealPlannerScreen';
+import MainLayout from './src/screens/MainLayout';
+import { GroceryProvider } from './src/context/GroceryContext';
 import {
   useFonts,
   Fraunces_700Bold,
@@ -36,7 +37,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <MealPlannerScreen />
+      <GroceryProvider>
+        <MainLayout />
+      </GroceryProvider>
     </SafeAreaProvider>
   );
 }

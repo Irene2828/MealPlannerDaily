@@ -62,8 +62,8 @@ export default function MealPlannerScreen() {
         <View style={styles.header}>
           <Pressable style={styles.headerIconLeft} onPress={() => setMode('adults')}>
             <Ionicons 
-              name={mode === 'adults' ? 'person' : 'person-outline'} 
-              size={24} 
+              name={mode === 'adults' ? 'people' : 'people-outline'} 
+              size={26} 
               color={mode === 'adults' ? '#1A1A1A' : '#A3A3A3'} 
             />
           </Pressable>

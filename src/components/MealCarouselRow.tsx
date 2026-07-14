@@ -16,6 +16,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { MealOption, MealSlot } from '../data/meals';
+import { useGrocery } from '../context/GroceryContext';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -53,7 +54,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
-  const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set());
+  const { groceryList, inventoryList, addToGrocery, toggleInventory } = useGrocery();
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -64,8 +65,6 @@ export const MealCarouselRow: React.FC<Props> = ({
         onSelectIndex(clamped);
         setInstructionsExpanded(false);
         setIngredientsExpanded(false);
-        // Optionally clear checked ingredients when swiping to a new meal
-        // setCheckedIngredients(new Set());
       }
     },
     [selectedIndex, onSelectIndex, slot.options.length]
@@ -79,16 +78,6 @@ export const MealCarouselRow: React.FC<Props> = ({
   const toggleIngredients = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIngredientsExpanded(!ingredientsExpanded);
-  };
-
-  const toggleIngredient = (ingredient: string) => {
-    const next = new Set(checkedIngredients);
-    if (next.has(ingredient)) {
-      next.delete(ingredient);
-    } else {
-      next.add(ingredient);
-    }
-    setCheckedIngredients(next);
   };
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
@@ -179,30 +168,43 @@ export const MealCarouselRow: React.FC<Props> = ({
           {ingredientsExpanded && (
             <View style={styles.columnBody}>
               {selected.shoppingList.map((item, i) => {
-                const isChecked = checkedIngredients.has(item);
+                const isHave = inventoryList.has(item);
+                const isAddedToGrocery = groceryList.has(item);
+
                 return (
-                  <Pressable 
-                    key={i} 
-                    style={styles.ingredientRow}
-                    onPress={() => toggleIngredient(item)}
-                  >
+                  <View key={i} style={styles.ingredientRow}>
+                    <Pressable 
+                      style={styles.circleButton}
+                      onPress={() => toggleInventory(item)}
+                    >
+                      <Ionicons 
+                        name={isHave ? "checkmark-circle" : "ellipse-outline"} 
+                        size={20} 
+                        color={isHave ? "#10B981" : "#D1D5DB"} 
+                      />
+                    </Pressable>
+
                     <Text 
                       style={[
                         styles.ingredientText, 
-                        isChecked && styles.ingredientTextChecked
+                        isHave && styles.ingredientTextChecked
                       ]}
                       numberOfLines={2}
                     >
                       {item}
                     </Text>
-                    {isChecked ? (
-                      <Text style={styles.checkmarkIcon}>✓</Text>
-                    ) : (
-                      <View style={styles.needToBuyTag}>
-                        <Text style={styles.needToBuyText}>Need to buy</Text>
-                      </View>
+
+                    {!isHave && (
+                      <Pressable 
+                        style={[styles.needToBuyPill, isAddedToGrocery && styles.addedPill]}
+                        onPress={() => addToGrocery(item)}
+                      >
+                        <Text style={[styles.needToBuyText, isAddedToGrocery && styles.addedText]}>
+                          {isAddedToGrocery ? 'ADDED' : 'NEED TO BUY'}
+                        </Text>
+                      </Pressable>
                     )}
-                  </Pressable>
+                  </View>
                 );
               })}
             </View>
@@ -311,15 +313,17 @@ const styles = StyleSheet.create({
   ingredientRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 8,
     paddingRight: 4,
     gap: 8,
   },
+  circleButton: {
+    padding: 2,
+  },
   ingredientText: {
-    fontFamily: 'DMSans_500Medium',
+    fontFamily: 'DMSans_400Regular',
     fontSize: 13,
-    color: '#4B5563',
+    color: '#1A1A1A',
     lineHeight: 18,
     flex: 1,
   },
@@ -327,21 +331,26 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: '#9CA3AF',
   },
-  checkmarkIcon: {
-    color: '#10B981', // Emerald green
-    fontWeight: 'bold',
-    fontSize: 14,
+  needToBuyPill: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 999,
   },
-  needToBuyTag: {
-    backgroundColor: '#FEE2E2', // Light red/pink
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    borderRadius: 4,
+  addedPill: {
+    backgroundColor: '#F3F4F6',
+    borderColor: '#D1D5DB',
   },
   needToBuyText: {
-    color: '#EF4444', // Red
+    color: '#1A1A1A',
     fontSize: 9,
-    fontFamily: 'DMSans_700Bold',
+    fontFamily: 'DMSans_500Medium',
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  addedText: {
+    color: '#6B7280',
   },
 });
