@@ -62,17 +62,19 @@ export default function MealPlannerScreen() {
         <View style={styles.header}>
           <Pressable style={styles.headerIconLeft} onPress={() => setMode('adults')}>
             <Ionicons 
-              name={mode === 'adults' ? 'people' : 'people-outline'} 
+              name="people-outline"
               size={26} 
               color={mode === 'adults' ? '#374151' : '#A3A3A3'} 
             />
           </Pressable>
 
-          <Text style={styles.headerTitle}>Today's Menu</Text>
+          <Text style={styles.headerTitle}>
+            {mode === 'adults' ? "Today's Menu" : "Kids Menu"}
+          </Text>
 
           <Pressable style={styles.headerIconRight} onPress={() => setMode('kids')}>
             <Ionicons 
-              name={mode === 'kids' ? 'happy' : 'happy-outline'} 
+              name="happy-outline"
               size={26} 
               color={mode === 'kids' ? '#374151' : '#A3A3A3'} 
             />

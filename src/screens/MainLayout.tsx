@@ -36,7 +36,7 @@ export default function MainLayout() {
             onPress={() => setActiveTab('home')}
           >
             <Ionicons 
-              name={activeTab === 'home' ? 'restaurant' : 'restaurant-outline'} 
+              name="restaurant-outline"
               size={24} 
               color={activeTab === 'home' ? '#374151' : '#9CA3AF'} 
             />
@@ -49,7 +49,7 @@ export default function MainLayout() {
           >
             <View style={styles.iconContainer}>
               <Ionicons 
-                name={activeTab === 'grocery' ? 'list' : 'list-outline'} 
+                name="list-outline"
                 size={28} 
                 color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
               />

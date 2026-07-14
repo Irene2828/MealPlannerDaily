@@ -181,7 +181,7 @@ export const MealCarouselRow: React.FC<Props> = ({
                         onPress={() => toggleInventory(item)}
                       >
                         <Ionicons 
-                          name={isHave ? "checkmark-circle" : "ellipse-outline"} 
+                          name={isHave ? "checkmark-circle-outline" : "ellipse-outline"} 
                           size={20} 
                           color={isHave ? "#10B981" : "#D1D5DB"} 
                         />
