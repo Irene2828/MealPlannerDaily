@@ -231,8 +231,9 @@ export default function SettingsScreen() {
                        {generatedMeal.shoppingList.length} items • {generatedMeal.instructions.length} steps
                      </Text>
                    </View>
-                   <Pressable style={styles.addIconBtn} onPress={() => handleSaveSingle(category, idx)}>
-                     <Ionicons name="add-circle" size={32} color="#10B981" />
+                   <Pressable style={styles.sendMenuBtn} onPress={() => handleSaveSingle(category, idx)}>
+                     <Text style={styles.sendMenuBtnText}>Send to Menu Page</Text>
+                     <Ionicons name="arrow-forward-outline" size={14} color="#374151" style={{ marginLeft: 4 }} />
                    </Pressable>
                  </View>
               )}
@@ -393,8 +394,18 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#6B7280',
   },
-  addIconBtn: {
-    padding: 4,
+  sendMenuBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F3F4F6',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 999,
     marginLeft: 8,
+  },
+  sendMenuBtnText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    color: '#374151',
   },
 });
