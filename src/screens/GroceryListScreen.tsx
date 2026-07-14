@@ -45,11 +45,11 @@ export default function GroceryListScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#FEF8F0',
+    backgroundColor: 'transparent',
   },
   safeArea: {
     zIndex: 10,
-    backgroundColor: '#FEF8F0',
+    backgroundColor: 'transparent',
   },
   header: {
     justifyContent: 'center',

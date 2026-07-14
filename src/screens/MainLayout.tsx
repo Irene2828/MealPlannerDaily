@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import MealPlannerScreen from './MealPlannerScreen';
 import GroceryListScreen from './GroceryListScreen';
 import { useGrocery } from '../context/GroceryContext';
@@ -12,69 +13,78 @@ export default function MainLayout() {
   const { groceryList } = useGrocery();
 
   return (
-    <View style={styles.container}>
+    <LinearGradient 
+      colors={['#FFEAD9', '#FEF5F0', '#FFFFFF']} 
+      style={styles.container}
+    >
       {/* Content Area */}
       <View style={styles.content}>
         {activeTab === 'home' ? <MealPlannerScreen /> : <GroceryListScreen />}
       </View>
 
-      {/* Custom Bottom Tab Bar */}
-      <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) }]}>
-        <Pressable 
-          style={styles.tabItem} 
-          onPress={() => setActiveTab('home')}
-        >
-          <Ionicons 
-            name={activeTab === 'home' ? 'restaurant' : 'restaurant-outline'} 
-            size={24} 
-            color={activeTab === 'home' ? '#374151' : '#9CA3AF'} 
-          />
-          <Text style={[styles.tabText, activeTab === 'home' && styles.tabTextActive]}>Menu</Text>
-        </Pressable>
-
-        <Pressable 
-          style={styles.tabItem} 
-          onPress={() => setActiveTab('grocery')}
-        >
-          <View style={styles.iconContainer}>
+      {/* Custom Bottom Tab Bar - Blending Gradient */}
+      <LinearGradient 
+        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.8)', '#FFFFFF', '#FFFFFF']} 
+        locations={[0, 0.4, 0.8, 1]}
+        style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) }]}
+        pointerEvents="box-none"
+      >
+        <View style={styles.tabBarInner}>
+          <Pressable 
+            style={styles.tabItem} 
+            onPress={() => setActiveTab('home')}
+          >
             <Ionicons 
-              name={activeTab === 'grocery' ? 'list' : 'list-outline'} 
-              size={28} 
-              color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
+              name={activeTab === 'home' ? 'restaurant' : 'restaurant-outline'} 
+              size={24} 
+              color={activeTab === 'home' ? '#374151' : '#9CA3AF'} 
             />
-            {groceryList.size > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{groceryList.size}</Text>
-              </View>
-            )}
-          </View>
-          <Text style={[styles.tabText, activeTab === 'grocery' && styles.tabTextActive]}>Grocery List</Text>
-        </Pressable>
-      </View>
-    </View>
+            <Text style={[styles.tabText, activeTab === 'home' && styles.tabTextActive]}>Menu</Text>
+          </Pressable>
+
+          <Pressable 
+            style={styles.tabItem} 
+            onPress={() => setActiveTab('grocery')}
+          >
+            <View style={styles.iconContainer}>
+              <Ionicons 
+                name={activeTab === 'grocery' ? 'list' : 'list-outline'} 
+                size={28} 
+                color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
+              />
+              {groceryList.size > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{groceryList.size}</Text>
+                </View>
+              )}
+            </View>
+            <Text style={[styles.tabText, activeTab === 'grocery' && styles.tabTextActive]}>Grocery List</Text>
+          </Pressable>
+        </View>
+      </LinearGradient>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FEF8F0',
   },
   content: {
     flex: 1,
   },
   tabBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingTop: 32, // More top padding to allow the gradient to fade in slowly
+  },
+  tabBarInner: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-    paddingTop: 8,
     justifyContent: 'space-around',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 8,
+    alignItems: 'center',
+    paddingTop: 8,
   },
   tabItem: {
     alignItems: 'center',

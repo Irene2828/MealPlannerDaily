@@ -130,7 +130,7 @@ export default function MealPlannerScreen() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#FEF8F0',
+    backgroundColor: 'transparent',
   },
   safeArea: {
     zIndex: 10,
