@@ -48,7 +48,7 @@ export default function MealPlannerScreen() {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* ─── Header ─── */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>What's for Today?</Text>
+          <Text style={styles.headerTitle}>Today's Menu</Text>
         </View>
 
         {/* ─── Days of the week strip ─── */}
@@ -109,12 +109,11 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingTop: 24,
+    paddingBottom: 24,
   },
   headerEyebrow: {
     fontFamily: 'DMSans_700Bold',
@@ -125,11 +124,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   headerTitle: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 30,
+    fontFamily: 'Fraunces_900Black', // Elegant serif font
+    fontSize: 34,
     color: '#1A1A1A',
-    lineHeight: 36,
+    lineHeight: 40,
     letterSpacing: -0.5,
+    textAlign: 'center',
   },
   moodStripWrapper: {
     flexGrow: 0,

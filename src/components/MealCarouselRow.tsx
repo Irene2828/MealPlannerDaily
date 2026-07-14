@@ -52,6 +52,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
+  const [checkedIngredients, setCheckedIngredients] = useState<Set<string>>(new Set());
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -62,6 +63,8 @@ export const MealCarouselRow: React.FC<Props> = ({
         onSelectIndex(clamped);
         setInstructionsExpanded(false);
         setIngredientsExpanded(false);
+        // Optionally clear checked ingredients when swiping to a new meal
+        // setCheckedIngredients(new Set());
       }
     },
     [selectedIndex, onSelectIndex, slot.options.length]
@@ -75,6 +78,16 @@ export const MealCarouselRow: React.FC<Props> = ({
   const toggleIngredients = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIngredientsExpanded(!ingredientsExpanded);
+  };
+
+  const toggleIngredient = (ingredient: string) => {
+    const next = new Set(checkedIngredients);
+    if (next.has(ingredient)) {
+      next.delete(ingredient);
+    } else {
+      next.add(ingredient);
+    }
+    setCheckedIngredients(next);
   };
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
@@ -156,9 +169,33 @@ export const MealCarouselRow: React.FC<Props> = ({
           </Pressable>
           {ingredientsExpanded && (
             <View style={styles.columnBody}>
-              {selected.shoppingList.map((item, i) => (
-                <Text key={i} style={styles.columnText}>• {item}</Text>
-              ))}
+              {selected.shoppingList.map((item, i) => {
+                const isChecked = checkedIngredients.has(item);
+                return (
+                  <Pressable 
+                    key={i} 
+                    style={styles.ingredientRow}
+                    onPress={() => toggleIngredient(item)}
+                  >
+                    <Text 
+                      style={[
+                        styles.ingredientText, 
+                        isChecked && styles.ingredientTextChecked
+                      ]}
+                      numberOfLines={2}
+                    >
+                      {item}
+                    </Text>
+                    {isChecked ? (
+                      <Text style={styles.checkmarkIcon}>✓</Text>
+                    ) : (
+                      <View style={styles.needToBuyTag}>
+                        <Text style={styles.needToBuyText}>Need to buy</Text>
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
             </View>
           )}
         </View>
@@ -266,6 +303,42 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     lineHeight: 20,
     marginBottom: 6,
+  },
+  ingredientRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+    paddingRight: 4,
+    gap: 8,
+  },
+  ingredientText: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    color: '#4B5563',
+    lineHeight: 18,
+    flex: 1,
+  },
+  ingredientTextChecked: {
+    textDecorationLine: 'line-through',
+    color: '#9CA3AF',
+  },
+  checkmarkIcon: {
+    color: '#10B981', // Emerald green
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  needToBuyTag: {
+    backgroundColor: '#FEE2E2', // Light red/pink
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  needToBuyText: {
+    color: '#EF4444', // Red
+    fontSize: 9,
+    fontFamily: 'DMSans_700Bold',
+    textTransform: 'uppercase',
   },
 });
 
