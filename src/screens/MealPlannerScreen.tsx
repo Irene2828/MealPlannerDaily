@@ -86,6 +86,19 @@ export default function MealPlannerScreen() {
     });
   };
 
+  const handleTapDrink = (drinkId: string) => {
+    setSelectedDrinks(prev => {
+      const current = { ...(prev[drinkKey] || {}) };
+      const currentCount = current[drinkId] || 0;
+      if (currentCount > 0) {
+        delete current[drinkId];
+      } else {
+        current[drinkId] = 1;
+      }
+      return { ...prev, [drinkKey]: current };
+    });
+  };
+
   return (
     <View style={styles.root}>
       <StatusBar barStyle="dark-content" />
@@ -190,31 +203,40 @@ export default function MealPlannerScreen() {
                   </View>
                 </View>
 
-                {/* Drinks selector row */}
-                <View style={styles.drinksRow}>
-                  {DRINKS.map(d => {
-                    const count = activeDrinks[d.id] || 0;
-                    return (
-                      <View key={d.id} style={styles.drinkItem}>
-                        <Pressable onPress={() => incrementDrink(d.id)}>
-                          <View style={[styles.drinkCircle, count > 0 && styles.drinkCircleActive]}>
-                            <Text style={styles.drinkEmoji}>{d.emoji}</Text>
-                          </View>
-                        </Pressable>
-                        <Text style={[styles.drinkLabel, count > 0 && styles.drinkLabelActive]}>{d.label}</Text>
-                        
-                        <View style={styles.drinkControls}>
-                          <Pressable onPress={() => decrementDrink(d.id)} style={styles.drinkBtn}>
-                            <Ionicons name="remove" size={14} color="#6B7280" />
+                {/* Drinks selector container with top border and horizontal ScrollView */}
+                <View style={styles.drinksContainer}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.drinksScrollContent}
+                  >
+                    {DRINKS.map(d => {
+                      const count = activeDrinks[d.id] || 0;
+                      return (
+                        <View key={d.id} style={styles.drinkItem}>
+                          <Pressable onPress={() => handleTapDrink(d.id)}>
+                            <View style={[styles.drinkCircle, count > 0 && styles.drinkCircleActive]}>
+                              <Text style={styles.drinkEmoji}>{d.emoji}</Text>
+                            </View>
                           </Pressable>
+                          <Text style={[styles.drinkLabel, count > 0 && styles.drinkLabelActive]}>{d.label}</Text>
+                          
+                          {/* Digit under the icon/label */}
                           <Text style={styles.drinkCount}>{count}</Text>
-                          <Pressable onPress={() => incrementDrink(d.id)} style={styles.drinkBtn}>
-                            <Ionicons name="add" size={14} color="#6B7280" />
-                          </Pressable>
+
+                          {/* Minus and Plus controls */}
+                          <View style={styles.drinkControls}>
+                            <Pressable onPress={() => decrementDrink(d.id)} style={styles.drinkBtn}>
+                              <Ionicons name="remove" size={12} color="#6B7280" />
+                            </Pressable>
+                            <Pressable onPress={() => incrementDrink(d.id)} style={styles.drinkBtn}>
+                              <Ionicons name="add" size={12} color="#6B7280" />
+                            </Pressable>
+                          </View>
                         </View>
-                      </View>
-                    );
-                  })}
+                      );
+                    })}
+                  </ScrollView>
                 </View>
               </View>
             </View>
@@ -375,17 +397,24 @@ const styles = StyleSheet.create({
     width: 36,
     textAlign: 'right',
   },
-  drinksRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  drinksContainer: {
     marginTop: 20,
     paddingTop: 18,
     borderTopWidth: 1,
     borderTopColor: '#F3F4F6',
   },
+  drinksScrollContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexGrow: 1,
+    gap: 16,
+    paddingHorizontal: 8,
+  },
   drinkItem: {
     alignItems: 'center',
-    gap: 5,
+    gap: 4,
+    minWidth: 56,
   },
   drinkCircle: {
     width: 46,
@@ -405,22 +434,22 @@ const styles = StyleSheet.create({
   drinkControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
-    gap: 6,
+    gap: 8,
+    marginTop: 2,
   },
   drinkBtn: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
     backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center',
   },
   drinkCount: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 12,
-    color: '#4B5563',
-    minWidth: 12,
+    fontSize: 13,
+    color: '#374151',
+    marginTop: 2,
     textAlign: 'center',
   },
   drinkEmoji: {

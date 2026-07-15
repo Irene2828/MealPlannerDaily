@@ -20,7 +20,7 @@ export default function MainLayout() {
       style={styles.container}
     >
       {/* Unified Top Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Pressable 
           style={styles.headerIconLeft} 
           onPress={() => setActiveTab('settings')}
@@ -84,19 +84,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
-    paddingBottom: 16,
+    paddingBottom: 8,
     position: 'relative',
   },
   headerIconLeft: {
     position: 'absolute',
     left: 24,
-    bottom: 12,
+    bottom: 4,
     padding: 8,
   },
   headerIconRight: {
     position: 'absolute',
     right: 24,
-    bottom: 10,
+    bottom: 2,
     padding: 8,
   },
   headerTitleContainer: {

@@ -346,45 +346,12 @@ export const MealCarouselRow: React.FC<Props> = ({
 
   const renderMacrosBreakdown = (item: MealOption) => {
     const macros = getMealMacrosObj(item.title, item.id);
-    const maxVal = Math.max(macros.protein, macros.fats, macros.carbs);
-    const getPercent = (val: number) => `${Math.round((val / maxVal) * 100)}%`;
-
     return (
-      <View style={styles.macrosContainer}>
-        <View style={styles.macroBarRow}>
-          <View style={styles.macroInfo}>
-            <Text style={styles.macroName}>Protein</Text>
-            <Text style={styles.macroValue}>{macros.protein}g</Text>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <View style={[styles.progressBarFill, { width: getPercent(macros.protein) as any, backgroundColor: '#FF7A45' }]} />
-          </View>
-        </View>
-
-        <View style={styles.macroBarRow}>
-          <View style={styles.macroInfo}>
-            <Text style={styles.macroName}>Fats</Text>
-            <Text style={styles.macroValue}>{macros.fats}g</Text>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <View style={[styles.progressBarFill, { width: getPercent(macros.fats) as any, backgroundColor: '#CCFF00' }]} />
-          </View>
-        </View>
-
-        <View style={styles.macroBarRow}>
-          <View style={styles.macroInfo}>
-            <Text style={styles.macroName}>Carbs</Text>
-            <Text style={styles.macroValue}>{macros.carbs}g</Text>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <View style={[styles.progressBarFill, { width: getPercent(macros.carbs) as any, backgroundColor: '#00E5FF' }]} />
-          </View>
-        </View>
-
-        <View style={styles.caloriesBanner}>
-          <Text style={styles.caloriesText}>Total Energy: </Text>
-          <Text style={styles.caloriesVal}>{macros.calories} kcal</Text>
-        </View>
+      <View style={styles.columnBody}>
+        <Text style={styles.columnText}>• Protein: {macros.protein}g</Text>
+        <Text style={styles.columnText}>• Fats: {macros.fats}g</Text>
+        <Text style={styles.columnText}>• Carbs: {macros.carbs}g</Text>
+        <Text style={styles.columnText}>• Energy: {macros.calories} kcal</Text>
       </View>
     );
   };
@@ -423,13 +390,13 @@ export const MealCarouselRow: React.FC<Props> = ({
       <View style={styles.mealHeaderRow}>
         <Text style={styles.mealHeaderName} numberOfLines={2}>{selected.title}</Text>
         <View style={styles.mealHeaderActions}>
-          {/* Pan/Recipe Icon */}
+          {/* Book/Recipe Icon */}
           <Pressable 
             style={[styles.actionBtn, instructionsExpanded && styles.actionBtnActive]} 
             onPress={toggleInstructions}
           >
             <Ionicons 
-              name={instructionsExpanded ? "restaurant" : "restaurant-outline"} 
+              name={instructionsExpanded ? "book" : "book-outline"} 
               size={16} 
               color={instructionsExpanded ? "#FF7A45" : "#6B7280"} 
             />
@@ -441,20 +408,20 @@ export const MealCarouselRow: React.FC<Props> = ({
             onPress={toggleIngredients}
           >
             <Ionicons 
-              name={ingredientsExpanded ? "list" : "list-outline"} 
+              name={ingredientsExpanded ? "receipt" : "receipt-outline"} 
               size={16} 
               color={ingredientsExpanded ? "#FF7A45" : "#6B7280"} 
             />
           </Pressable>
 
-          {/* Macros Icon */}
+          {/* Info/Nutrition Icon */}
           <Pressable 
             style={[styles.actionBtn, macrosExpanded && styles.actionBtnActive]} 
             onPress={toggleMacros}
           >
             <Ionicons 
-              name={macrosExpanded ? "pie-chart" : "pie-chart-outline"} 
-              size={16} 
+              name={macrosExpanded ? "information-circle" : "information-circle-outline"} 
+              size={18} 
               color={macrosExpanded ? "#FF7A45" : "#6B7280"} 
             />
           </Pressable>
@@ -541,10 +508,6 @@ export const MealCarouselRow: React.FC<Props> = ({
                     >
                       <Ionicons name="pencil-outline" size={12} color="#4B5563" />
                       <Text style={styles.sectionHeaderBtnText}>Edit</Text>
-                    </Pressable>
-                    <Pressable style={styles.sectionHeaderBtn} onPress={() => triggerAIInstructions(selected.id)}>
-                      <Ionicons name="sparkles-outline" size={12} color="#FF7A45" />
-                      <Text style={[styles.sectionHeaderBtnText, { color: '#FF7A45' }]}>AI Generate</Text>
                     </Pressable>
                   </View>
                 </View>
@@ -636,10 +599,6 @@ export const MealCarouselRow: React.FC<Props> = ({
                     >
                       <Ionicons name="pencil-outline" size={12} color="#4B5563" />
                       <Text style={styles.sectionHeaderBtnText}>Edit</Text>
-                    </Pressable>
-                    <Pressable style={styles.sectionHeaderBtn} onPress={() => triggerAIIngredients(selected.id)}>
-                      <Ionicons name="sparkles-outline" size={12} color="#FF7A45" />
-                      <Text style={[styles.sectionHeaderBtnText, { color: '#FF7A45' }]}>AI Generate</Text>
                     </Pressable>
                   </View>
                 </View>
