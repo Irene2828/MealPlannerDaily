@@ -15,69 +15,59 @@ export default function MainLayout() {
 
   return (
     <LinearGradient 
-      colors={['#FFEAD9', '#FFFFFF', '#FFFFFF', '#FFEAD9']} 
+      colors={['#FFEAD9', '#FFFFFF', '#FFFFFF', '#FFFFFF']} 
       locations={[0, 0.25, 0.75, 1]}
       style={styles.container}
     >
+      {/* Unified Top Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <Pressable 
+          style={styles.headerIconLeft} 
+          onPress={() => setActiveTab('settings')}
+        >
+          <Ionicons 
+            name="settings-outline"
+            size={25} 
+            color={activeTab === 'settings' ? '#374151' : '#9CA3AF'} 
+          />
+        </Pressable>
+
+        <Pressable 
+          style={styles.headerTitleContainer} 
+          onPress={() => setActiveTab('home')}
+        >
+          <Text style={styles.headerTitle}>Today's Menu</Text>
+          <View style={styles.underlineContainer}>
+            <View style={[styles.underlineSegment, { transform: [{ rotate: '-2deg' }], opacity: 0.9 }]} />
+            <View style={[styles.underlineSegment, { transform: [{ rotate: '-0.5deg' }], marginTop: -1, opacity: 0.8, width: '90%', alignSelf: 'center' }]} />
+          </View>
+        </Pressable>
+
+        <Pressable 
+          style={styles.headerIconRight} 
+          onPress={() => setActiveTab('grocery')}
+        >
+          <View style={styles.iconContainer}>
+            <Ionicons 
+              name="list-outline"
+              size={28} 
+              color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
+            />
+            {groceryList.size > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{groceryList.size}</Text>
+              </View>
+            )}
+          </View>
+        </Pressable>
+      </View>
+
       {/* Content Area */}
       <View style={styles.content}>
         {activeTab === 'home' && <MealPlannerScreen />}
         {activeTab === 'grocery' && <GroceryListScreen />}
         {activeTab === 'settings' && <SettingsScreen />}
       </View>
-
-      {/* Custom Bottom Tab Bar - Blending Gradient */}
-      <LinearGradient 
-        colors={['rgba(255,234,217,0)', 'rgba(255,234,217,0.85)', '#FFEAD9', '#FFEAD9']} 
-        locations={[0, 0.4, 0.8, 1]}
-        style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 8) }]}
-        pointerEvents="box-none"
-      >
-        <View style={styles.tabBarInner}>
-          <Pressable 
-            style={styles.tabItem} 
-            onPress={() => setActiveTab('home')}
-          >
-            <Ionicons 
-              name="restaurant-outline"
-              size={24} 
-              color={activeTab === 'home' ? '#374151' : '#9CA3AF'} 
-            />
-            <Text style={[styles.tabText, activeTab === 'home' && styles.tabTextActive]}>Menu</Text>
-          </Pressable>
-
-          <Pressable 
-            style={styles.tabItem} 
-            onPress={() => setActiveTab('grocery')}
-          >
-            <View style={styles.iconContainer}>
-              <Ionicons 
-                name="list-outline"
-                size={28} 
-                color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
-              />
-              {groceryList.size > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{groceryList.size}</Text>
-                </View>
-              )}
-            </View>
-            <Text style={[styles.tabText, activeTab === 'grocery' && styles.tabTextActive]}>Grocery List</Text>
-          </Pressable>
-
-          <Pressable 
-            style={styles.tabItem} 
-            onPress={() => setActiveTab('settings')}
-          >
-            <Ionicons 
-              name="settings-outline"
-              size={25} 
-              color={activeTab === 'settings' ? '#374151' : '#9CA3AF'} 
-            />
-            <Text style={[styles.tabText, activeTab === 'settings' && styles.tabTextActive]}>Settings</Text>
-          </Pressable>
-        </View>
-      </LinearGradient>
     </LinearGradient>
   );
 }
@@ -89,23 +79,52 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  tabBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingTop: 32, // More top padding to allow the gradient to fade in slowly
-  },
-  tabBarInner: {
+  header: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 8,
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+    position: 'relative',
   },
-  tabItem: {
+  headerIconLeft: {
+    position: 'absolute',
+    left: 24,
+    bottom: 12,
+    padding: 8,
+  },
+  headerIconRight: {
+    position: 'absolute',
+    right: 24,
+    bottom: 10,
+    padding: 8,
+  },
+  headerTitleContainer: {
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
+    paddingBottom: 4,
+  },
+  headerTitle: {
+    fontFamily: 'Lora_500Medium',
+    fontSize: 20,
+    color: '#1A1A1A',
+    lineHeight: 26,
+    letterSpacing: -0.3,
+    textAlign: 'center',
+  },
+  underlineContainer: {
+    position: 'absolute',
+    bottom: -4,
+    left: '10%',
+    right: '10%',
+    height: 6,
+  },
+  underlineSegment: {
+    height: 2,
+    backgroundColor: '#FF7A45',
+    borderRadius: 999,
+    width: '100%',
   },
   iconContainer: {
     position: 'relative',
@@ -129,14 +148,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: 'DMSans_700Bold',
   },
-  tabText: {
-    fontFamily: 'DMSans_500Medium',
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginTop: 4,
-  },
-  tabTextActive: {
-    color: '#1A1A1A',
-    fontFamily: 'DMSans_700Bold',
-  },
 });
+

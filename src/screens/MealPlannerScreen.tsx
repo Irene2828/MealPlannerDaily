@@ -8,7 +8,6 @@ import {
   Pressable,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { MEAL_SLOTS } from '../data/meals';
 import { KIDS_MEAL_SLOTS } from '../data/kidsMeals';
@@ -63,20 +62,26 @@ export default function MealPlannerScreen() {
   const currentSlots = mode === 'adults' ? adultsMeals : kidsMeals;
   const currentIndices = mode === 'adults' ? adultsIndices : kidsIndices;
 
-  // selectedDrinks: key = `${mode}-${day}`, value = Set of drink ids
-  const [selectedDrinks, setSelectedDrinks] = useState<Record<string, Set<string>>>({});
+  // selectedDrinks: key = `${mode}-${day}`, value = record of drinkId -> count
+  const [selectedDrinks, setSelectedDrinks] = useState<Record<string, Record<string, number>>>({});
 
   const drinkKey = `${mode}-${selectedDay}`;
-  const activeDrinks = selectedDrinks[drinkKey] ?? new Set<string>();
+  const activeDrinks = selectedDrinks[drinkKey] ?? {};
 
-  const toggleDrink = (drinkId: string) => {
+  const incrementDrink = (drinkId: string) => {
     setSelectedDrinks(prev => {
-      const current = new Set(prev[drinkKey] ?? []);
-      if (current.has(drinkId)) {
-        current.delete(drinkId);
-      } else {
-        current.add(drinkId);
-      }
+      const current = { ...(prev[drinkKey] || {}) };
+      current[drinkId] = (current[drinkId] || 0) + 1;
+      return { ...prev, [drinkKey]: current };
+    });
+  };
+
+  const decrementDrink = (drinkId: string) => {
+    setSelectedDrinks(prev => {
+      const current = { ...(prev[drinkKey] || {}) };
+      if (!current[drinkId]) return prev;
+      current[drinkId] -= 1;
+      if (current[drinkId] === 0) delete current[drinkId];
       return { ...prev, [drinkKey]: current };
     });
   };
@@ -85,42 +90,13 @@ export default function MealPlannerScreen() {
     <View style={styles.root}>
       <StatusBar barStyle="dark-content" />
 
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        {/* ─── Header ─── */}
-        <View style={styles.header}>
-          <Pressable style={styles.headerIconLeft} onPress={() => setMode('adults')}>
-            <Ionicons 
-              name="people-outline"
-              size={26} 
-              color={mode === 'adults' ? '#374151' : '#A3A3A3'} 
-            />
-          </Pressable>
 
-          <View style={styles.headerTitleContainer}>
-            <Text style={styles.headerTitle}>
-              {mode === 'adults' ? "Today's Menu" : "Kids Menu"}
-            </Text>
-            <View style={styles.underlineContainer}>
-              <View style={[styles.underlineSegment, { transform: [{ rotate: '-2deg' }], opacity: 0.9 }]} />
-              <View style={[styles.underlineSegment, { transform: [{ rotate: '-0.5deg' }], marginTop: -1, opacity: 0.8, width: '90%', alignSelf: 'center' }]} />
-            </View>
-          </View>
-
-          <Pressable style={styles.headerIconRight} onPress={() => setMode('kids')}>
-            <Ionicons 
-              name="happy-outline"
-              size={26} 
-              color={mode === 'kids' ? '#374151' : '#A3A3A3'} 
-            />
-          </Pressable>
-        </View>
-
-        {/* ─── Days of the week strip ─── */}
+      {/* ─── Days of the week strip ─── */}
+      <View style={styles.moodStripWrapper}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.moodStrip}
-          style={styles.moodStripWrapper}
         >
           {DAYS_OF_WEEK.map((day) => {
             const active = selectedDay === day.id;
@@ -137,7 +113,7 @@ export default function MealPlannerScreen() {
             );
           })}
         </ScrollView>
-      </SafeAreaView>
+      </View>
 
       {/* ─── Main scroll ─── */}
       <ScrollView
@@ -175,7 +151,8 @@ export default function MealPlannerScreen() {
           });
           // Add selected drink calories
           DRINKS.forEach(d => {
-            if (activeDrinks.has(d.id)) totalCalories += d.cal;
+            const count = activeDrinks[d.id] || 0;
+            totalCalories += count * d.cal;
           });
           return (
             <View style={styles.summaryWrapper}>
@@ -184,30 +161,14 @@ export default function MealPlannerScreen() {
 
               <View style={styles.summaryContent}>
 
-                {/* Drinks selector row */}
-                <View style={styles.drinksRow}>
-                  {DRINKS.map(d => {
-                    const active = activeDrinks.has(d.id);
-                    return (
-                      <Pressable key={d.id} style={styles.drinkItem} onPress={() => toggleDrink(d.id)}>
-                        <View style={[styles.drinkCircle, active && styles.drinkCircleActive]}>
-                          <Text style={styles.drinkEmoji}>{d.emoji}</Text>
-                        </View>
-                        <Text style={[styles.drinkLabel, active && styles.drinkLabelActive]}>{d.label}</Text>
-                        {active && <Text style={styles.drinkCal}>+{d.cal}</Text>}
-                      </Pressable>
-                    );
-                  })}
-                </View>
-
                 {/* Macros left + calories right */}
                 <View style={styles.summaryMainRow}>
                   {/* Macro bars column */}
                   <View style={styles.summaryMacroColumn}>
                     {[
-                      { label: 'Protein', val: totalProtein, color: '#FF7A45' },
-                      { label: 'Fats',    val: totalFats,    color: '#CCFF00' },
-                      { label: 'Carbs',   val: totalCarbs,   color: '#00E5FF' },
+                      { label: 'Protein', val: totalProtein, color: '#9CA3AF' },
+                      { label: 'Fats',    val: totalFats,    color: '#D1D5DB' },
+                      { label: 'Carbs',   val: totalCarbs,   color: '#E5E7EB' },
                     ].map(m => {
                       const pct = Math.min((m.val / 60) * 100, 100);
                       return (
@@ -228,6 +189,33 @@ export default function MealPlannerScreen() {
                     <Text style={styles.summaryCalUnit}>kcal</Text>
                   </View>
                 </View>
+
+                {/* Drinks selector row */}
+                <View style={styles.drinksRow}>
+                  {DRINKS.map(d => {
+                    const count = activeDrinks[d.id] || 0;
+                    return (
+                      <View key={d.id} style={styles.drinkItem}>
+                        <Pressable onPress={() => incrementDrink(d.id)}>
+                          <View style={[styles.drinkCircle, count > 0 && styles.drinkCircleActive]}>
+                            <Text style={styles.drinkEmoji}>{d.emoji}</Text>
+                          </View>
+                        </Pressable>
+                        <Text style={[styles.drinkLabel, count > 0 && styles.drinkLabelActive]}>{d.label}</Text>
+                        
+                        <View style={styles.drinkControls}>
+                          <Pressable onPress={() => decrementDrink(d.id)} style={styles.drinkBtn}>
+                            <Ionicons name="remove" size={14} color="#6B7280" />
+                          </Pressable>
+                          <Text style={styles.drinkCount}>{count}</Text>
+                          <Pressable onPress={() => incrementDrink(d.id)} style={styles.drinkBtn}>
+                            <Ionicons name="add" size={14} color="#6B7280" />
+                          </Pressable>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
               </View>
             </View>
           );
@@ -244,56 +232,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  safeArea: {
-    zIndex: 10,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 24,
-    position: 'relative',
-  },
-  headerIconLeft: {
-    position: 'absolute',
-    left: 24,
-    padding: 8, // Increase touch target
-  },
-  headerIconRight: {
-    position: 'absolute',
-    right: 24,
-    padding: 8, // Increase touch target
-  },
-  headerTitleContainer: {
-    position: 'relative',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerTitle: {
-    fontFamily: 'Lora_500Medium', // Elegant serif font, less thick than Fraunces Black
-    fontSize: 20,
-    color: '#1A1A1A',
-    lineHeight: 26,
-    letterSpacing: -0.3,
-    textAlign: 'center',
-  },
-  underlineContainer: {
-    position: 'absolute',
-    bottom: -6,
-    left: '10%',
-    right: '10%',
-    height: 6,
-  },
-  underlineSegment: {
-    height: 2,
-    backgroundColor: '#FF7A45',
-    borderRadius: 999,
-    width: '100%',
-  },
   moodStripWrapper: {
     flexGrow: 0,
+    marginTop: 24,
   },
   moodStrip: {
     paddingHorizontal: 20,
@@ -363,20 +304,14 @@ const styles = StyleSheet.create({
   },
   summaryDivider: {
     height: 2,
-    backgroundColor: '#FF7A45',
+    backgroundColor: '#E5E7EB',
     borderRadius: 999,
-    opacity: 0.6,
     marginBottom: 20,
   },
   summaryContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: 14,
-    shadowColor: '#FF7A45',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
   },
   summaryMainRow: {
     flexDirection: 'row',
@@ -397,7 +332,7 @@ const styles = StyleSheet.create({
   summaryCalValue: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 30,
-    color: '#FF7A45',
+    color: '#4B5563',
     lineHeight: 34,
     textAlign: 'right',
   },
@@ -443,10 +378,10 @@ const styles = StyleSheet.create({
   drinksRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
-    paddingBottom: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    marginTop: 20,
+    paddingTop: 18,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
   },
   drinkItem: {
     alignItems: 'center',
@@ -456,15 +391,37 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   drinkCircleActive: {
-    backgroundColor: '#E5E7EB',
     borderColor: '#4B5563',
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1.5,
+  },
+  drinkControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+    gap: 6,
+  },
+  drinkBtn: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#F3F4F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  drinkCount: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 12,
+    color: '#4B5563',
+    minWidth: 12,
+    textAlign: 'center',
   },
   drinkEmoji: {
     fontSize: 20,
@@ -480,10 +437,6 @@ const styles = StyleSheet.create({
     color: '#374151',
     fontFamily: 'DMSans_700Bold',
   },
-  drinkCal: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 9,
-    color: '#FF7A45',
-  },
+
 });
 
