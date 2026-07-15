@@ -33,7 +33,7 @@ const getNeonColor = (slotId: string) => {
   return '#CCFF00'; // Lime green for all as requested
 };
 
-const getMealMacrosObj = (title: string, id: string) => {
+export const getMealMacrosObj = (title: string, id: string) => {
   const hash = (title + id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const protein = (hash % 15) + 12; // 12g - 26g
   const fats = (hash % 12) + 8;     // 8g - 19g

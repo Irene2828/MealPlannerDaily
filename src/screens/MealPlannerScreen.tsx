@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { MEAL_SLOTS } from '../data/meals';
 import { KIDS_MEAL_SLOTS } from '../data/kidsMeals';
-import { MealCarouselRow } from '../components/MealCarouselRow';
+import { MealCarouselRow, getMealMacrosObj } from '../components/MealCarouselRow';
 import { useGrocery } from '../context/GroceryContext';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -132,6 +132,59 @@ export default function MealPlannerScreen() {
             onSelectIndex={(index) => handleSelectIndex(slot.slotId, index)}
           />
         ))}
+
+        {/* ── Daily Summary ── */}
+        {(() => {
+          let totalCalories = 0, totalProtein = 0, totalFats = 0, totalCarbs = 0;
+          currentSlots.forEach(slot => {
+            const idx = Math.min(currentIndices[slot.slotId] ?? 0, slot.options.length - 1);
+            const meal = slot.options[idx];
+            if (meal) {
+              const m = getMealMacrosObj(meal.title, meal.id);
+              totalCalories += m.calories;
+              totalProtein += m.protein;
+              totalFats += m.fats;
+              totalCarbs += m.carbs;
+            }
+          });
+          return (
+            <View style={styles.summaryWrapper}>
+              {/* Thin orange divider */}
+              <View style={styles.summaryDivider} />
+
+              <View style={styles.summaryContent}>
+                <Text style={styles.summaryHeading}>Summary</Text>
+
+                {/* Total calories big number */}
+                <View style={styles.summaryCalRow}>
+                  <Text style={styles.summaryCalValue}>{totalCalories}</Text>
+                  <Text style={styles.summaryCalUnit}> kcal</Text>
+                </View>
+
+                {/* Macro bars */}
+                {[
+                  { label: 'Protein', val: totalProtein, unit: 'g', color: '#FF7A45' },
+                  { label: 'Fats',    val: totalFats,    unit: 'g', color: '#CCFF00' },
+                  { label: 'Carbs',   val: totalCarbs,   unit: 'g', color: '#00E5FF' },
+                ].map(m => {
+                  const maxPossible = 60;
+                  const pct = Math.min((m.val / maxPossible) * 100, 100);
+                  return (
+                    <View key={m.label} style={styles.summaryMacroRow}>
+                      <Text style={styles.summaryMacroLabel}>{m.label}</Text>
+                      <View style={styles.summaryBarBg}>
+                        <View
+                          style={[styles.summaryBarFill, { width: `${pct}%` as any, backgroundColor: m.color }]}
+                        />
+                      </View>
+                      <Text style={styles.summaryMacroVal}>{m.val}g</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          );
+        })()}
 
         <View style={{ height: 80 }} />
       </ScrollView>
@@ -256,6 +309,83 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_400Regular',
     fontSize: 14,
     color: '#666',
+  },
+  summaryWrapper: {
+    marginTop: 16,
+    marginHorizontal: 20,
+  },
+  summaryDivider: {
+    height: 2,
+    backgroundColor: '#FF7A45',
+    borderRadius: 999,
+    opacity: 0.6,
+    marginBottom: 20,
+  },
+  summaryContent: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#FF7A45',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  summaryHeading: {
+    fontFamily: 'Lora_500Medium',
+    fontSize: 17,
+    color: '#1A1A1A',
+    letterSpacing: -0.2,
+    marginBottom: 12,
+  },
+  summaryCalRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginBottom: 20,
+  },
+  summaryCalValue: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 42,
+    color: '#FF7A45',
+    lineHeight: 46,
+  },
+  summaryCalUnit: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 16,
+    color: '#9CA3AF',
+    marginLeft: 4,
+  },
+  summaryMacroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 10,
+  },
+  summaryMacroLabel: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: '#4B5563',
+    width: 52,
+  },
+  summaryBarBg: {
+    flex: 1,
+    height: 7,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  summaryBarFill: {
+    height: '100%' as any,
+    borderRadius: 4,
+  },
+  summaryMacroVal: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 13,
+    color: '#1F2937',
+    width: 36,
+    textAlign: 'right',
   },
 });
 
