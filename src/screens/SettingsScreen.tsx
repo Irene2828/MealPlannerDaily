@@ -228,10 +228,10 @@ export default function SettingsScreen() {
                   disabled={isGenerating || !val.trim()}
                 >
                   {isGenerating ? (
-                    <ActivityIndicator color="#FF7A45" size="small" />
+                    <ActivityIndicator color="#374151" size="small" />
                   ) : (
                     <>
-                      <Ionicons name="sparkles-outline" size={13} color="#FF7A45" />
+                      <Ionicons name="sparkles-outline" size={13} color="#374151" />
                       <Text style={[styles.aiBtnText, { fontSize: 11 }]}>Create with AI</Text>
                     </>
                   )}
@@ -434,7 +434,7 @@ const styles = StyleSheet.create({
   aiBtnText: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 10,
-    color: '#FF7A45',
+    color: '#374151',
     textTransform: 'uppercase',
     letterSpacing: 0.3,
   },

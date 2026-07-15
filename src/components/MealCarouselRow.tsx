@@ -44,7 +44,7 @@ export const getMealMacrosObj = (title: string, id: string) => {
 
 const getMealMacrosString = (title: string, id: string) => {
   const { protein, fats, carbs, calories } = getMealMacrosObj(title, id);
-  return `${protein} g protein, ${fats} g fats, ${carbs} g carbs, ${calories} cal`;
+  return `${protein}g P, ${fats}g F, ${carbs}g C, ${calories} Cal`;
 };
 
 const FOOD_IMAGES = [
