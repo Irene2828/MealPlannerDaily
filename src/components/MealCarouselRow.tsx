@@ -260,7 +260,7 @@ export const MealCarouselRow: React.FC<Props> = ({
           onPress={() => toggleConfirmMeal(mealId)}
         >
           {isConfirmed && (
-            <Ionicons name="checkmark" size={18} color="#FFFFFF" />
+            <Ionicons name="checkmark" size={18} color="#1A1A1A" />
           )}
         </Pressable>
 
@@ -398,7 +398,7 @@ export const MealCarouselRow: React.FC<Props> = ({
             <Ionicons 
               name={instructionsExpanded ? "book" : "book-outline"} 
               size={16} 
-              color={instructionsExpanded ? "#FF7A45" : "#6B7280"} 
+              color={instructionsExpanded ? "#1A1A1A" : "#6B7280"} 
             />
           </Pressable>
           
@@ -410,7 +410,7 @@ export const MealCarouselRow: React.FC<Props> = ({
             <Ionicons 
               name={ingredientsExpanded ? "receipt" : "receipt-outline"} 
               size={16} 
-              color={ingredientsExpanded ? "#FF7A45" : "#6B7280"} 
+              color={ingredientsExpanded ? "#1A1A1A" : "#6B7280"} 
             />
           </Pressable>
 
@@ -422,7 +422,7 @@ export const MealCarouselRow: React.FC<Props> = ({
             <Ionicons 
               name={macrosExpanded ? "information-circle" : "information-circle-outline"} 
               size={18} 
-              color={macrosExpanded ? "#FF7A45" : "#6B7280"} 
+              color={macrosExpanded ? "#1A1A1A" : "#6B7280"} 
             />
           </Pressable>
         </View>
@@ -695,8 +695,8 @@ const styles = StyleSheet.create({
     zIndex: 11,
   },
   confirmCheckboxActive: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderColor: 'rgba(255,255,255,0.95)',
+    backgroundColor: '#CCFF00',
+    borderColor: '#CCFF00',
   },
   gradientOverlay: {
     position: 'absolute',
@@ -778,8 +778,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   actionBtnActive: {
-    backgroundColor: '#FDE6D4',
-    borderColor: '#FF7A45',
+    backgroundColor: '#CCFF00',
+    borderColor: '#CCFF00',
   },
   expandedArea: {
     marginHorizontal: CARD_HORIZONTAL_MARGIN,
