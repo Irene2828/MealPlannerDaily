@@ -13,6 +13,7 @@ import {
   UIManager,
   useWindowDimensions,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -81,6 +82,14 @@ export const MealCarouselRow: React.FC<Props> = ({
   const [activeMenuMealId, setActiveMenuMealId] = useState<string | null>(null);
   const [generatingImageMealId, setGeneratingImageMealId] = useState<string | null>(null);
   const [pendingDeletions, setPendingDeletions] = useState<{ [mealId: string]: ReturnType<typeof setTimeout> }>({});
+  
+  const [isEditingInstructions, setIsEditingInstructions] = useState(false);
+  const [isEditingIngredients, setIsEditingIngredients] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState<'instructions' | 'ingredients' | null>(null);
+  
+  const [draftInstructions, setDraftInstructions] = useState<string[]>([]);
+  const [draftIngredients, setDraftIngredients] = useState<string[]>([]);
+
   const { 
     groceryList, 
     inventoryList, 
@@ -89,8 +98,40 @@ export const MealCarouselRow: React.FC<Props> = ({
     toggleInventory,
     toggleConfirmMeal,
     removeMealOption,
-    updateMealImage
+    updateMealImage,
+    updateMealInstructions,
+    updateMealIngredients
   } = useGrocery();
+
+  const MOCK_AI_INSTRUCTIONS = [
+    ["Blend with high-speed blender until silky smooth", "Pour into a chilled glass bowl", "Garnish with fresh organic mint leaves and chia seeds", "Serve immediately with a bamboo spoon"],
+    ["Preheat pan to medium heat", "Sauté lightly with premium extra virgin olive oil", "Season with Himalayan pink salt and cracked black pepper", "Plate beautifully and enjoy fresh"],
+    ["Layer ingredients evenly in a glass jar", "Drizzle with organic clover honey", "Chill in refrigerator for 30 minutes to set", "Top with toasted almonds and serve cold"]
+  ];
+
+  const MOCK_AI_INGREDIENTS = [
+    ["Organic Hass Avocado", "Sourdough Bread Slice", "Cherry Tomatoes", "Extra Virgin Olive Oil", "Himalayan Pink Salt", "Cracked Black Pepper"],
+    ["Greek Yogurt (Plain)", "Organic Honey", "Chia Seeds", "Fresh Raspberries", "Slivered Almonds"],
+    ["Baby Spinach", "Extra Virgin Olive Oil", "Organic Lemon Juice", "Sea Salt", "Pine Nuts"]
+  ];
+
+  const triggerAIInstructions = (mealId: string) => {
+    setIsGeneratingAI('instructions');
+    setTimeout(() => {
+      const mockSet = MOCK_AI_INSTRUCTIONS[Math.floor(Math.random() * MOCK_AI_INSTRUCTIONS.length)];
+      updateMealInstructions(slot.slotId, mealId, isKids, mockSet);
+      setIsGeneratingAI(null);
+    }, 1500);
+  };
+
+  const triggerAIIngredients = (mealId: string) => {
+    setIsGeneratingAI('ingredients');
+    setTimeout(() => {
+      const mockSet = MOCK_AI_INGREDIENTS[Math.floor(Math.random() * MOCK_AI_INGREDIENTS.length)];
+      updateMealIngredients(slot.slotId, mealId, isKids, mockSet);
+      setIsGeneratingAI(null);
+    }, 1500);
+  };
 
   const handleAddImage = (mealId: string) => {
     setActiveMenuMealId(null);
@@ -133,6 +174,8 @@ export const MealCarouselRow: React.FC<Props> = ({
         setIngredientsExpanded(false);
         setMacrosExpanded(false);
         setActiveMenuMealId(null);
+        setIsEditingInstructions(false);
+        setIsEditingIngredients(false);
       }
     },
     [selectedIndex, onSelectIndex, slot.options.length, CARD_WIDTH]
@@ -141,6 +184,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const toggleInstructions = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setInstructionsExpanded(!instructionsExpanded);
+    setIsEditingInstructions(false);
     if (!instructionsExpanded) {
       setIngredientsExpanded(false);
       setMacrosExpanded(false);
@@ -150,6 +194,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const toggleIngredients = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIngredientsExpanded(!ingredientsExpanded);
+    setIsEditingIngredients(false);
     if (!ingredientsExpanded) {
       setInstructionsExpanded(false);
       setMacrosExpanded(false);
@@ -420,63 +465,231 @@ export const MealCarouselRow: React.FC<Props> = ({
       <View style={styles.expandedArea}>
         {instructionsExpanded && (
           <View style={styles.expandedSection}>
-            <Text style={styles.expandedSectionTitle}>How to cook</Text>
-            <View style={styles.columnBody}>
-              {selected.instructions.map((step, i) => (
-                <Text key={i} style={styles.columnText}>{i + 1}. {step}</Text>
-              ))}
-            </View>
+            {isGeneratingAI === 'instructions' ? (
+              <View style={styles.sectionAILoader}>
+                <ActivityIndicator size="small" color="#FF7A45" />
+                <Text style={styles.sectionAILoaderText}>AI is crafting cooking steps...</Text>
+              </View>
+            ) : isEditingInstructions ? (
+              <View style={styles.editSectionContainer}>
+                <View style={styles.editSectionTitleRow}>
+                  <Text style={styles.editSectionLabel}>Edit Steps</Text>
+                  <Pressable onPress={() => setIsEditingInstructions(false)}>
+                    <Ionicons name="close" size={16} color="#9CA3AF" />
+                  </Pressable>
+                </View>
+                {draftInstructions.map((step, idx) => (
+                  <View key={idx} style={styles.editInputRow}>
+                    <TextInput
+                      style={styles.editInput}
+                      value={step}
+                      placeholder={`Step ${idx + 1}`}
+                      onChangeText={(text) => {
+                        const copy = [...draftInstructions];
+                        copy[idx] = text;
+                        setDraftInstructions(copy);
+                      }}
+                    />
+                    <Pressable 
+                      onPress={() => {
+                        const copy = draftInstructions.filter((_, i) => i !== idx);
+                        setDraftInstructions(copy);
+                      }}
+                      style={styles.editRemoveBtn}
+                    >
+                      <Ionicons name="trash-outline" size={16} color="#FF5B5B" />
+                    </Pressable>
+                  </View>
+                ))}
+                <Pressable 
+                  style={styles.editAddBtn}
+                  onPress={() => setDraftInstructions([...draftInstructions, ''])}
+                >
+                  <Ionicons name="add" size={14} color="#374151" />
+                  <Text style={styles.editAddBtnText}>Add Step</Text>
+                </Pressable>
+                
+                <View style={styles.editActionsRow}>
+                  <Pressable 
+                    style={styles.editCancelBtn}
+                    onPress={() => setIsEditingInstructions(false)}
+                  >
+                    <Text style={styles.editCancelBtnText}>Cancel</Text>
+                  </Pressable>
+                  <Pressable 
+                    style={styles.editSaveBtn}
+                    onPress={() => {
+                      updateMealInstructions(slot.slotId, selected.id, isKids, draftInstructions.filter(s => !!s.trim()));
+                      setIsEditingInstructions(false);
+                    }}
+                  >
+                    <Text style={styles.editSaveBtnText}>Save</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <>
+                <View style={styles.sectionHeaderBar}>
+                  <Text style={styles.expandedSectionTitle}>How to cook</Text>
+                  <View style={styles.sectionHeaderActions}>
+                    <Pressable 
+                      style={styles.sectionHeaderBtn} 
+                      onPress={() => {
+                        setDraftInstructions(selected.instructions);
+                        setIsEditingInstructions(true);
+                      }}
+                    >
+                      <Ionicons name="pencil-outline" size={12} color="#4B5563" />
+                      <Text style={styles.sectionHeaderBtnText}>Edit</Text>
+                    </Pressable>
+                    <Pressable style={styles.sectionHeaderBtn} onPress={() => triggerAIInstructions(selected.id)}>
+                      <Ionicons name="sparkles-outline" size={12} color="#FF7A45" />
+                      <Text style={[styles.sectionHeaderBtnText, { color: '#FF7A45' }]}>AI Generate</Text>
+                    </Pressable>
+                  </View>
+                </View>
+                <View style={styles.columnBody}>
+                  {selected.instructions.map((step, i) => (
+                    <Text key={i} style={styles.columnText}>{i + 1}. {step}</Text>
+                  ))}
+                </View>
+              </>
+            )}
           </View>
         )}
 
         {ingredientsExpanded && (
           <View style={styles.expandedSection}>
-            <Text style={styles.expandedSectionTitle}>Ingredients</Text>
-            <View style={styles.columnBody}>
-              {selected.shoppingList.map((item, i) => {
-                const isHave = inventoryList.has(item);
-                const isAddedToGrocery = groceryList.has(item);
-
-                return (
-                  <View key={i} style={styles.ingredientItemContainer}>
-                    <View style={styles.ingredientRowMain}>
-                      <Pressable 
-                        style={styles.circleButton}
-                        onPress={() => toggleInventory(item)}
-                      >
-                        <Ionicons 
-                          name={isHave ? "checkmark-circle-outline" : "ellipse-outline"} 
-                          size={20} 
-                          color={isHave ? "#10B981" : "#D1D5DB"} 
-                        />
-                      </Pressable>
-
-                      <Text 
-                        style={[
-                          styles.ingredientText, 
-                          isHave && styles.ingredientTextChecked
-                        ]}
-                      >
-                        {item}
-                      </Text>
-                    </View>
-
-                    {!isHave && (
-                      <View style={styles.ingredientActionRow}>
-                        <Pressable 
-                          style={[styles.needToBuyPill, isAddedToGrocery && styles.addedPill]}
-                          onPress={() => addToGrocery(item)}
-                        >
-                          <Text style={[styles.needToBuyText, isAddedToGrocery && styles.addedText]}>
-                            {isAddedToGrocery ? 'ADDED' : 'TO BUY'}
-                          </Text>
-                        </Pressable>
-                      </View>
-                    )}
+            {isGeneratingAI === 'ingredients' ? (
+              <View style={styles.sectionAILoader}>
+                <ActivityIndicator size="small" color="#FF7A45" />
+                <Text style={styles.sectionAILoaderText}>AI is compiling ingredients...</Text>
+              </View>
+            ) : isEditingIngredients ? (
+              <View style={styles.editSectionContainer}>
+                <View style={styles.editSectionTitleRow}>
+                  <Text style={styles.editSectionLabel}>Edit Ingredients</Text>
+                  <Pressable onPress={() => setIsEditingIngredients(false)}>
+                    <Ionicons name="close" size={16} color="#9CA3AF" />
+                  </Pressable>
+                </View>
+                {draftIngredients.map((ing, idx) => (
+                  <View key={idx} style={styles.editInputRow}>
+                    <TextInput
+                      style={styles.editInput}
+                      value={ing}
+                      placeholder={`Ingredient ${idx + 1}`}
+                      onChangeText={(text) => {
+                        const copy = [...draftIngredients];
+                        copy[idx] = text;
+                        setDraftIngredients(copy);
+                      }}
+                    />
+                    <Pressable 
+                      onPress={() => {
+                        const copy = draftIngredients.filter((_, i) => i !== idx);
+                        setDraftIngredients(copy);
+                      }}
+                      style={styles.editRemoveBtn}
+                    >
+                      <Ionicons name="trash-outline" size={16} color="#FF5B5B" />
+                    </Pressable>
                   </View>
-                );
-              })}
-            </View>
+                ))}
+                <Pressable 
+                  style={styles.editAddBtn}
+                  onPress={() => setDraftIngredients([...draftIngredients, ''])}
+                >
+                  <Ionicons name="add" size={14} color="#374151" />
+                  <Text style={styles.editAddBtnText}>Add Ingredient</Text>
+                </Pressable>
+                
+                <View style={styles.editActionsRow}>
+                  <Pressable 
+                    style={styles.editCancelBtn}
+                    onPress={() => setIsEditingIngredients(false)}
+                  >
+                    <Text style={styles.editCancelBtnText}>Cancel</Text>
+                  </Pressable>
+                  <Pressable 
+                    style={styles.editSaveBtn}
+                    onPress={() => {
+                      updateMealIngredients(slot.slotId, selected.id, isKids, draftIngredients.filter(s => !!s.trim()));
+                      setIsEditingIngredients(false);
+                    }}
+                  >
+                    <Text style={styles.editSaveBtnText}>Save</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <>
+                <View style={styles.sectionHeaderBar}>
+                  <Text style={styles.expandedSectionTitle}>Ingredients</Text>
+                  <View style={styles.sectionHeaderActions}>
+                    <Pressable 
+                      style={styles.sectionHeaderBtn} 
+                      onPress={() => {
+                        setDraftIngredients(selected.shoppingList);
+                        setIsEditingIngredients(true);
+                      }}
+                    >
+                      <Ionicons name="pencil-outline" size={12} color="#4B5563" />
+                      <Text style={styles.sectionHeaderBtnText}>Edit</Text>
+                    </Pressable>
+                    <Pressable style={styles.sectionHeaderBtn} onPress={() => triggerAIIngredients(selected.id)}>
+                      <Ionicons name="sparkles-outline" size={12} color="#FF7A45" />
+                      <Text style={[styles.sectionHeaderBtnText, { color: '#FF7A45' }]}>AI Generate</Text>
+                    </Pressable>
+                  </View>
+                </View>
+                <View style={styles.columnBody}>
+                  {selected.shoppingList.map((item, i) => {
+                    const isHave = inventoryList.has(item);
+                    const isAddedToGrocery = groceryList.has(item);
+
+                    return (
+                      <View key={i} style={styles.ingredientItemContainer}>
+                        <View style={styles.ingredientRowMain}>
+                          <Pressable 
+                            style={styles.circleButton}
+                            onPress={() => toggleInventory(item)}
+                          >
+                            <Ionicons 
+                              name={isHave ? "checkmark-circle-outline" : "ellipse-outline"} 
+                              size={20} 
+                              color={isHave ? "#10B981" : "#D1D5DB"} 
+                            />
+                          </Pressable>
+
+                          <Text 
+                            style={[
+                              styles.ingredientText, 
+                              isHave && styles.ingredientTextChecked
+                            ]}
+                          >
+                            {item}
+                          </Text>
+                        </View>
+
+                        {!isHave && (
+                          <View style={styles.ingredientActionRow}>
+                            <Pressable 
+                              style={[styles.needToBuyPill, isAddedToGrocery && styles.addedPill]}
+                              onPress={() => addToGrocery(item)}
+                            >
+                              <Text style={[styles.needToBuyText, isAddedToGrocery && styles.addedText]}>
+                                {isAddedToGrocery ? 'ADDED' : 'TO BUY'}
+                              </Text>
+                            </Pressable>
+                          </View>
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
+              </>
+            )}
           </View>
         )}
 
@@ -822,6 +1035,141 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginTop: 8,
     letterSpacing: 0.5,
+  },
+  sectionHeaderBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  sectionHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  sectionHeaderBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  sectionHeaderBtnText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 10,
+    color: '#4B5563',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  sectionAILoader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 16,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 122, 69, 0.05)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 122, 69, 0.15)',
+    borderStyle: 'dashed',
+  },
+  sectionAILoaderText: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    color: '#FF7A45',
+  },
+  editSectionContainer: {
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  editSectionTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    borderBottomWidth: 1,
+    borderColor: '#F3F4F6',
+    paddingBottom: 8,
+  },
+  editSectionLabel: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: '#9CA3AF',
+  },
+  editInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  editInput: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 13,
+    color: '#1F2937',
+    fontFamily: 'DMSans_500Medium',
+  },
+  editRemoveBtn: {
+    padding: 4,
+  },
+  editAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderStyle: 'dashed',
+    borderRadius: 6,
+    paddingVertical: 8,
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  editAddBtnText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    color: '#374151',
+  },
+  editActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  editCancelBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: '#F3F4F6',
+  },
+  editCancelBtnText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    color: '#4B5563',
+  },
+  editSaveBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: '#374151',
+  },
+  editSaveBtnText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    color: '#FFFFFF',
   },
   cardEmpty: {
     height: 154,

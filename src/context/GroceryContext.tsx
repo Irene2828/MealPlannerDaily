@@ -16,6 +16,8 @@ interface GroceryContextType {
   addCustomMeals: (slotId: string, newOptions: MealOption[]) => void;
   removeMealOption: (slotId: string, mealId: string, isKids: boolean) => void;
   updateMealImage: (slotId: string, mealId: string, isKids: boolean, imageUrl: string) => void;
+  updateMealInstructions: (slotId: string, mealId: string, isKids: boolean, instructions: string[]) => void;
+  updateMealIngredients: (slotId: string, mealId: string, isKids: boolean, ingredients: string[]) => void;
 }
 
 const GroceryContext = createContext<GroceryContextType | undefined>(undefined);
@@ -152,6 +154,40 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const updateMealInstructions = (slotId: string, mealId: string, isKids: boolean, instructions: string[]) => {
+    const setter = isKids ? setKidsMeals : setAdultsMeals;
+    setter((prev) => {
+      return prev.map((slot) => {
+        if (slot.slotId === slotId) {
+          return {
+            ...slot,
+            options: slot.options.map((opt) => 
+              opt.id === mealId ? { ...opt, instructions } : opt
+            ),
+          };
+        }
+        return slot;
+      });
+    });
+  };
+
+  const updateMealIngredients = (slotId: string, mealId: string, isKids: boolean, ingredients: string[]) => {
+    const setter = isKids ? setKidsMeals : setAdultsMeals;
+    setter((prev) => {
+      return prev.map((slot) => {
+        if (slot.slotId === slotId) {
+          return {
+            ...slot,
+            options: slot.options.map((opt) => 
+              opt.id === mealId ? { ...opt, shoppingList: ingredients } : opt
+            ),
+          };
+        }
+        return slot;
+      });
+    });
+  };
+
   return (
     <GroceryContext.Provider
       value={{
@@ -168,6 +204,8 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
         addCustomMeals,
         removeMealOption,
         updateMealImage,
+        updateMealInstructions,
+        updateMealIngredients,
       }}
     >
       {children}
