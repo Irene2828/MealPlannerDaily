@@ -421,7 +421,7 @@ export const MealCarouselRow: React.FC<Props> = ({
 
       {/* Meal Info Header Row with Meal Name and action icons */}
       <View style={styles.mealHeaderRow}>
-        <Text style={styles.mealHeaderName} numberOfLines={1}>{selected.title}</Text>
+        <Text style={styles.mealHeaderName} numberOfLines={2}>{selected.title}</Text>
         <View style={styles.mealHeaderActions}>
           {/* Pan/Recipe Icon */}
           <Pressable 
@@ -788,10 +788,10 @@ const styles = StyleSheet.create({
   mealHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginHorizontal: CARD_HORIZONTAL_MARGIN,
-    marginTop: 14,
-    paddingVertical: 8,
+    marginTop: 7,
+    paddingVertical: 4,
     borderBottomWidth: 1,
     borderColor: '#FDE6D4',
     marginBottom: 12,

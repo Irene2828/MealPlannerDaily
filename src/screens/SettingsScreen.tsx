@@ -95,6 +95,7 @@ export default function SettingsScreen() {
 
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const [generatedMeals, setGeneratedMeals] = useState<Record<string, MealOption>>({});
+  const [expandedSection, setExpandedSection] = useState<Record<string, 'recipe' | 'list' | 'macros' | null>>({});
 
   const handleAddInput = (category: string) => {
     setInputs((prev) => ({
@@ -182,6 +183,13 @@ export default function SettingsScreen() {
     });
   };
 
+  const toggleSection = (key: string, section: 'recipe' | 'list' | 'macros') => {
+    setExpandedSection(prev => ({
+      ...prev,
+      [key]: prev[key] === section ? null : section,
+    }));
+  };
+
   const renderInputSection = (category: string, label: string) => {
     const categoryInputs = inputs[category] || [''];
     return (
@@ -197,39 +205,126 @@ export default function SettingsScreen() {
           const key = `${category}-${idx}`;
           const isGenerating = loadingItems[key];
           const generatedMeal = generatedMeals[key];
+          const activeSection = expandedSection[key] ?? null;
 
           return (
             <View key={idx} style={styles.inputItemContainer}>
+              {/* Minimal name row + 3 icons */}
               <View style={styles.inputWrapper}>
                 <TextInput
                   style={styles.input}
-                  placeholder={`Add meal option`}
+                  placeholder="Meal name..."
                   placeholderTextColor="#9CA3AF"
                   value={val}
                   onChangeText={(txt) => handleTextChange(category, idx, txt)}
                 />
-                
-                <Pressable 
-                  style={[styles.inlineGenerateBtn, (!val.trim() || isGenerating) && styles.btnDisabled]}
+
+                {/* Recipe icon */}
+                <Pressable
+                  style={[styles.iconBtn, activeSection === 'recipe' && styles.iconBtnActive]}
+                  onPress={() => toggleSection(key, 'recipe')}
+                >
+                  <Ionicons name="restaurant-outline" size={15} color={activeSection === 'recipe' ? '#FF7A45' : '#6B7280'} />
+                </Pressable>
+
+                {/* Ingredients icon */}
+                <Pressable
+                  style={[styles.iconBtn, activeSection === 'list' && styles.iconBtnActive]}
+                  onPress={() => toggleSection(key, 'list')}
+                >
+                  <Ionicons name="list-outline" size={15} color={activeSection === 'list' ? '#FF7A45' : '#6B7280'} />
+                </Pressable>
+
+                {/* Macros icon */}
+                <Pressable
+                  style={[styles.iconBtn, activeSection === 'macros' && styles.iconBtnActive]}
+                  onPress={() => toggleSection(key, 'macros')}
+                >
+                  <Ionicons name="pie-chart-outline" size={15} color={activeSection === 'macros' ? '#FF7A45' : '#6B7280'} />
+                </Pressable>
+
+                {/* Generate full meal */}
+                <Pressable
+                  style={[styles.iconBtn, styles.iconBtnGenerate, (!val.trim() || isGenerating) && styles.btnDisabled]}
                   onPress={() => handleGenerateSingle(category, idx)}
                   disabled={isGenerating || !val.trim()}
                 >
-                  {isGenerating ? (
-                    <ActivityIndicator color="#374151" size="small" />
-                  ) : (
-                    <>
-                      <Ionicons name="color-wand-outline" size={14} color="#374151" style={{ marginRight: 4 }} />
-                      <Text style={styles.inlineGenerateBtnText}>Generate Option</Text>
-                    </>
-                  )}
+                  {isGenerating
+                    ? <ActivityIndicator color="#FF7A45" size="small" />
+                    : <Ionicons name="color-wand-outline" size={15} color="#FF7A45" />
+                  }
                 </Pressable>
 
                 {categoryInputs.length > 1 && (
                   <Pressable onPress={() => handleRemoveInput(category, idx)} style={styles.removeButton}>
-                    <Ionicons name="close-circle" size={20} color="#D1D5DB" />
+                    <Ionicons name="close-circle" size={18} color="#D1D5DB" />
                   </Pressable>
                 )}
               </View>
+
+              {/* Expandable recipe steps panel */}
+              {activeSection === 'recipe' && (
+                <View style={styles.expandPanel}>
+                  <View style={styles.expandPanelHeader}>
+                    <Text style={styles.expandPanelLabel}>How to Cook</Text>
+                    <Pressable
+                      style={styles.aiBtn}
+                      onPress={() => {
+                        if (!val.trim()) return;
+                        handleGenerateSingle(category, idx);
+                      }}
+                    >
+                      <Ionicons name="sparkles-outline" size={12} color="#FF7A45" />
+                      <Text style={styles.aiBtnText}>AI Generate</Text>
+                    </Pressable>
+                  </View>
+                  {(generatedMeal?.instructions ?? generateDetails(val || 'meal', category).instructions).map((step, i) => (
+                    <Text key={i} style={styles.expandPanelText}>{i + 1}. {step}</Text>
+                  ))}
+                </View>
+              )}
+
+              {/* Expandable ingredients panel */}
+              {activeSection === 'list' && (
+                <View style={styles.expandPanel}>
+                  <View style={styles.expandPanelHeader}>
+                    <Text style={styles.expandPanelLabel}>Ingredients</Text>
+                    <Pressable
+                      style={styles.aiBtn}
+                      onPress={() => {
+                        if (!val.trim()) return;
+                        handleGenerateSingle(category, idx);
+                      }}
+                    >
+                      <Ionicons name="sparkles-outline" size={12} color="#FF7A45" />
+                      <Text style={styles.aiBtnText}>AI Generate</Text>
+                    </Pressable>
+                  </View>
+                  {(generatedMeal?.shoppingList ?? generateDetails(val || 'meal', category).shoppingList).map((item, i) => (
+                    <View key={i} style={styles.expandIngredientRow}>
+                      <View style={styles.expandBullet} />
+                      <Text style={styles.expandPanelText}>{item}</Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {/* Expandable macros panel */}
+              {activeSection === 'macros' && (
+                <View style={styles.expandPanel}>
+                  <Text style={styles.expandPanelLabel}>Nutrition Estimate</Text>
+                  {[{label: 'Protein', val: '18g', color: '#FF7A45'}, {label: 'Fats', val: '14g', color: '#CCFF00'}, {label: 'Carbs', val: '32g', color: '#00E5FF'}].map(m => (
+                    <View key={m.label} style={styles.macroRow}>
+                      <Text style={styles.macroLabel}>{m.label}</Text>
+                      <View style={styles.macroBarBg}>
+                        <View style={[styles.macroBarFill, {backgroundColor: m.color, width: m.val === '18g' ? '40%' : m.val === '14g' ? '30%' : '70%'}] as any} />
+                      </View>
+                      <Text style={styles.macroVal}>{m.val}</Text>
+                    </View>
+                  ))}
+                  <Text style={styles.expandPanelLabel} allowFontScaling={false}>~310 kcal</Text>
+                </View>
+              )}
 
               {generatedMeal && (
                  <View style={styles.mealCard}>
@@ -385,6 +480,116 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_700Bold',
     fontSize: 12,
     color: '#374151',
+  },
+  iconBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 4,
+  },
+  iconBtnActive: {
+    backgroundColor: '#FDE6D4',
+    borderColor: '#FF7A45',
+  },
+  iconBtnGenerate: {
+    backgroundColor: '#FDE6D4',
+    borderColor: '#FF7A45',
+  },
+  expandPanel: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  expandPanelHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  expandPanelLabel: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: '#9CA3AF',
+    marginBottom: 4,
+  },
+  expandPanelText: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    color: '#4B5563',
+    lineHeight: 20,
+    marginBottom: 4,
+    opacity: 0.8,
+  },
+  expandIngredientRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  expandBullet: {
+    width: 5,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#FF7A45',
+    flexShrink: 0,
+  },
+  aiBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: 'rgba(255,122,69,0.3)',
+    backgroundColor: 'rgba(255,122,69,0.05)',
+  },
+  aiBtnText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 10,
+    color: '#FF7A45',
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  macroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  macroLabel: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 12,
+    color: '#6B7280',
+    width: 50,
+  },
+  macroBarBg: {
+    flex: 1,
+    height: 6,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  macroBarFill: {
+    height: '100%' as any,
+    borderRadius: 3,
+  },
+  macroVal: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 12,
+    color: '#1F2937',
+    width: 32,
+    textAlign: 'right',
   },
   btnDisabled: {
     opacity: 0.5,
