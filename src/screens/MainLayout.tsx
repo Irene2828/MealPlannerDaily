@@ -21,16 +21,18 @@ export default function MainLayout() {
     >
       {/* Unified Top Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Pressable 
-          style={styles.headerIconLeft} 
-          onPress={() => setActiveTab('settings')}
-        >
-          <Ionicons 
-            name="settings-outline"
-            size={25} 
-            color={activeTab === 'settings' ? '#374151' : '#9CA3AF'} 
-          />
-        </Pressable>
+        <View style={styles.headerLeftContainer}>
+          <Pressable 
+            style={styles.headerIcon} 
+            onPress={() => setActiveTab('settings')}
+          >
+            <Ionicons 
+              name="settings-outline"
+              size={25} 
+              color={activeTab === 'settings' ? '#374151' : '#9CA3AF'} 
+            />
+          </Pressable>
+        </View>
 
         <Pressable 
           style={styles.headerTitleContainer} 
@@ -43,23 +45,25 @@ export default function MainLayout() {
           </View>
         </Pressable>
 
-        <Pressable 
-          style={styles.headerIconRight} 
-          onPress={() => setActiveTab('grocery')}
-        >
-          <View style={styles.iconContainer}>
-            <Ionicons 
-              name="list-outline"
-              size={28} 
-              color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
-            />
-            {groceryList.size > 0 && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{groceryList.size}</Text>
-              </View>
-            )}
-          </View>
-        </Pressable>
+        <View style={styles.headerRightContainer}>
+          <Pressable 
+            style={styles.headerIcon} 
+            onPress={() => setActiveTab('grocery')}
+          >
+            <View style={styles.iconContainer}>
+              <Ionicons 
+                name="list-outline"
+                size={28} 
+                color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
+              />
+              {groceryList.size > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{groceryList.size}</Text>
+                </View>
+              )}
+            </View>
+          </Pressable>
+        </View>
       </View>
 
       {/* Content Area */}
@@ -81,23 +85,24 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 24,
     paddingBottom: 8,
     position: 'relative',
   },
-  headerIconLeft: {
-    position: 'absolute',
-    left: 24,
-    bottom: 4,
-    padding: 8,
+  headerLeftContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
   },
-  headerIconRight: {
-    position: 'absolute',
-    right: 24,
-    bottom: 2,
-    padding: 8,
+  headerRightContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  headerIcon: {
+    padding: 4,
   },
   headerTitleContainer: {
     position: 'relative',

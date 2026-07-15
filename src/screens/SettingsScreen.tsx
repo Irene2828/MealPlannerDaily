@@ -95,6 +95,7 @@ export default function SettingsScreen() {
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const [generatedMeals, setGeneratedMeals] = useState<Record<string, MealOption>>({});
   const [expandedSection, setExpandedSection] = useState<Record<string, 'recipe' | 'list' | 'macros' | null>>({});
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
 
   const handleAddInput = (category: string) => {
     setInputs((prev) => ({
@@ -209,49 +210,31 @@ export default function SettingsScreen() {
           return (
             <View key={idx} style={styles.inputItemContainer}>
               {/* Minimal name row + 3 icons */}
-              <View style={styles.inputWrapper}>
+              <View style={[styles.inputWrapper, focusedInput === key && styles.inputWrapperFocused]}>
                 <TextInput
                   style={styles.input}
                   placeholder="Meal name..."
                   placeholderTextColor="#9CA3AF"
                   value={val}
                   onChangeText={(txt) => handleTextChange(category, idx, txt)}
+                  onFocus={() => setFocusedInput(key)}
+                  onBlur={() => setFocusedInput(null)}
                 />
-
-                {/* Recipe icon */}
-                <Pressable
-                  style={[styles.iconBtn, activeSection === 'recipe' && styles.iconBtnActive]}
-                  onPress={() => toggleSection(key, 'recipe')}
-                >
-                  <Ionicons name="restaurant-outline" size={15} color={activeSection === 'recipe' ? '#FF7A45' : '#6B7280'} />
-                </Pressable>
-
-                {/* Ingredients icon */}
-                <Pressable
-                  style={[styles.iconBtn, activeSection === 'list' && styles.iconBtnActive]}
-                  onPress={() => toggleSection(key, 'list')}
-                >
-                  <Ionicons name="list-outline" size={15} color={activeSection === 'list' ? '#FF7A45' : '#6B7280'} />
-                </Pressable>
-
-                {/* Macros icon */}
-                <Pressable
-                  style={[styles.iconBtn, activeSection === 'macros' && styles.iconBtnActive]}
-                  onPress={() => toggleSection(key, 'macros')}
-                >
-                  <Ionicons name="pie-chart-outline" size={15} color={activeSection === 'macros' ? '#FF7A45' : '#6B7280'} />
-                </Pressable>
 
                 {/* Generate full meal */}
                 <Pressable
-                  style={[styles.iconBtn, styles.iconBtnGenerate, (!val.trim() || isGenerating) && styles.btnDisabled]}
+                  style={[styles.aiBtn, { marginLeft: 8, paddingVertical: 6, paddingHorizontal: 12 }, (!val.trim() || isGenerating) && styles.btnDisabled]}
                   onPress={() => handleGenerateSingle(category, idx)}
                   disabled={isGenerating || !val.trim()}
                 >
-                  {isGenerating
-                    ? <ActivityIndicator color="#FF7A45" size="small" />
-                    : <Ionicons name="color-wand-outline" size={15} color="#FF7A45" />
-                  }
+                  {isGenerating ? (
+                    <ActivityIndicator color="#FF7A45" size="small" />
+                  ) : (
+                    <>
+                      <Ionicons name="sparkles-outline" size={13} color="#FF7A45" />
+                      <Text style={[styles.aiBtnText, { fontSize: 11 }]}>Create with AI</Text>
+                    </>
+                  )}
                 </Pressable>
 
                 {categoryInputs.length > 1 && (
@@ -261,69 +244,7 @@ export default function SettingsScreen() {
                 )}
               </View>
 
-              {/* Expandable recipe steps panel */}
-              {activeSection === 'recipe' && (
-                <View style={styles.expandPanel}>
-                  <View style={styles.expandPanelHeader}>
-                    <Text style={styles.expandPanelLabel}>How to Cook</Text>
-                    <Pressable
-                      style={styles.aiBtn}
-                      onPress={() => {
-                        if (!val.trim()) return;
-                        handleGenerateSingle(category, idx);
-                      }}
-                    >
-                      <Ionicons name="sparkles-outline" size={12} color="#FF7A45" />
-                      <Text style={styles.aiBtnText}>AI Generate</Text>
-                    </Pressable>
-                  </View>
-                  {(generatedMeal?.instructions ?? generateDetails(val || 'meal', category).instructions).map((step, i) => (
-                    <Text key={i} style={styles.expandPanelText}>{i + 1}. {step}</Text>
-                  ))}
-                </View>
-              )}
-
-              {/* Expandable ingredients panel */}
-              {activeSection === 'list' && (
-                <View style={styles.expandPanel}>
-                  <View style={styles.expandPanelHeader}>
-                    <Text style={styles.expandPanelLabel}>Ingredients</Text>
-                    <Pressable
-                      style={styles.aiBtn}
-                      onPress={() => {
-                        if (!val.trim()) return;
-                        handleGenerateSingle(category, idx);
-                      }}
-                    >
-                      <Ionicons name="sparkles-outline" size={12} color="#FF7A45" />
-                      <Text style={styles.aiBtnText}>AI Generate</Text>
-                    </Pressable>
-                  </View>
-                  {(generatedMeal?.shoppingList ?? generateDetails(val || 'meal', category).shoppingList).map((item, i) => (
-                    <View key={i} style={styles.expandIngredientRow}>
-                      <View style={styles.expandBullet} />
-                      <Text style={styles.expandPanelText}>{item}</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              {/* Expandable macros panel */}
-              {activeSection === 'macros' && (
-                <View style={styles.expandPanel}>
-                  <Text style={styles.expandPanelLabel}>Nutrition Estimate</Text>
-                  {[{label: 'Protein', val: '18g', color: '#FF7A45'}, {label: 'Fats', val: '14g', color: '#CCFF00'}, {label: 'Carbs', val: '32g', color: '#00E5FF'}].map(m => (
-                    <View key={m.label} style={styles.macroRow}>
-                      <Text style={styles.macroLabel}>{m.label}</Text>
-                      <View style={styles.macroBarBg}>
-                        <View style={[styles.macroBarFill, {backgroundColor: m.color, width: m.val === '18g' ? '40%' : m.val === '14g' ? '30%' : '70%'}] as any} />
-                      </View>
-                      <Text style={styles.macroVal}>{m.val}</Text>
-                    </View>
-                  ))}
-                  <Text style={styles.expandPanelLabel} allowFontScaling={false}>~310 kcal</Text>
-                </View>
-              )}
+              {/* Expandable panels removed per minimalist flow */}
 
               {generatedMeal && (
                  <View style={styles.mealCard}>
@@ -335,8 +256,8 @@ export default function SettingsScreen() {
                      </Text>
                    </View>
                    <Pressable style={styles.sendMenuBtn} onPress={() => handleSaveSingle(category, idx)}>
-                     <Text style={styles.sendMenuBtnText}>Send to Menu Page</Text>
-                     <Ionicons name="arrow-forward-outline" size={14} color="#374151" style={{ marginLeft: 4 }} />
+                     <Text style={styles.sendMenuBtnText}>Add to Menu</Text>
+                     <Ionicons name="add-outline" size={14} color="#374151" style={{ marginLeft: 4 }} />
                    </Pressable>
                    <Pressable style={styles.trashBtn} onPress={() => handleTrashSingle(category, idx)}>
                      <Ionicons name="trash-outline" size={16} color="#374151" />
@@ -407,11 +328,16 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     paddingRight: 6,
     paddingVertical: 6,
+    borderWidth: 1.5,
+    borderColor: '#E5E7EB',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.03,
     shadowRadius: 4,
     elevation: 1,
+  },
+  inputWrapperFocused: {
+    borderColor: '#FF7A45',
   },
   input: {
     flex: 1,
@@ -500,9 +426,9 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: 'rgba(255,122,69,0.3)',
+    borderRadius: 999,
+    borderWidth: 1.5,
+    borderColor: '#FF7A45',
     backgroundColor: 'rgba(255,122,69,0.05)',
   },
   aiBtnText: {

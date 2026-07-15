@@ -408,8 +408,8 @@ export const MealCarouselRow: React.FC<Props> = ({
             onPress={toggleIngredients}
           >
             <Ionicons 
-              name={ingredientsExpanded ? "receipt" : "receipt-outline"} 
-              size={16} 
+              name={ingredientsExpanded ? "list" : "list-outline"} 
+              size={18} 
               color={ingredientsExpanded ? "#1A1A1A" : "#6B7280"} 
             />
           </Pressable>
