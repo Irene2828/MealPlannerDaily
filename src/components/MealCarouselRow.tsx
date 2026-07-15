@@ -31,6 +31,20 @@ const getNeonColor = (slotId: string) => {
   return '#CCFF00'; // Lime green for all as requested
 };
 
+const getMealMacrosObj = (title: string, id: string) => {
+  const hash = (title + id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const protein = (hash % 15) + 12; // 12g - 26g
+  const fats = (hash % 12) + 8;     // 8g - 19g
+  const carbs = (hash % 30) + 20;    // 20g - 49g
+  const calories = protein * 4 + fats * 9 + carbs * 4;
+  return { protein, fats, carbs, calories };
+};
+
+const getMealMacrosString = (title: string, id: string) => {
+  const { protein, fats, carbs, calories } = getMealMacrosObj(title, id);
+  return `${protein} g protein, ${fats} g fats, ${carbs} g carbs, ${calories} cal`;
+};
+
 interface Props {
   day: string;
   slot: MealSlot;
@@ -53,6 +67,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
+  const [macrosExpanded, setMacrosExpanded] = useState(false);
   const [activeTrashMealId, setActiveTrashMealId] = useState<string | null>(null);
   const [pendingDeletions, setPendingDeletions] = useState<{ [mealId: string]: ReturnType<typeof setTimeout> }>({});
   const { 
@@ -74,6 +89,7 @@ export const MealCarouselRow: React.FC<Props> = ({
         onSelectIndex(clamped);
         setInstructionsExpanded(false);
         setIngredientsExpanded(false);
+        setMacrosExpanded(false);
       }
     },
     [selectedIndex, onSelectIndex, slot.options.length, CARD_WIDTH]
@@ -82,11 +98,28 @@ export const MealCarouselRow: React.FC<Props> = ({
   const toggleInstructions = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setInstructionsExpanded(!instructionsExpanded);
+    if (!instructionsExpanded) {
+      setIngredientsExpanded(false);
+      setMacrosExpanded(false);
+    }
   };
 
   const toggleIngredients = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setIngredientsExpanded(!ingredientsExpanded);
+    if (!ingredientsExpanded) {
+      setInstructionsExpanded(false);
+      setMacrosExpanded(false);
+    }
+  };
+
+  const toggleMacros = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setMacrosExpanded(!macrosExpanded);
+    if (!macrosExpanded) {
+      setInstructionsExpanded(false);
+      setIngredientsExpanded(false);
+    }
   };
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
@@ -171,7 +204,7 @@ export const MealCarouselRow: React.FC<Props> = ({
         </Pressable>
 
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>{item.title}</Text>
+          <Text style={styles.cardTitle}>{getMealMacrosString(item.title, item.id)}</Text>
         </View>
       </View>
     );
@@ -201,6 +234,51 @@ export const MealCarouselRow: React.FC<Props> = ({
   }
 
   const selected = slot.options[selectedIndex];
+
+  const renderMacrosBreakdown = (item: MealOption) => {
+    const macros = getMealMacrosObj(item.title, item.id);
+    const maxVal = Math.max(macros.protein, macros.fats, macros.carbs);
+    const getPercent = (val: number) => `${Math.round((val / maxVal) * 100)}%`;
+
+    return (
+      <View style={styles.macrosContainer}>
+        <View style={styles.macroBarRow}>
+          <View style={styles.macroInfo}>
+            <Text style={styles.macroName}>Protein</Text>
+            <Text style={styles.macroValue}>{macros.protein}g</Text>
+          </View>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBarFill, { width: getPercent(macros.protein) as any, backgroundColor: '#FF7A45' }]} />
+          </View>
+        </View>
+
+        <View style={styles.macroBarRow}>
+          <View style={styles.macroInfo}>
+            <Text style={styles.macroName}>Fats</Text>
+            <Text style={styles.macroValue}>{macros.fats}g</Text>
+          </View>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBarFill, { width: getPercent(macros.fats) as any, backgroundColor: '#CCFF00' }]} />
+          </View>
+        </View>
+
+        <View style={styles.macroBarRow}>
+          <View style={styles.macroInfo}>
+            <Text style={styles.macroName}>Carbs</Text>
+            <Text style={styles.macroValue}>{macros.carbs}g</Text>
+          </View>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBarFill, { width: getPercent(macros.carbs) as any, backgroundColor: '#00E5FF' }]} />
+          </View>
+        </View>
+
+        <View style={styles.caloriesBanner}>
+          <Text style={styles.caloriesText}>Total Energy: </Text>
+          <Text style={styles.caloriesVal}>{macros.calories} kcal</Text>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -232,38 +310,64 @@ export const MealCarouselRow: React.FC<Props> = ({
         </View>
       </View>
 
-      {/* 2-Column Expandable Area */}
-      <View style={styles.contentContainer}>
-        {/* Column 1: Instructions */}
-        <View style={styles.column}>
-          <Pressable style={styles.columnHeader} onPress={toggleInstructions}>
-            <Text style={styles.columnTitle}>How to cook</Text>
+      {/* Meal Info Header Row with Meal Name and action icons */}
+      <View style={styles.mealHeaderRow}>
+        <Text style={styles.mealHeaderName} numberOfLines={1}>{selected.title}</Text>
+        <View style={styles.mealHeaderActions}>
+          {/* Pan/Recipe Icon */}
+          <Pressable 
+            style={[styles.actionBtn, instructionsExpanded && styles.actionBtnActive]} 
+            onPress={toggleInstructions}
+          >
             <Ionicons 
-              name={instructionsExpanded ? 'chevron-up' : 'chevron-down'} 
-              size={20} 
-              color="#9CA3AF" 
+              name={instructionsExpanded ? "restaurant" : "restaurant-outline"} 
+              size={16} 
+              color={instructionsExpanded ? "#FF7A45" : "#6B7280"} 
             />
           </Pressable>
-          {instructionsExpanded && (
+          
+          {/* List/Ingredients Icon */}
+          <Pressable 
+            style={[styles.actionBtn, ingredientsExpanded && styles.actionBtnActive]} 
+            onPress={toggleIngredients}
+          >
+            <Ionicons 
+              name={ingredientsExpanded ? "list" : "list-outline"} 
+              size={16} 
+              color={ingredientsExpanded ? "#FF7A45" : "#6B7280"} 
+            />
+          </Pressable>
+
+          {/* Macros Icon */}
+          <Pressable 
+            style={[styles.actionBtn, macrosExpanded && styles.actionBtnActive]} 
+            onPress={toggleMacros}
+          >
+            <Ionicons 
+              name={macrosExpanded ? "pie-chart" : "pie-chart-outline"} 
+              size={16} 
+              color={macrosExpanded ? "#FF7A45" : "#6B7280"} 
+            />
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Expandable Sections Area */}
+      <View style={styles.expandedArea}>
+        {instructionsExpanded && (
+          <View style={styles.expandedSection}>
+            <Text style={styles.expandedSectionTitle}>How to cook</Text>
             <View style={styles.columnBody}>
               {selected.instructions.map((step, i) => (
                 <Text key={i} style={styles.columnText}>{i + 1}. {step}</Text>
               ))}
             </View>
-          )}
-        </View>
+          </View>
+        )}
 
-        {/* Column 2: Ingredients */}
-        <View style={styles.column}>
-          <Pressable style={styles.columnHeader} onPress={toggleIngredients}>
-            <Text style={styles.columnTitle}>Ingredients</Text>
-            <Ionicons 
-              name={ingredientsExpanded ? 'chevron-up' : 'chevron-down'} 
-              size={20} 
-              color="#9CA3AF" 
-            />
-          </Pressable>
-          {ingredientsExpanded && (
+        {ingredientsExpanded && (
+          <View style={styles.expandedSection}>
+            <Text style={styles.expandedSectionTitle}>Ingredients</Text>
             <View style={styles.columnBody}>
               {selected.shoppingList.map((item, i) => {
                 const isHave = inventoryList.has(item);
@@ -309,8 +413,17 @@ export const MealCarouselRow: React.FC<Props> = ({
                 );
               })}
             </View>
-          )}
-        </View>
+          </View>
+        )}
+
+        {macrosExpanded && (
+          <View style={styles.expandedSection}>
+            <Text style={styles.expandedSectionTitle}>Nutrition Breakdown</Text>
+            <View style={styles.columnBody}>
+              {renderMacrosBreakdown(selected)}
+            </View>
+          </View>
+        )}
       </View>
     </View>
   );
@@ -390,38 +503,66 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 18,
+    fontSize: 12,
     color: '#FFFFFF',
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
+    lineHeight: 16,
   },
-  contentContainer: {
-    flexDirection: 'row',
-    marginHorizontal: CARD_HORIZONTAL_MARGIN,
-    marginTop: 4,
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 16, // Adds space between the two columns
-  },
-  column: {
-    flex: 1,
-  },
-  columnHeader: {
+  mealHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginHorizontal: CARD_HORIZONTAL_MARGIN,
+    marginTop: 14,
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderColor: '#FDE6D4', // light orange border
-    marginBottom: 8,
+    borderColor: '#FDE6D4',
+    marginBottom: 12,
   },
-  columnTitle: {
+  mealHeaderName: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 12,
+    fontSize: 13,
     textTransform: 'uppercase',
     letterSpacing: 1,
     color: '#4B5563',
+    flex: 1,
+    marginRight: 12,
+  },
+  mealHeaderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  actionBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  actionBtnActive: {
+    backgroundColor: '#FDE6D4',
+    borderColor: '#FF7A45',
+  },
+  expandedArea: {
+    marginHorizontal: CARD_HORIZONTAL_MARGIN,
+    marginTop: 4,
+  },
+  expandedSection: {
+    marginBottom: 16,
+  },
+  expandedSectionTitle: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: '#9CA3AF',
+    marginBottom: 8,
   },
   columnBody: {
     paddingTop: 4,
@@ -433,6 +574,63 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 6,
     opacity: 0.8,
+  },
+  macrosContainer: {
+    paddingTop: 4,
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  macroBarRow: {
+    marginBottom: 10,
+  },
+  macroInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  macroName: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    color: '#4B5563',
+    opacity: 0.8,
+  },
+  macroValue: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 13,
+    color: '#1F2937',
+  },
+  progressBarContainer: {
+    height: 6,
+    backgroundColor: '#E5E7EB',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    borderRadius: 3,
+  },
+  caloriesBanner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  caloriesText: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 13,
+    color: '#4B5563',
+    opacity: 0.8,
+  },
+  caloriesVal: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 15,
+    color: '#FF7A45',
   },
   ingredientItemContainer: {
     marginBottom: 12,
