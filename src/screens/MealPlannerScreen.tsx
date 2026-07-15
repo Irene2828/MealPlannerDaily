@@ -27,6 +27,14 @@ const DAYS_OF_WEEK = [
   { id: 'sun', label: 'Sun' },
 ];
 
+const DRINKS = [
+  { id: 'espresso',  label: 'Espresso',  emoji: '☕',  cal: 5   },
+  { id: 'latte',     label: 'Latte',     emoji: '🥛',  cal: 80  },
+  { id: 'juice',     label: 'Juice',     emoji: '🍊',  cal: 110 },
+  { id: 'milk',      label: 'Milk',      emoji: '🍼',  cal: 120 },
+  { id: 'smoothie',  label: 'Smoothie',  emoji: '🫙',  cal: 180 },
+];
+
 export default function MealPlannerScreen() {
   const [selectedDay, setSelectedDay] = useState('mon');
   const [mode, setMode] = useState<'adults' | 'kids'>('adults');
@@ -54,6 +62,24 @@ export default function MealPlannerScreen() {
 
   const currentSlots = mode === 'adults' ? adultsMeals : kidsMeals;
   const currentIndices = mode === 'adults' ? adultsIndices : kidsIndices;
+
+  // selectedDrinks: key = `${mode}-${day}`, value = Set of drink ids
+  const [selectedDrinks, setSelectedDrinks] = useState<Record<string, Set<string>>>({});
+
+  const drinkKey = `${mode}-${selectedDay}`;
+  const activeDrinks = selectedDrinks[drinkKey] ?? new Set<string>();
+
+  const toggleDrink = (drinkId: string) => {
+    setSelectedDrinks(prev => {
+      const current = new Set(prev[drinkKey] ?? []);
+      if (current.has(drinkId)) {
+        current.delete(drinkId);
+      } else {
+        current.add(drinkId);
+      }
+      return { ...prev, [drinkKey]: current };
+    });
+  };
 
   return (
     <View style={styles.root}>
@@ -147,6 +173,10 @@ export default function MealPlannerScreen() {
               totalCarbs += m.carbs;
             }
           });
+          // Add selected drink calories
+          DRINKS.forEach(d => {
+            if (activeDrinks.has(d.id)) totalCalories += d.cal;
+          });
           return (
             <View style={styles.summaryWrapper}>
               {/* Thin orange divider */}
@@ -154,6 +184,22 @@ export default function MealPlannerScreen() {
 
               <View style={styles.summaryContent}>
                 <Text style={styles.summaryHeading}>Summary</Text>
+
+                {/* Drinks selector row */}
+                <View style={styles.drinksRow}>
+                  {DRINKS.map(d => {
+                    const active = activeDrinks.has(d.id);
+                    return (
+                      <Pressable key={d.id} style={styles.drinkItem} onPress={() => toggleDrink(d.id)}>
+                        <View style={[styles.drinkCircle, active && styles.drinkCircleActive]}>
+                          <Text style={styles.drinkEmoji}>{d.emoji}</Text>
+                        </View>
+                        <Text style={[styles.drinkLabel, active && styles.drinkLabelActive]}>{d.label}</Text>
+                        {active && <Text style={styles.drinkCal}>+{d.cal}</Text>}
+                      </Pressable>
+                    );
+                  })}
+                </View>
 
                 {/* Total calories big number */}
                 <View style={styles.summaryCalRow}>
@@ -386,6 +432,51 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     width: 36,
     textAlign: 'right',
+  },
+  drinksRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    paddingBottom: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  drinkItem: {
+    alignItems: 'center',
+    gap: 5,
+  },
+  drinkCircle: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+  },
+  drinkCircleActive: {
+    backgroundColor: '#E5E7EB',
+    borderColor: '#4B5563',
+  },
+  drinkEmoji: {
+    fontSize: 20,
+  },
+  drinkLabel: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 9,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+    color: '#9CA3AF',
+  },
+  drinkLabelActive: {
+    color: '#374151',
+    fontFamily: 'DMSans_700Bold',
+  },
+  drinkCal: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 9,
+    color: '#FF7A45',
   },
 });
 
