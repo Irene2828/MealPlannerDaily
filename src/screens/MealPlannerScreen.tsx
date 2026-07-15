@@ -183,7 +183,6 @@ export default function MealPlannerScreen() {
               <View style={styles.summaryDivider} />
 
               <View style={styles.summaryContent}>
-                <Text style={styles.summaryHeading}>Summary</Text>
 
                 {/* Drinks selector row */}
                 <View style={styles.drinksRow}>
@@ -201,32 +200,34 @@ export default function MealPlannerScreen() {
                   })}
                 </View>
 
-                {/* Total calories big number */}
-                <View style={styles.summaryCalRow}>
-                  <Text style={styles.summaryCalValue}>{totalCalories}</Text>
-                  <Text style={styles.summaryCalUnit}> kcal</Text>
-                </View>
+                {/* Macros left + calories right */}
+                <View style={styles.summaryMainRow}>
+                  {/* Macro bars column */}
+                  <View style={styles.summaryMacroColumn}>
+                    {[
+                      { label: 'Protein', val: totalProtein, color: '#FF7A45' },
+                      { label: 'Fats',    val: totalFats,    color: '#CCFF00' },
+                      { label: 'Carbs',   val: totalCarbs,   color: '#00E5FF' },
+                    ].map(m => {
+                      const pct = Math.min((m.val / 60) * 100, 100);
+                      return (
+                        <View key={m.label} style={styles.summaryMacroRow}>
+                          <Text style={styles.summaryMacroLabel}>{m.label}</Text>
+                          <View style={styles.summaryBarBg}>
+                            <View style={[styles.summaryBarFill, { width: `${pct}%` as any, backgroundColor: m.color }]} />
+                          </View>
+                          <Text style={styles.summaryMacroVal}>{m.val}g</Text>
+                        </View>
+                      );
+                    })}
+                  </View>
 
-                {/* Macro bars */}
-                {[
-                  { label: 'Protein', val: totalProtein, unit: 'g', color: '#FF7A45' },
-                  { label: 'Fats',    val: totalFats,    unit: 'g', color: '#CCFF00' },
-                  { label: 'Carbs',   val: totalCarbs,   unit: 'g', color: '#00E5FF' },
-                ].map(m => {
-                  const maxPossible = 60;
-                  const pct = Math.min((m.val / maxPossible) * 100, 100);
-                  return (
-                    <View key={m.label} style={styles.summaryMacroRow}>
-                      <Text style={styles.summaryMacroLabel}>{m.label}</Text>
-                      <View style={styles.summaryBarBg}>
-                        <View
-                          style={[styles.summaryBarFill, { width: `${pct}%` as any, backgroundColor: m.color }]}
-                        />
-                      </View>
-                      <Text style={styles.summaryMacroVal}>{m.val}g</Text>
-                    </View>
-                  );
-                })}
+                  {/* Calories right column */}
+                  <View style={styles.summaryCalColumn}>
+                    <Text style={styles.summaryCalValue}>{totalCalories}</Text>
+                    <Text style={styles.summaryCalUnit}>kcal</Text>
+                  </View>
+                </View>
               </View>
             </View>
           );
@@ -370,36 +371,42 @@ const styles = StyleSheet.create({
   summaryContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 20,
+    padding: 14,
     shadowColor: '#FF7A45',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 2,
   },
-  summaryHeading: {
-    fontFamily: 'Lora_500Medium',
-    fontSize: 17,
-    color: '#1A1A1A',
-    letterSpacing: -0.2,
-    marginBottom: 12,
-  },
-  summaryCalRow: {
+  summaryMainRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    marginBottom: 20,
+    alignItems: 'center',
+    gap: 12,
+  },
+  summaryMacroColumn: {
+    flex: 1,
+  },
+  summaryCalColumn: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    paddingLeft: 10,
+    borderLeftWidth: 1,
+    borderLeftColor: '#F3F4F6',
+    minWidth: 64,
   },
   summaryCalValue: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 42,
+    fontSize: 30,
     color: '#FF7A45',
-    lineHeight: 46,
+    lineHeight: 34,
+    textAlign: 'right',
   },
   summaryCalUnit: {
     fontFamily: 'DMSans_500Medium',
-    fontSize: 16,
+    fontSize: 11,
     color: '#9CA3AF',
-    marginLeft: 4,
+    textAlign: 'right',
+    marginTop: 1,
   },
   summaryMacroRow: {
     flexDirection: 'row',

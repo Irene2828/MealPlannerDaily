@@ -260,7 +260,7 @@ export const MealCarouselRow: React.FC<Props> = ({
           onPress={() => toggleConfirmMeal(mealId)}
         >
           {isConfirmed && (
-            <Ionicons name="checkmark" size={18} color="#1A1A1A" />
+            <Ionicons name="checkmark" size={18} color="#FFFFFF" />
           )}
         </Pressable>
 
@@ -728,18 +728,16 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'transparent',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.6)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 11,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
   },
   confirmCheckboxActive: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderColor: 'rgba(255,255,255,0.95)',
   },
   gradientOverlay: {
     position: 'absolute',
