@@ -44,7 +44,7 @@ export const getMealMacrosObj = (title: string, id: string) => {
 
 const getMealMacrosString = (title: string, id: string) => {
   const { protein, fats, carbs, calories } = getMealMacrosObj(title, id);
-  return `${protein}g P, ${fats}g F, ${carbs}g C, ${calories} Cal`;
+  return `${protein}g P   •   ${fats}g F   •   ${carbs}g C   •   ${calories} Cal`;
 };
 
 const FOOD_IMAGES = [
@@ -741,6 +741,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
     lineHeight: 16,
+    letterSpacing: 0.4,
   },
   mealHeaderRow: {
     flexDirection: 'row',
