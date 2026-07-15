@@ -670,10 +670,8 @@ export const MealCarouselRow: React.FC<Props> = ({
                           >
                             {item}
                           </Text>
-                        </View>
 
-                        {!isHave && (
-                          <View style={styles.ingredientActionRow}>
+                          {!isHave && (
                             <Pressable 
                               style={[styles.needToBuyPill, isAddedToGrocery && styles.addedPill]}
                               onPress={() => addToGrocery(item)}
@@ -682,8 +680,8 @@ export const MealCarouselRow: React.FC<Props> = ({
                                 {isAddedToGrocery ? 'ADDED' : 'TO BUY'}
                               </Text>
                             </Pressable>
-                          </View>
-                        )}
+                          )}
+                        </View>
                       </View>
                     );
                   })}
@@ -914,7 +912,7 @@ const styles = StyleSheet.create({
   },
   ingredientRowMain: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     gap: 8,
     paddingRight: 4,
   },
