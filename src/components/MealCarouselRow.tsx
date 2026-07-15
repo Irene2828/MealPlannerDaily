@@ -250,7 +250,7 @@ export const MealCarouselRow: React.FC<Props> = ({
         />
         {/* Subtle gradient overlay at bottom for text legibility */}
         <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.85)']}
+          colors={['transparent', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0.85)']}
           style={styles.gradientOverlay}
         />
 
