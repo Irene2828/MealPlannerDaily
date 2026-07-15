@@ -12,6 +12,7 @@ import {
   Platform,
   UIManager,
   useWindowDimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -45,6 +46,15 @@ const getMealMacrosString = (title: string, id: string) => {
   return `${protein} g protein, ${fats} g fats, ${carbs} g carbs, ${calories} cal`;
 };
 
+const FOOD_IMAGES = [
+  'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=600&auto=format&fit=crop',
+  'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?w=600&auto=format&fit=crop',
+];
+
 interface Props {
   day: string;
   slot: MealSlot;
@@ -68,7 +78,8 @@ export const MealCarouselRow: React.FC<Props> = ({
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
   const [macrosExpanded, setMacrosExpanded] = useState(false);
-  const [activeTrashMealId, setActiveTrashMealId] = useState<string | null>(null);
+  const [activeMenuMealId, setActiveMenuMealId] = useState<string | null>(null);
+  const [generatingImageMealId, setGeneratingImageMealId] = useState<string | null>(null);
   const [pendingDeletions, setPendingDeletions] = useState<{ [mealId: string]: ReturnType<typeof setTimeout> }>({});
   const { 
     groceryList, 
@@ -77,8 +88,39 @@ export const MealCarouselRow: React.FC<Props> = ({
     addToGrocery, 
     toggleInventory,
     toggleConfirmMeal,
-    removeMealOption
+    removeMealOption,
+    updateMealImage
   } = useGrocery();
+
+  const handleAddImage = (mealId: string) => {
+    setActiveMenuMealId(null);
+    const randomImg = FOOD_IMAGES[Math.floor(Math.random() * FOOD_IMAGES.length)];
+    updateMealImage(slot.slotId, mealId, isKids, randomImg);
+  };
+
+  const handleGenerateImage = (mealId: string) => {
+    setActiveMenuMealId(null);
+    setGeneratingImageMealId(mealId);
+    setTimeout(() => {
+      const randomImg = FOOD_IMAGES[Math.floor(Math.random() * FOOD_IMAGES.length)];
+      updateMealImage(slot.slotId, mealId, isKids, randomImg);
+      setGeneratingImageMealId(null);
+    }, 2000);
+  };
+
+  const triggerDelete = (mealId: string) => {
+    setActiveMenuMealId(null);
+    const timeout = setTimeout(() => {
+      removeMealOption(slot.slotId, mealId, isKids);
+      setPendingDeletions(prev => {
+        const next = { ...prev };
+        delete next[mealId];
+        return next;
+      });
+    }, 4000);
+    
+    setPendingDeletions(prev => ({ ...prev, [mealId]: timeout }));
+  };
 
   const handleScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -90,6 +132,7 @@ export const MealCarouselRow: React.FC<Props> = ({
         setInstructionsExpanded(false);
         setIngredientsExpanded(false);
         setMacrosExpanded(false);
+        setActiveMenuMealId(null);
       }
     },
     [selectedIndex, onSelectIndex, slot.options.length, CARD_WIDTH]
@@ -123,7 +166,8 @@ export const MealCarouselRow: React.FC<Props> = ({
   };
 
   const renderCard = ({ item, index }: { item: MealOption; index: number }) => {
-    const isTrashActive = activeTrashMealId === item.id;
+    const isMenuOpen = activeMenuMealId === item.id;
+    const isGenerating = generatingImageMealId === item.id;
     const isPendingDeletion = !!pendingDeletions[item.id];
 
     if (isPendingDeletion) {
@@ -175,33 +219,53 @@ export const MealCarouselRow: React.FC<Props> = ({
           )}
         </Pressable>
 
-        {/* Subtle more button (3 dots) that turns into trash */}
+        {/* Subtle more button (3 dots) that opens menu */}
         <Pressable 
-          style={[styles.moreButton, isTrashActive && styles.moreButtonActive]}
+          style={[styles.moreButton, isMenuOpen && styles.moreButtonActive]}
           onPress={() => {
-            if (isTrashActive) {
-              const timeout = setTimeout(() => {
-                removeMealOption(slot.slotId, item.id, isKids);
-                setPendingDeletions(prev => {
-                  const next = { ...prev };
-                  delete next[item.id];
-                  return next;
-                });
-              }, 4000);
-              
-              setPendingDeletions(prev => ({ ...prev, [item.id]: timeout }));
-              setActiveTrashMealId(null);
-            } else {
-              setActiveTrashMealId(item.id);
-            }
+            setActiveMenuMealId(activeMenuMealId === item.id ? null : item.id);
           }}
         >
           <Ionicons 
-            name={isTrashActive ? "trash" : "ellipsis-horizontal"} 
-            size={isTrashActive ? 14 : 16} 
+            name="ellipsis-horizontal" 
+            size={16} 
             color="#FFFFFF" 
           />
         </Pressable>
+
+        {/* Minimal Options Overlay */}
+        {isMenuOpen && (
+          <View style={[StyleSheet.absoluteFill, styles.menuOverlay]}>
+            <View style={styles.menuItemsList}>
+              <Pressable style={styles.menuItem} onPress={() => handleAddImage(item.id)}>
+                <Ionicons name="image-outline" size={14} color="#FFFFFF" />
+                <Text style={styles.menuItemText}>Add Image</Text>
+              </Pressable>
+              
+              <Pressable style={styles.menuItem} onPress={() => handleGenerateImage(item.id)}>
+                <Ionicons name="sparkles-outline" size={14} color="#FFFFFF" />
+                <Text style={styles.menuItemText}>Generate Image</Text>
+              </Pressable>
+              
+              <Pressable style={[styles.menuItem, styles.menuItemDelete]} onPress={() => triggerDelete(item.id)}>
+                <Ionicons name="trash-outline" size={14} color="#FF5B5B" />
+                <Text style={[styles.menuItemText, styles.menuItemTextDelete]}>Delete Meal</Text>
+              </Pressable>
+            </View>
+
+            <Pressable style={styles.menuCloseBtn} onPress={() => setActiveMenuMealId(null)}>
+              <Ionicons name="close" size={16} color="#FFFFFF" />
+            </Pressable>
+          </View>
+        )}
+
+        {/* Generating AI Overlay */}
+        {isGenerating && (
+          <View style={[StyleSheet.absoluteFill, styles.generatingOverlay]}>
+            <ActivityIndicator size="small" color="#FFFFFF" />
+            <Text style={styles.generatingText}>Generating AI Visual...</Text>
+          </View>
+        )}
 
         <View style={styles.cardContent}>
           <Text style={styles.cardTitle}>{getMealMacrosString(item.title, item.id)}</Text>
@@ -702,6 +766,62 @@ const styles = StyleSheet.create({
   moreButtonActive: {
     backgroundColor: '#374151',
     borderColor: '#374151',
+  },
+  menuOverlay: {
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 15,
+  },
+  menuItemsList: {
+    width: '80%',
+    gap: 8,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    paddingVertical: 8,
+    borderRadius: 8,
+    gap: 8,
+  },
+  menuItemDelete: {
+    backgroundColor: 'rgba(255, 91, 91, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 91, 91, 0.3)',
+  },
+  menuItemText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 12,
+    color: '#FFFFFF',
+  },
+  menuItemTextDelete: {
+    color: '#FF5B5B',
+  },
+  menuCloseBtn: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  generatingOverlay: {
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 15,
+  },
+  generatingText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    color: '#FFFFFF',
+    marginTop: 8,
+    letterSpacing: 0.5,
   },
   cardEmpty: {
     height: 154,
