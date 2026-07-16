@@ -26,8 +26,8 @@ if (Platform.OS === 'android') {
   }
 }
 
-const CARD_HORIZONTAL_MARGIN = 20;
-const CARD_GAP = 12;
+const CARD_HORIZONTAL_MARGIN = 16;
+const CARD_GAP = 10;
 
 const getNeonColor = (slotId: string) => {
   return '#CCFF00'; // Lime green for all as requested
@@ -72,8 +72,8 @@ export const MealCarouselRow: React.FC<Props> = ({
   onSelectIndex,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
-  // Card width fits exactly the same width as the text below it (screenWidth - 40)
-  const CARD_WIDTH = screenWidth - CARD_HORIZONTAL_MARGIN * 2;
+  // Card width fits inside the parent container with spacing
+  const CARD_WIDTH = screenWidth - 32 - CARD_HORIZONTAL_MARGIN * 2;
 
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
@@ -665,7 +665,18 @@ export const MealCarouselRow: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 28,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    marginHorizontal: 16,
+    marginBottom: 20,
+    paddingVertical: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.02,
+    shadowRadius: 8,
+    elevation: 2,
   },
   carouselWrapper: {
     position: 'relative',
