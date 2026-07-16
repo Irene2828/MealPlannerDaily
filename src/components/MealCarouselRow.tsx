@@ -396,7 +396,7 @@ export const MealCarouselRow: React.FC<Props> = ({
             onPress={toggleInstructions}
           >
             <Ionicons 
-              name={instructionsExpanded ? "book" : "book-outline"} 
+              name="book-outline" 
               size={16} 
               color={instructionsExpanded ? "#1A1A1A" : "#6B7280"} 
             />
@@ -408,7 +408,7 @@ export const MealCarouselRow: React.FC<Props> = ({
             onPress={toggleIngredients}
           >
             <Ionicons 
-              name={ingredientsExpanded ? "list" : "list-outline"} 
+              name="list-outline" 
               size={18} 
               color={ingredientsExpanded ? "#1A1A1A" : "#6B7280"} 
             />
@@ -420,7 +420,7 @@ export const MealCarouselRow: React.FC<Props> = ({
             onPress={toggleMacros}
           >
             <Ionicons 
-              name={macrosExpanded ? "information-circle" : "information-circle-outline"} 
+              name="information-circle-outline" 
               size={18} 
               color={macrosExpanded ? "#1A1A1A" : "#6B7280"} 
             />
