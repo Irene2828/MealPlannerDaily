@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   moodStripWrapper: {
     flexGrow: 0,
-    marginTop: 24,
+    marginTop: 12,
   },
   moodStrip: {
     paddingHorizontal: 20,
