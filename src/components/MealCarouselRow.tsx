@@ -668,7 +668,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: '#FDE6D4',
     marginHorizontal: 16,
     marginBottom: 20,
     paddingVertical: 16,
@@ -761,8 +761,6 @@ const styles = StyleSheet.create({
     marginHorizontal: CARD_HORIZONTAL_MARGIN,
     marginTop: 7,
     paddingVertical: 4,
-    borderBottomWidth: 1,
-    borderColor: '#FDE6D4',
     marginBottom: 12,
   },
   mealHeaderName: {
