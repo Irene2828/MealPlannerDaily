@@ -67,8 +67,8 @@ export const MealCarouselRow: React.FC<Props> = ({
   onSelectIndex,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
-  // Card fills the bordered meal frame edge to edge.
-  const CARD_WIDTH = screenWidth - 32;
+  // Each meal owns its own frame, with a peek of the next carousel item.
+  const CARD_WIDTH = screenWidth - 64;
 
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
@@ -385,6 +385,8 @@ export const MealCarouselRow: React.FC<Props> = ({
     );
   }
 
+  const selected = slot.options[selectedIndex] || slot.options[0];
+
   const renderMacrosBreakdown = (item: MealOption) => {
     const macros = getMealMacrosObj(item.title, item.id);
     return (
@@ -654,14 +656,10 @@ export const MealCarouselRow: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#111111',
-    marginHorizontal: 16,
+    backgroundColor: 'transparent',
+    marginHorizontal: 0,
     marginBottom: 20,
     paddingVertical: 0,
-    overflow: 'hidden',
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -669,14 +667,17 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   flatListContent: {
-    paddingHorizontal: 0,
+    paddingHorizontal: 16,
     paddingBottom: 0,
   },
   card: {
     height: 292,
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#111111',
     overflow: 'hidden',
     justifyContent: 'flex-end',
+    backgroundColor: '#FFFFFF',
   },
   gradientOverlay: {
     position: 'absolute',
