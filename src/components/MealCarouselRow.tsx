@@ -68,6 +68,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const { width: screenWidth } = useWindowDimensions();
   // Each meal owns its own frame, with a peek of the next carousel item.
   const CARD_WIDTH = screenWidth - 64;
+  const CARD_HEIGHT = Math.min(CARD_WIDTH, 300);
   const CARD_SIDE_INSET = (screenWidth - CARD_WIDTH) / 2;
 
   const flatListRef = useRef<FlatList<MealOption>>(null);
@@ -212,7 +213,7 @@ export const MealCarouselRow: React.FC<Props> = ({
 
     if (isPendingDeletion) {
       return (
-        <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
+        <View style={[styles.card, { width: CARD_WIDTH, height: CARD_HEIGHT, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
           <View style={{ flex: 1, backgroundColor: '#374151', justifyContent: 'center', alignItems: 'center' }}>
             <Text style={{ color: '#FFF', fontFamily: 'DMSans_700Bold', marginBottom: 12, fontSize: 16 }}>Meal Removed</Text>
             <Pressable 
@@ -243,7 +244,7 @@ export const MealCarouselRow: React.FC<Props> = ({
         style={[
           styles.card,
           !isSelectedCard && styles.cardInactive,
-          { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP },
+          { width: CARD_WIDTH, height: CARD_HEIGHT, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP },
         ]}
       >
         <View style={styles.cardVisualClip}>
@@ -389,7 +390,7 @@ export const MealCarouselRow: React.FC<Props> = ({
     return (
       <View style={styles.container}>
         <View style={styles.carouselWrapper}>
-          <View style={[styles.cardEmpty, { width: CARD_WIDTH }]}>
+          <View style={[styles.cardEmpty, { width: CARD_WIDTH, height: CARD_HEIGHT }]}>
             <Text style={styles.emptyCardText}>No meals in this slot yet.</Text>
           </View>
           <View 
@@ -682,7 +683,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     marginHorizontal: 0,
-    marginBottom: 40,
+    marginBottom: 24,
     paddingVertical: 0,
     shadowOpacity: 0,
     elevation: 0,
@@ -694,7 +695,6 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
   },
   card: {
-    height: 292,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#FFFFFF',
