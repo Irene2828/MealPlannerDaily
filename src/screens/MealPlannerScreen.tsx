@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { MEAL_SLOTS } from '../data/meals';
 import { KIDS_MEAL_SLOTS } from '../data/kidsMeals';
 import { MealCarouselRow, getMealMacrosObj } from '../components/MealCarouselRow';
@@ -174,6 +175,8 @@ export default function MealPlannerScreen() {
 
               <View style={styles.summaryContent}>
 
+                <Text style={styles.summaryCaption}>Your meals today:</Text>
+
                 {/* Macros left + calories right */}
                 <View style={styles.summaryMainRow}>
                   {/* Macro bars column */}
@@ -205,59 +208,76 @@ export default function MealPlannerScreen() {
 
                 {/* Drinks selector container with top border and horizontal ScrollView */}
                 <View style={styles.drinksContainer}>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.drinksScrollContent}
-                  >
-                    {DRINKS.map(d => {
-                      const count = activeDrinks[d.id] || 0;
-                      return (
-                        <View key={d.id} style={styles.drinkItem}>
-                          <Pressable onPress={() => handleTapDrink(d.id)}>
-                            <View style={[styles.drinkCircle, count > 0 && styles.drinkCircleActive]}>
-                              <Ionicons
-                                name={d.icon as any}
-                                size={22}
-                                color={count > 0 ? '#111827' : '#1F2937'}
-                              />
-                            </View>
-                          </Pressable>
-                          <Text style={[styles.drinkLabel, count > 0 && styles.drinkLabelActive]}>{d.label}</Text>
-                          
-                          {/* Digit under the icon/label */}
-                          <Text style={styles.drinkCount}>{count}</Text>
+                  <Text style={styles.summaryCaption}>Add drinks if needed - they will update the stats!</Text>
+                  <View style={styles.drinksScrollFrame}>
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      contentContainerStyle={styles.drinksScrollContent}
+                    >
+                      {DRINKS.map(d => {
+                        const count = activeDrinks[d.id] || 0;
+                        return (
+                          <View key={d.id} style={styles.drinkItem}>
+                            <Pressable onPress={() => handleTapDrink(d.id)}>
+                              <View style={[styles.drinkCircle, count > 0 && styles.drinkCircleActive]}>
+                                <Ionicons
+                                  name={d.icon as any}
+                                  size={22}
+                                  color={count > 0 ? '#111827' : '#1F2937'}
+                                />
+                              </View>
+                            </Pressable>
+                            <Text style={[styles.drinkLabel, count > 0 && styles.drinkLabelActive]}>{d.label}</Text>
+                            
+                            {/* Digit under the icon/label */}
+                            <Text style={styles.drinkCount}>{count}</Text>
 
-                          {/* Minus and Plus controls */}
-                          <View style={styles.drinkControls}>
-                            <Pressable
-                              onPress={() => decrementDrink(d.id)}
-                              disabled={count === 0}
-                              hitSlop={6}
-                              style={({ pressed }) => [
-                                styles.drinkStepBtn,
-                                count === 0 && styles.drinkStepBtnDisabled,
-                                pressed && count > 0 && styles.drinkStepBtnPressed,
-                              ]}
-                            >
-                              <Ionicons name="remove" size={15} color={count === 0 ? '#CBD5E1' : '#374151'} />
-                            </Pressable>
-                            <View style={styles.drinkStepDivider} />
-                            <Pressable
-                              onPress={() => incrementDrink(d.id)}
-                              hitSlop={6}
-                              style={({ pressed }) => [
-                                styles.drinkStepBtn,
-                                pressed && styles.drinkStepBtnPressed,
-                              ]}
-                            >
-                              <Ionicons name="add" size={15} color="#374151" />
-                            </Pressable>
+                            {/* Minus and Plus controls */}
+                            <View style={styles.drinkControls}>
+                              <Pressable
+                                onPress={() => decrementDrink(d.id)}
+                                disabled={count === 0}
+                                hitSlop={6}
+                                style={({ pressed }) => [
+                                  styles.drinkStepBtn,
+                                  count === 0 && styles.drinkStepBtnDisabled,
+                                  pressed && count > 0 && styles.drinkStepBtnPressed,
+                                ]}
+                              >
+                                <Ionicons name="remove" size={15} color={count === 0 ? '#CBD5E1' : '#374151'} />
+                              </Pressable>
+                              <View style={styles.drinkStepDivider} />
+                              <Pressable
+                                onPress={() => incrementDrink(d.id)}
+                                hitSlop={6}
+                                style={({ pressed }) => [
+                                  styles.drinkStepBtn,
+                                  pressed && styles.drinkStepBtnPressed,
+                                ]}
+                              >
+                                <Ionicons name="add" size={15} color="#374151" />
+                              </Pressable>
+                            </View>
                           </View>
-                        </View>
-                      );
-                    })}
-                  </ScrollView>
+                        );
+                      })}
+                    </ScrollView>
+                    <LinearGradient
+                      pointerEvents="none"
+                      colors={['#FFFFFF', 'rgba(255, 255, 255, 0)']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={[styles.drinksEdgeFade, styles.drinksEdgeFadeLeft]}
+                    />
+                    <LinearGradient
+                      pointerEvents="none"
+                      colors={['rgba(255, 255, 255, 0)', '#FFFFFF']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={[styles.drinksEdgeFade, styles.drinksEdgeFadeRight]}
+                    />
+                  </View>
                 </View>
               </View>
             </View>
@@ -356,6 +376,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 14,
   },
+  summaryCaption: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 10,
+    lineHeight: 14,
+    color: '#9CA3AF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: 12,
+  },
   summaryMainRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -431,6 +460,23 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: 16,
     paddingHorizontal: 8,
+  },
+  drinksScrollFrame: {
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  drinksEdgeFade: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: 24,
+    zIndex: 2,
+  },
+  drinksEdgeFadeLeft: {
+    left: 0,
+  },
+  drinksEdgeFadeRight: {
+    right: 0,
   },
   drinkItem: {
     alignItems: 'center',

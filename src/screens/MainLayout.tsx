@@ -5,11 +5,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import MealPlannerScreen from './MealPlannerScreen';
 import GroceryListScreen from './GroceryListScreen';
-import SettingsScreen from './SettingsScreen';
 import { useGrocery } from '../context/GroceryContext';
 
 export default function MainLayout() {
-  const [activeTab, setActiveTab] = useState<'home' | 'grocery' | 'settings'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'grocery'>('home');
   const insets = useSafeAreaInsets();
   const { groceryList } = useGrocery();
 
@@ -21,18 +20,7 @@ export default function MainLayout() {
     >
       {/* Unified Top Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <View style={styles.headerLeftContainer}>
-          <Pressable 
-            style={styles.headerIcon} 
-            onPress={() => setActiveTab('settings')}
-          >
-            <Ionicons 
-              name="settings-outline"
-              size={25} 
-              color={activeTab === 'settings' ? '#374151' : '#9CA3AF'} 
-            />
-          </Pressable>
-        </View>
+        <View style={styles.headerLeftContainer} />
 
         <Pressable 
           style={styles.headerTitleContainer} 
@@ -70,7 +58,6 @@ export default function MainLayout() {
       <View style={styles.content}>
         {activeTab === 'home' && <MealPlannerScreen />}
         {activeTab === 'grocery' && <GroceryListScreen />}
-        {activeTab === 'settings' && <SettingsScreen />}
       </View>
     </LinearGradient>
   );
@@ -154,4 +141,3 @@ const styles = StyleSheet.create({
     fontFamily: 'DMSans_700Bold',
   },
 });
-

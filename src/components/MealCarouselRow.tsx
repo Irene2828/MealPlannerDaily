@@ -68,6 +68,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   const { width: screenWidth } = useWindowDimensions();
   // Each meal owns its own frame, with a peek of the next carousel item.
   const CARD_WIDTH = screenWidth - 64;
+  const CARD_SIDE_INSET = (screenWidth - CARD_WIDTH) / 2;
 
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
@@ -235,14 +236,22 @@ export const MealCarouselRow: React.FC<Props> = ({
     const mealId = `${day}_${slot.slotId}_${item.id}`;
     const isConfirmed = confirmedMeals.has(mealId);
     const macros = getMealMacrosObj(item.title, item.id);
+    const isSelectedCard = index === selectedIndex;
 
     return (
-      <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
+      <View
+        style={[
+          styles.card,
+          !isSelectedCard && styles.cardInactive,
+          { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP },
+        ]}
+      >
         <Image
           source={{ uri: item.imageUrl }}
           style={StyleSheet.absoluteFill as any}
           resizeMode="cover"
         />
+        {!isSelectedCard && <View style={styles.inactiveCardOverlay} pointerEvents="none" />}
         <Pressable
           style={[
             styles.neonTag,
@@ -308,7 +317,7 @@ export const MealCarouselRow: React.FC<Props> = ({
         )}
 
         <View style={styles.bottomImageOverlay}>
-          <View style={styles.overlayTextGroup}>
+          <View style={[styles.overlayTextGroup, !isSelectedCard && styles.overlayTextGroupInactive]}>
             <Text style={styles.overlayMealName} numberOfLines={2}>{item.title}</Text>
             <View style={styles.overlayMacroStack}>
               <Text style={styles.overlayMacroLine}>{macros.protein}g Protein</Text>
@@ -320,7 +329,12 @@ export const MealCarouselRow: React.FC<Props> = ({
 
           <View style={styles.overlayActions}>
             <Pressable
-              style={[styles.actionBtn, styles.overlayActionBtn, instructionsExpanded && styles.actionBtnActive]}
+              style={[
+                styles.actionBtn,
+                styles.overlayActionBtn,
+                !isSelectedCard && styles.overlayActionBtnInactive,
+                instructionsExpanded && styles.actionBtnActive,
+              ]}
               onPress={toggleInstructions}
             >
               <Ionicons
@@ -331,7 +345,12 @@ export const MealCarouselRow: React.FC<Props> = ({
             </Pressable>
 
             <Pressable
-              style={[styles.actionBtn, styles.overlayActionBtn, ingredientsExpanded && styles.actionBtnActive]}
+              style={[
+                styles.actionBtn,
+                styles.overlayActionBtn,
+                !isSelectedCard && styles.overlayActionBtnInactive,
+                ingredientsExpanded && styles.actionBtnActive,
+              ]}
               onPress={toggleIngredients}
             >
               <Ionicons
@@ -342,7 +361,12 @@ export const MealCarouselRow: React.FC<Props> = ({
             </Pressable>
 
             <Pressable
-              style={[styles.actionBtn, styles.overlayActionBtn, macrosExpanded && styles.actionBtnActive]}
+              style={[
+                styles.actionBtn,
+                styles.overlayActionBtn,
+                !isSelectedCard && styles.overlayActionBtnInactive,
+                macrosExpanded && styles.actionBtnActive,
+              ]}
               onPress={toggleMacros}
             >
               <Ionicons
@@ -364,7 +388,7 @@ export const MealCarouselRow: React.FC<Props> = ({
       <View style={styles.container}>
         <View style={styles.carouselWrapper}>
           <View style={[styles.cardEmpty, { width: CARD_WIDTH }]}>
-            <Text style={styles.emptyCardText}>No meals in this slot. Add some in Settings!</Text>
+            <Text style={styles.emptyCardText}>No meals in this slot yet.</Text>
           </View>
           <View 
             style={[
@@ -407,7 +431,10 @@ export const MealCarouselRow: React.FC<Props> = ({
           showsHorizontalScrollIndicator={false}
           snapToInterval={CARD_WIDTH + CARD_GAP}
           decelerationRate="fast"
-          contentContainerStyle={styles.flatListContent}
+          contentContainerStyle={[
+            styles.flatListContent,
+            { paddingHorizontal: CARD_SIDE_INSET },
+          ]}
           onScroll={handleScroll}
           scrollEventThrottle={16}
         />
@@ -662,7 +689,6 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   flatListContent: {
-    paddingHorizontal: 16,
     paddingBottom: 0,
   },
   card: {
@@ -674,10 +700,18 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     backgroundColor: '#FFFFFF',
   },
+  cardInactive: {
+    borderColor: 'rgba(255, 255, 255, 0.72)',
+  },
+  inactiveCardOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(248, 250, 252, 0.48)',
+    zIndex: 1,
+  },
   neonTag: {
     position: 'absolute',
-    top: 14,
-    left: 14,
+    top: 10,
+    left: 6,
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 2,
@@ -739,6 +773,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.9)',
   },
+  overlayTextGroupInactive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.64)',
+    borderColor: 'rgba(255, 255, 255, 0.72)',
+  },
   overlayMealName: {
     fontFamily: 'DMSans_500Medium',
     fontSize: 14,
@@ -782,6 +820,10 @@ const styles = StyleSheet.create({
   overlayActionBtn: {
     backgroundColor: 'rgba(255, 255, 255, 0.18)',
     borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  overlayActionBtnInactive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderColor: 'rgba(255, 255, 255, 0.36)',
   },
   actionBtnActive: {
     backgroundColor: '#CCFF00',
