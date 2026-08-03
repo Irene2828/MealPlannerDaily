@@ -42,11 +42,6 @@ export const getMealMacrosObj = (title: string, id: string) => {
   return { protein, fats, carbs, calories };
 };
 
-const getMealMacrosString = (title: string, id: string) => {
-  const { protein, fats, carbs, calories } = getMealMacrosObj(title, id);
-  return `${protein}g P   •   ${fats}g F   •   ${carbs}g C   •   ${calories} Cal`;
-};
-
 const FOOD_IMAGES = [
   'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop',
   'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&auto=format&fit=crop',
@@ -240,6 +235,7 @@ export const MealCarouselRow: React.FC<Props> = ({
 
     const mealId = `${day}_${slot.slotId}_${item.id}`;
     const isConfirmed = confirmedMeals.has(mealId);
+    const macros = getMealMacrosObj(item.title, item.id);
 
     return (
       <View style={[styles.card, { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP }]}>
@@ -248,9 +244,9 @@ export const MealCarouselRow: React.FC<Props> = ({
           style={StyleSheet.absoluteFill as any}
           resizeMode="cover"
         />
-        {/* Subtle gradient overlay at bottom for text legibility */}
+        {/* Softens the image edge behind the nutrition glass panel. */}
         <LinearGradient
-          colors={['transparent', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0.85)']}
+          colors={['transparent', 'rgba(0, 0, 0, 0.14)']}
           style={styles.gradientOverlay}
         />
 
@@ -312,8 +308,23 @@ export const MealCarouselRow: React.FC<Props> = ({
           </View>
         )}
 
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>{getMealMacrosString(item.title, item.id)}</Text>
+        <View style={styles.macroOverlay}>
+          <View style={styles.macroOverlayRow}>
+            <Text style={styles.macroOverlayLabel}>Protein</Text>
+            <Text style={styles.macroOverlayValue}>{macros.protein}g</Text>
+          </View>
+          <View style={styles.macroOverlayRow}>
+            <Text style={styles.macroOverlayLabel}>Fat</Text>
+            <Text style={styles.macroOverlayValue}>{macros.fats}g</Text>
+          </View>
+          <View style={styles.macroOverlayRow}>
+            <Text style={styles.macroOverlayLabel}>Carbs</Text>
+            <Text style={styles.macroOverlayValue}>{macros.carbs}g</Text>
+          </View>
+          <View style={[styles.macroOverlayRow, styles.macroOverlayCaloriesRow]}>
+            <Text style={styles.macroOverlayLabel}>Calories</Text>
+            <Text style={styles.macroOverlayCalories}>{macros.calories}</Text>
+          </View>
         </View>
       </View>
     );
@@ -711,7 +722,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: '60%', // Gradient only covers the bottom half
+    height: '42%',
   },
   neonTag: {
     position: 'absolute',
@@ -736,20 +747,56 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
-  cardContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    width: '100%',
+  macroOverlay: {
+    position: 'absolute',
+    left: 14,
+    bottom: 12,
+    minWidth: 118,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.84)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.92)',
+    shadowColor: '#111827',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 14,
+    elevation: 3,
+    zIndex: 9,
   },
-  cardTitle: {
+  macroOverlayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  macroOverlayCaloriesRow: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(17, 24, 39, 0.08)',
+    marginTop: 4,
+    paddingTop: 5,
+  },
+  macroOverlayLabel: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 9,
+    lineHeight: 13,
+    color: '#6B7280',
+    letterSpacing: 0,
+  },
+  macroOverlayValue: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 12,
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-    lineHeight: 16,
-    letterSpacing: 0.4,
+    fontSize: 10,
+    lineHeight: 13,
+    color: '#111827',
+    letterSpacing: 0,
+  },
+  macroOverlayCalories: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 11,
+    lineHeight: 14,
+    color: '#111827',
+    letterSpacing: 0,
   },
   mealHeaderRow: {
     flexDirection: 'row',
