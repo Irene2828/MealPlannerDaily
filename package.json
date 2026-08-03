@@ -27,7 +27,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "build": "expo export"
+    "build": "expo export",
+    "postbuild": "node scripts/apply-pwa-metadata.cjs"
   },
   "private": true
 }
