@@ -67,8 +67,8 @@ export const MealCarouselRow: React.FC<Props> = ({
   onSelectIndex,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
-  // Card width fits inside the parent container with spacing
-  const CARD_WIDTH = screenWidth - 32 - CARD_HORIZONTAL_MARGIN * 2;
+  // Card fills the bordered meal frame edge to edge.
+  const CARD_WIDTH = screenWidth - 32;
 
   const flatListRef = useRef<FlatList<MealOption>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
@@ -250,14 +250,18 @@ export const MealCarouselRow: React.FC<Props> = ({
           style={styles.gradientOverlay}
         />
 
-        {/* Confirmation Checkbox Overlay */}
-        <Pressable 
-          style={[styles.confirmCheckbox, isConfirmed && styles.confirmCheckboxActive]}
+        <Pressable
+          style={[
+            styles.neonTag,
+            isConfirmed && styles.neonTagConfirmed,
+            { backgroundColor: neonColor, shadowColor: neonColor },
+          ]}
           onPress={() => toggleConfirmMeal(mealId)}
         >
-          {isConfirmed && (
-            <Ionicons name="checkmark" size={18} color="#1A1A1A" />
-          )}
+          <View style={styles.neonTagContent}>
+            <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
+            {isConfirmed && <Ionicons name="checkmark" size={12} color="#1A1A1A" />}
+          </View>
         </Pressable>
 
         {/* Subtle more button (3 dots) that opens menu */}
@@ -308,22 +312,47 @@ export const MealCarouselRow: React.FC<Props> = ({
           </View>
         )}
 
-        <View style={styles.macroOverlay}>
-          <View style={styles.macroOverlayRow}>
-            <Text style={styles.macroOverlayLabel}>Protein</Text>
-            <Text style={styles.macroOverlayValue}>{macros.protein}g</Text>
+        <View style={styles.bottomImageOverlay}>
+          <View style={styles.overlayTextGroup}>
+            <Text style={styles.overlayMealName} numberOfLines={2}>{item.title}</Text>
+            <Text style={styles.overlayMacros} numberOfLines={1}>
+              {macros.protein}g P   •   {macros.fats}g F   •   {macros.carbs}g C   •   {macros.calories} Cal
+            </Text>
           </View>
-          <View style={styles.macroOverlayRow}>
-            <Text style={styles.macroOverlayLabel}>Fat</Text>
-            <Text style={styles.macroOverlayValue}>{macros.fats}g</Text>
-          </View>
-          <View style={styles.macroOverlayRow}>
-            <Text style={styles.macroOverlayLabel}>Carbs</Text>
-            <Text style={styles.macroOverlayValue}>{macros.carbs}g</Text>
-          </View>
-          <View style={[styles.macroOverlayRow, styles.macroOverlayCaloriesRow]}>
-            <Text style={styles.macroOverlayLabel}>Calories</Text>
-            <Text style={styles.macroOverlayCalories}>{macros.calories}</Text>
+
+          <View style={styles.overlayActions}>
+            <Pressable
+              style={[styles.actionBtn, styles.overlayActionBtn, instructionsExpanded && styles.actionBtnActive]}
+              onPress={toggleInstructions}
+            >
+              <Ionicons
+                name="book-outline"
+                size={16}
+                color={instructionsExpanded ? "#1A1A1A" : "#FFFFFF"}
+              />
+            </Pressable>
+
+            <Pressable
+              style={[styles.actionBtn, styles.overlayActionBtn, ingredientsExpanded && styles.actionBtnActive]}
+              onPress={toggleIngredients}
+            >
+              <Ionicons
+                name="list-outline"
+                size={18}
+                color={ingredientsExpanded ? "#1A1A1A" : "#FFFFFF"}
+              />
+            </Pressable>
+
+            <Pressable
+              style={[styles.actionBtn, styles.overlayActionBtn, macrosExpanded && styles.actionBtnActive]}
+              onPress={toggleMacros}
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={18}
+                color={macrosExpanded ? "#1A1A1A" : "#FFFFFF"}
+              />
+            </Pressable>
           </View>
         </View>
       </View>
@@ -352,8 +381,6 @@ export const MealCarouselRow: React.FC<Props> = ({
       </View>
     );
   }
-
-  const selected = slot.options[selectedIndex];
 
   const renderMacrosBreakdown = (item: MealOption) => {
     const macros = getMealMacrosObj(item.title, item.id);
@@ -385,58 +412,6 @@ export const MealCarouselRow: React.FC<Props> = ({
           scrollEventThrottle={16}
         />
         
-        {/* Sticky Neon Office Tag */}
-        <View 
-          style={[
-            styles.neonTag, 
-            { backgroundColor: neonColor, shadowColor: neonColor }
-          ]} 
-          pointerEvents="none"
-        >
-          <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
-        </View>
-      </View>
-
-      {/* Meal Info Header Row with Meal Name and action icons */}
-      <View style={styles.mealHeaderRow}>
-        <Text style={styles.mealHeaderName} numberOfLines={2}>{selected.title}</Text>
-        <View style={styles.mealHeaderActions}>
-          {/* Book/Recipe Icon */}
-          <Pressable 
-            style={[styles.actionBtn, instructionsExpanded && styles.actionBtnActive]} 
-            onPress={toggleInstructions}
-          >
-            <Ionicons 
-              name="book-outline" 
-              size={16} 
-              color={instructionsExpanded ? "#1A1A1A" : "#6B7280"} 
-            />
-          </Pressable>
-          
-          {/* List/Ingredients Icon */}
-          <Pressable 
-            style={[styles.actionBtn, ingredientsExpanded && styles.actionBtnActive]} 
-            onPress={toggleIngredients}
-          >
-            <Ionicons 
-              name="list-outline" 
-              size={18} 
-              color={ingredientsExpanded ? "#1A1A1A" : "#6B7280"} 
-            />
-          </Pressable>
-
-          {/* Info/Nutrition Icon */}
-          <Pressable 
-            style={[styles.actionBtn, macrosExpanded && styles.actionBtnActive]} 
-            onPress={toggleMacros}
-          >
-            <Ionicons 
-              name="information-circle-outline" 
-              size={18} 
-              color={macrosExpanded ? "#1A1A1A" : "#6B7280"} 
-            />
-          </Pressable>
-        </View>
       </View>
 
       {/* Expandable Sections Area */}
@@ -682,7 +657,8 @@ const styles = StyleSheet.create({
     borderColor: '#111111',
     marginHorizontal: 16,
     marginBottom: 20,
-    paddingVertical: 16,
+    paddingVertical: 0,
+    overflow: 'hidden',
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -690,45 +666,27 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   flatListContent: {
-    paddingHorizontal: CARD_HORIZONTAL_MARGIN,
-    paddingBottom: 4,
+    paddingHorizontal: 0,
+    paddingBottom: 0,
   },
   card: {
-    height: 154,
-    borderRadius: 16,
+    height: 292,
+    borderRadius: 20,
     overflow: 'hidden',
     justifyContent: 'flex-end',
-  },
-  confirmCheckbox: {
-    position: 'absolute',
-    top: 14,
-    right: 14,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 11,
-  },
-  confirmCheckboxActive: {
-    backgroundColor: '#CCFF00',
-    borderColor: '#CCFF00',
   },
   gradientOverlay: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    height: '42%',
+    height: '58%',
   },
   neonTag: {
     position: 'absolute',
     top: 14,
     left: 14,
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 2,
     transform: [{ rotate: '-2deg' }],
@@ -740,6 +698,9 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
   },
+  neonTagConfirmed: {
+    borderColor: '#1A1A1A',
+  },
   neonTagText: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 10,
@@ -747,76 +708,52 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 1.5,
   },
-  macroOverlay: {
-    position: 'absolute',
-    left: 14,
-    bottom: 12,
-    minWidth: 118,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.84)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.92)',
-    shadowColor: '#111827',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 14,
-    elevation: 3,
-    zIndex: 9,
-  },
-  macroOverlayRow: {
+  neonTagContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
+    gap: 5,
   },
-  macroOverlayCaloriesRow: {
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(17, 24, 39, 0.08)',
-    marginTop: 4,
-    paddingTop: 5,
-  },
-  macroOverlayLabel: {
-    fontFamily: 'DMSans_500Medium',
-    fontSize: 9,
-    lineHeight: 13,
-    color: '#6B7280',
-    letterSpacing: 0,
-  },
-  macroOverlayValue: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 10,
-    lineHeight: 13,
-    color: '#111827',
-    letterSpacing: 0,
-  },
-  macroOverlayCalories: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 11,
-    lineHeight: 14,
-    color: '#111827',
-    letterSpacing: 0,
-  },
-  mealHeaderRow: {
+  bottomImageOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginHorizontal: CARD_HORIZONTAL_MARGIN,
-    marginTop: 7,
-    paddingVertical: 4,
-    marginBottom: 12,
+    alignItems: 'flex-end',
+    gap: 10,
+    paddingHorizontal: 16,
+    paddingTop: 38,
+    paddingBottom: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.14)',
+    zIndex: 9,
   },
-  mealHeaderName: {
-    fontFamily: 'DMSans_500Medium',
-    fontSize: 12,
-    letterSpacing: 0,
-    color: '#6B7280',
+  overlayTextGroup: {
     flex: 1,
-    marginRight: 12,
-    lineHeight: 16,
+    minWidth: 0,
   },
-  mealHeaderActions: {
+  overlayMealName: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 14,
+    lineHeight: 18,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+    letterSpacing: 0,
+  },
+  overlayMacros: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 12,
+    lineHeight: 16,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+    letterSpacing: 0,
+    marginTop: 5,
+  },
+  overlayActions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
@@ -824,12 +761,16 @@ const styles = StyleSheet.create({
   actionBtn: {
     width: 32,
     height: 32,
-    borderRadius: 8,
+    borderRadius: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E5E7EB',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  overlayActionBtn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    borderColor: 'rgba(255, 255, 255, 0.42)',
   },
   actionBtnActive: {
     backgroundColor: '#CCFF00',
