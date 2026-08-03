@@ -246,7 +246,11 @@ export const MealCarouselRow: React.FC<Props> = ({
         />
         {/* Softens the image edge behind the nutrition glass panel. */}
         <LinearGradient
-          colors={['transparent', 'rgba(0, 0, 0, 0.14)']}
+          colors={[
+            'transparent',
+            'rgba(255, 255, 255, 0.08)',
+            'rgba(8, 12, 20, 0.42)',
+          ]}
           style={styles.gradientOverlay}
         />
 
@@ -259,8 +263,10 @@ export const MealCarouselRow: React.FC<Props> = ({
           onPress={() => toggleConfirmMeal(mealId)}
         >
           <View style={styles.neonTagContent}>
+            <View style={styles.neonTagCheckBox}>
+              {isConfirmed && <Ionicons name="checkmark" size={10} color="#1A1A1A" />}
+            </View>
             <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
-            {isConfirmed && <Ionicons name="checkmark" size={12} color="#1A1A1A" />}
           </View>
         </Pressable>
 
@@ -684,7 +690,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: '58%',
+    height: '64%',
   },
   neonTag: {
     position: 'absolute',
@@ -715,7 +721,17 @@ const styles = StyleSheet.create({
   neonTagContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
+    gap: 6,
+  },
+  neonTagCheckBox: {
+    width: 13,
+    height: 13,
+    borderRadius: 2,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: 'rgba(26, 26, 26, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bottomImageOverlay: {
     position: 'absolute',
@@ -727,9 +743,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 10,
     paddingHorizontal: 16,
-    paddingTop: 38,
+    paddingTop: 36,
     paddingBottom: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.14)',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.22)',
     zIndex: 9,
   },
   overlayTextGroup: {
@@ -741,9 +759,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 18,
     color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.45)',
+    textShadowColor: 'rgba(0, 0, 0, 0.55)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    textShadowRadius: 4,
     letterSpacing: 0,
   },
   overlayMacroStack: {
@@ -755,9 +773,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
     lineHeight: 15,
     color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.45)',
+    textShadowColor: 'rgba(0, 0, 0, 0.55)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    textShadowRadius: 4,
     letterSpacing: 0,
   },
   overlayMacroCalories: {
@@ -765,9 +783,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     color: '#FFFFFF',
-    textShadowColor: 'rgba(0, 0, 0, 0.45)',
+    textShadowColor: 'rgba(0, 0, 0, 0.55)',
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
+    textShadowRadius: 4,
     letterSpacing: 0,
   },
   overlayActions: {
@@ -786,8 +804,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   overlayActionBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-    borderColor: 'rgba(255, 255, 255, 0.42)',
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
+    borderColor: 'rgba(255, 255, 255, 0.5)',
   },
   actionBtnActive: {
     backgroundColor: '#CCFF00',
