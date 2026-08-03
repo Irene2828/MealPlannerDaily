@@ -186,6 +186,24 @@ export const MealCarouselRow: React.FC<Props> = ({
     [selectedIndex, onSelectIndex, slot.options.length, CARD_WIDTH]
   );
 
+  const centerCardAtIndex = useCallback(
+    (index: number) => {
+      flatListRef.current?.scrollToOffset({
+        offset: index * (CARD_WIDTH + CARD_GAP),
+        animated: true,
+      });
+    },
+    [CARD_WIDTH]
+  );
+
+  const handleToggleConfirmMeal = (mealId: string, index: number) => {
+    toggleConfirmMeal(mealId);
+    if (index !== selectedIndex) {
+      onSelectIndex(index);
+    }
+    centerCardAtIndex(index);
+  };
+
   const toggleInstructions = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setInstructionsExpanded(!instructionsExpanded);
@@ -270,11 +288,11 @@ export const MealCarouselRow: React.FC<Props> = ({
             isConfirmed && styles.neonTagConfirmed,
             { backgroundColor: neonColor, shadowColor: neonColor },
           ]}
-          onPress={() => toggleConfirmMeal(mealId)}
+          onPress={() => handleToggleConfirmMeal(mealId, index)}
         >
           <View style={styles.neonTagContent}>
-            <View style={styles.neonTagCheckBox}>
-              {isConfirmed && <Ionicons name="checkmark" size={10} color="#1A1A1A" />}
+            <View style={[styles.neonTagCheckBox, isConfirmed && styles.neonTagCheckBoxConfirmed]}>
+              {isConfirmed && <Ionicons name="checkmark" size={10} color="#FF7A45" />}
             </View>
             <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
           </View>
@@ -531,7 +549,7 @@ export const MealCarouselRow: React.FC<Props> = ({
                         setIsEditingInstructions(true);
                       }}
                     >
-                      <Ionicons name="pencil-outline" size={12} color="#4B5563" />
+                      <Ionicons name="pencil-outline" size={16} color="#4B5563" />
                       <Text style={styles.sectionHeaderBtnText}>Edit</Text>
                     </Pressable>
                   </View>
@@ -622,7 +640,7 @@ export const MealCarouselRow: React.FC<Props> = ({
                         setIsEditingIngredients(true);
                       }}
                     >
-                      <Ionicons name="pencil-outline" size={12} color="#4B5563" />
+                      <Ionicons name="pencil-outline" size={16} color="#4B5563" />
                       <Text style={styles.sectionHeaderBtnText}>Edit</Text>
                     </Pressable>
                   </View>
@@ -692,7 +710,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     marginHorizontal: 0,
-    marginBottom: 17,
+    marginBottom: 0,
     paddingVertical: 0,
     shadowOpacity: 0,
     elevation: 0,
@@ -742,7 +760,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   neonTagConfirmed: {
-    borderColor: '#1A1A1A',
+    borderColor: '#FF7A45',
   },
   neonTagText: {
     fontFamily: 'DMSans_700Bold',
@@ -765,6 +783,9 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(26, 26, 26, 0.45)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  neonTagCheckBoxConfirmed: {
+    borderColor: '#FF7A45',
   },
   bottomImageOverlay: {
     position: 'absolute',
@@ -835,12 +856,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   overlayActionBtn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.18)',
-    borderColor: 'rgba(255, 255, 255, 0.5)',
+    backgroundColor: 'rgba(239, 255, 153, 0.72)',
+    borderColor: 'rgba(204, 255, 0, 0.72)',
   },
   overlayActionBtnInactive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderColor: 'rgba(255, 255, 255, 0.36)',
+    backgroundColor: 'rgba(239, 255, 153, 0.52)',
+    borderColor: 'rgba(204, 255, 0, 0.48)',
   },
   actionBtnActive: {
     backgroundColor: '#CCFF00',
@@ -984,8 +1005,8 @@ const styles = StyleSheet.create({
   },
   moreButton: {
     position: 'absolute',
-    top: 14,
-    right: 14,
+    top: 8,
+    right: 8,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -1070,13 +1091,15 @@ const styles = StyleSheet.create({
   sectionHeaderBtn: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 4,
+    minHeight: 32,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E5E7EB',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 16,
   },
   sectionHeaderBtnText: {
     fontFamily: 'DMSans_700Bold',

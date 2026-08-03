@@ -139,9 +139,7 @@ export default function MealPlannerScreen() {
           <React.Fragment key={slot.slotId}>
             {index > 0 && (
               <View style={styles.mealRowDivider}>
-                <View style={styles.mealRowDividerDot} />
-                <View style={styles.mealRowDividerDot} />
-                <View style={styles.mealRowDividerDot} />
+                <View style={styles.mealRowDividerLine} />
               </View>
             )}
             <MealCarouselRow
@@ -350,15 +348,17 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   mealRowDivider: {
+    width: '100%',
+    height: 32,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    paddingVertical: 6,
+    transform: [{ translateY: -12 }],
   },
-  mealRowDividerDot: {
-    width: 5,
-    height: 5,
+  mealRowDividerLine: {
+    width: '33%',
+    height: 2,
     borderRadius: 999,
     backgroundColor: '#FF7A45',
   },

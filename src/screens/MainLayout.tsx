@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable, Text } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import MealPlannerScreen from './MealPlannerScreen';
@@ -20,7 +20,13 @@ export default function MainLayout() {
     >
       {/* Unified Top Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <View style={styles.headerLeftContainer} />
+        <View style={styles.headerLeftContainer}>
+          <Pressable style={styles.familyMascotButton} onPress={() => setActiveTab('home')}>
+            <View style={styles.familyMascotCircle}>
+              <MaterialCommunityIcons name="bird" size={23} color="rgba(255, 122, 69, 0.7)" />
+            </View>
+          </Pressable>
+        </View>
 
         <Pressable 
           style={styles.headerTitleContainer} 
@@ -42,7 +48,7 @@ export default function MainLayout() {
               <Ionicons 
                 name="basket-outline"
                 size={28} 
-                color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
+                color={activeTab === 'grocery' ? '#1F2937' : '#6B7280'} 
               />
               {groceryList.size > 0 && (
                 <View style={styles.badge}>
@@ -81,6 +87,19 @@ const styles = StyleSheet.create({
   headerLeftContainer: {
     flex: 1,
     alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  familyMascotButton: {
+    padding: 3,
+  },
+  familyMascotCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 122, 69, 0.7)',
+    alignItems: 'center',
     justifyContent: 'center',
   },
   headerRightContainer: {
