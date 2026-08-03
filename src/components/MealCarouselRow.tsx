@@ -811,7 +811,7 @@ const styles = StyleSheet.create({
   },
   expandedArea: {
     marginHorizontal: CARD_HORIZONTAL_MARGIN,
-    marginTop: 4,
+    marginTop: 24,
   },
   expandedSection: {
     marginBottom: 16,
