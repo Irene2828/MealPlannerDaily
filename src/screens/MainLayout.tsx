@@ -40,7 +40,7 @@ export default function MainLayout() {
           >
             <View style={styles.iconContainer}>
               <Ionicons 
-                name="list-outline"
+                name="basket-outline"
                 size={28} 
                 color={activeTab === 'grocery' ? '#374151' : '#9CA3AF'} 
               />

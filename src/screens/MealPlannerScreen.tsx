@@ -135,18 +135,26 @@ export default function MealPlannerScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {currentSlots.map((slot) => (
-          <MealCarouselRow
-            key={slot.slotId}
-            day={selectedDay}
-            slot={slot}
-            isKids={mode === 'kids'}
-            selectedIndex={Math.min(
-              currentIndices[slot.slotId] ?? 0,
-              slot.options.length - 1
+        {currentSlots.map((slot, index) => (
+          <React.Fragment key={slot.slotId}>
+            {index > 0 && (
+              <View style={styles.mealRowDivider}>
+                <View style={styles.mealRowDividerDot} />
+                <View style={styles.mealRowDividerDot} />
+                <View style={styles.mealRowDividerDot} />
+              </View>
             )}
-            onSelectIndex={(index) => handleSelectIndex(slot.slotId, index)}
-          />
+            <MealCarouselRow
+              day={selectedDay}
+              slot={slot}
+              isKids={mode === 'kids'}
+              selectedIndex={Math.min(
+                currentIndices[slot.slotId] ?? 0,
+                slot.options.length - 1
+              )}
+              onSelectIndex={(index) => handleSelectIndex(slot.slotId, index)}
+            />
+          </React.Fragment>
         ))}
 
         {/* ── Daily Summary ── */}
@@ -340,6 +348,19 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingTop: 8,
+  },
+  mealRowDivider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 6,
+  },
+  mealRowDividerDot: {
+    width: 5,
+    height: 5,
+    borderRadius: 999,
+    backgroundColor: '#FF7A45',
   },
   emptyState: {
     alignItems: 'center',
