@@ -230,11 +230,28 @@ export default function MealPlannerScreen() {
 
                           {/* Minus and Plus controls */}
                           <View style={styles.drinkControls}>
-                            <Pressable onPress={() => decrementDrink(d.id)} style={styles.drinkBtn}>
-                              <Ionicons name="remove" size={12} color="#6B7280" />
+                            <Pressable
+                              onPress={() => decrementDrink(d.id)}
+                              disabled={count === 0}
+                              hitSlop={6}
+                              style={({ pressed }) => [
+                                styles.drinkStepBtn,
+                                count === 0 && styles.drinkStepBtnDisabled,
+                                pressed && count > 0 && styles.drinkStepBtnPressed,
+                              ]}
+                            >
+                              <Ionicons name="remove" size={15} color={count === 0 ? '#CBD5E1' : '#374151'} />
                             </Pressable>
-                            <Pressable onPress={() => incrementDrink(d.id)} style={styles.drinkBtn}>
-                              <Ionicons name="add" size={12} color="#6B7280" />
+                            <View style={styles.drinkStepDivider} />
+                            <Pressable
+                              onPress={() => incrementDrink(d.id)}
+                              hitSlop={6}
+                              style={({ pressed }) => [
+                                styles.drinkStepBtn,
+                                pressed && styles.drinkStepBtnPressed,
+                              ]}
+                            >
+                              <Ionicons name="add" size={15} color="#374151" />
                             </Pressable>
                           </View>
                         </View>
@@ -438,16 +455,32 @@ const styles = StyleSheet.create({
   drinkControls: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 2,
+    justifyContent: 'center',
+    width: 76,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    marginTop: 4,
+    overflow: 'hidden',
   },
-  drinkBtn: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#F3F4F6',
+  drinkStepBtn: {
+    width: 37,
+    height: 30,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  drinkStepBtnPressed: {
+    backgroundColor: '#EEF2F7',
+  },
+  drinkStepBtnDisabled: {
+    opacity: 0.55,
+  },
+  drinkStepDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: '#E5E7EB',
   },
   drinkCount: {
     fontFamily: 'DMSans_700Bold',
