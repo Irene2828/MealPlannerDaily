@@ -26,13 +26,20 @@ if (Platform.OS === 'android') {
 }
 
 const CARD_HORIZONTAL_MARGIN = 16;
-const CARD_GAP = 10;
+const CARD_GAP = 20;
+
+type CarouselItem = MealOption | { id: 'add-new-meal-card'; isAddCard: true };
 
 const getNeonColor = (slotId: string) => {
   return '#CCFF00'; // Lime green for all as requested
 };
 
-export const getMealMacrosObj = (title: string, id: string) => {
+export const getMealMacrosObj = (mealOrTitle: MealOption | string, idArg?: string) => {
+  if (typeof mealOrTitle !== 'string' && mealOrTitle.nutrition) {
+    return mealOrTitle.nutrition;
+  }
+  const title = typeof mealOrTitle === 'string' ? mealOrTitle : mealOrTitle.title;
+  const id = typeof mealOrTitle === 'string' ? idArg || '' : mealOrTitle.id;
   const hash = (title + id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const protein = (hash % 15) + 12; // 12g - 26g
   const fats = (hash % 12) + 8;     // 8g - 19g
@@ -67,11 +74,11 @@ export const MealCarouselRow: React.FC<Props> = ({
 }) => {
   const { width: screenWidth } = useWindowDimensions();
   // Each meal owns its own frame, with a peek of the next carousel item.
-  const CARD_WIDTH = screenWidth - 64;
+  const CARD_WIDTH = Math.min((screenWidth - 64) * 1.1, screenWidth - 32);
   const CARD_HEIGHT = Math.min(CARD_WIDTH, 300);
   const CARD_SIDE_INSET = (screenWidth - CARD_WIDTH) / 2;
 
-  const flatListRef = useRef<FlatList<MealOption>>(null);
+  const flatListRef = useRef<FlatList<CarouselItem>>(null);
   const [instructionsExpanded, setInstructionsExpanded] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
   const [macrosExpanded, setMacrosExpanded] = useState(false);
@@ -81,7 +88,7 @@ export const MealCarouselRow: React.FC<Props> = ({
   
   const [isEditingInstructions, setIsEditingInstructions] = useState(false);
   const [isEditingIngredients, setIsEditingIngredients] = useState(false);
-  const [isGeneratingAI, setIsGeneratingAI] = useState<'instructions' | 'ingredients' | null>(null);
+  const [isGeneratingAI, setIsGeneratingAI] = useState<'instructions' | 'ingredients' | 'mealInfo' | null>(null);
   
   const [draftInstructions, setDraftInstructions] = useState<string[]>([]);
   const [draftIngredients, setDraftIngredients] = useState<string[]>([]);
@@ -90,10 +97,12 @@ export const MealCarouselRow: React.FC<Props> = ({
     groceryList, 
     inventoryList, 
     confirmedMeals, 
+    addMealOption,
     addToGrocery, 
     toggleInventory,
     toggleConfirmMeal,
     removeMealOption,
+    updateMealOption,
     updateMealImage,
     updateMealInstructions,
     updateMealIngredients
@@ -683,7 +692,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     marginHorizontal: 0,
-    marginBottom: 24,
+    marginBottom: 17,
     paddingVertical: 0,
     shadowOpacity: 0,
     elevation: 0,
@@ -696,7 +705,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 20,
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: '#FFFFFF',
     overflow: 'visible',
     justifyContent: 'flex-end',
@@ -719,7 +728,7 @@ const styles = StyleSheet.create({
   neonTag: {
     position: 'absolute',
     top: 10,
-    left: -18,
+    left: -10,
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 2,
@@ -766,19 +775,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     gap: 10,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingHorizontal: 8,
+    paddingBottom: 8,
     zIndex: 9,
   },
   overlayTextGroup: {
     flex: 1,
     minWidth: 0,
     maxWidth: 188,
-    paddingHorizontal: 11,
-    paddingVertical: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 5,
     borderRadius: 14,
     backgroundColor: 'rgba(255, 255, 255, 0.76)',
-    borderWidth: 1,
+    borderWidth: 0.5,
     borderColor: 'rgba(255, 255, 255, 0.9)',
   },
   overlayTextGroupInactive: {

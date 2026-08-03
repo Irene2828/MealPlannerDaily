@@ -10,6 +10,12 @@ export interface MealOption {
   gradientFrom: string;
   gradientTo: string;
   imageUrl: string;
+  nutrition?: {
+    protein: number;
+    fats: number;
+    carbs: number;
+    calories: number;
+  };
   shoppingList: string[];
   instructions: string[];
 }

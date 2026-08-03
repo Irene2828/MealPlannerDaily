@@ -14,7 +14,9 @@ interface GroceryContextType {
   toggleConfirmMeal: (mealId: string) => void;
   updateGroceryItem: (oldItem: string, newItem: string) => void;
   addCustomMeals: (slotId: string, newOptions: MealOption[]) => void;
+  addMealOption: (slotId: string, meal: MealOption, isKids: boolean) => void;
   removeMealOption: (slotId: string, mealId: string, isKids: boolean) => void;
+  updateMealOption: (slotId: string, mealId: string, isKids: boolean, updates: Partial<MealOption>) => void;
   updateMealImage: (slotId: string, mealId: string, isKids: boolean, imageUrl: string) => void;
   updateMealInstructions: (slotId: string, mealId: string, isKids: boolean, instructions: string[]) => void;
   updateMealIngredients: (slotId: string, mealId: string, isKids: boolean, ingredients: string[]) => void;
@@ -137,6 +139,38 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const addMealOption = (slotId: string, meal: MealOption, isKids: boolean) => {
+    const setter = isKids ? setKidsMeals : setAdultsMeals;
+    setter((prev) => {
+      return prev.map((slot) => {
+        if (slot.slotId === slotId) {
+          return {
+            ...slot,
+            options: [...slot.options, meal],
+          };
+        }
+        return slot;
+      });
+    });
+  };
+
+  const updateMealOption = (slotId: string, mealId: string, isKids: boolean, updates: Partial<MealOption>) => {
+    const setter = isKids ? setKidsMeals : setAdultsMeals;
+    setter((prev) => {
+      return prev.map((slot) => {
+        if (slot.slotId === slotId) {
+          return {
+            ...slot,
+            options: slot.options.map((opt) =>
+              opt.id === mealId ? { ...opt, ...updates } : opt
+            ),
+          };
+        }
+        return slot;
+      });
+    });
+  };
+
   const updateMealImage = (slotId: string, mealId: string, isKids: boolean, imageUrl: string) => {
     const setter = isKids ? setKidsMeals : setAdultsMeals;
     setter((prev) => {
@@ -202,7 +236,9 @@ export const GroceryProvider = ({ children }: { children: ReactNode }) => {
         toggleConfirmMeal,
         updateGroceryItem,
         addCustomMeals,
+        addMealOption,
         removeMealOption,
+        updateMealOption,
         updateMealImage,
         updateMealInstructions,
         updateMealIngredients,
