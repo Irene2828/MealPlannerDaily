@@ -246,12 +246,14 @@ export const MealCarouselRow: React.FC<Props> = ({
           { width: CARD_WIDTH, marginRight: index === slot.options.length - 1 ? 0 : CARD_GAP },
         ]}
       >
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={StyleSheet.absoluteFill as any}
-          resizeMode="cover"
-        />
-        {!isSelectedCard && <View style={styles.inactiveCardOverlay} pointerEvents="none" />}
+        <View style={styles.cardVisualClip}>
+          <Image
+            source={{ uri: item.imageUrl }}
+            style={StyleSheet.absoluteFill as any}
+            resizeMode="cover"
+          />
+          {!isSelectedCard && <View style={styles.inactiveCardOverlay} pointerEvents="none" />}
+        </View>
         <Pressable
           style={[
             styles.neonTag,
@@ -696,8 +698,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#FFFFFF',
-    overflow: 'hidden',
+    overflow: 'visible',
     justifyContent: 'flex-end',
+    backgroundColor: '#FFFFFF',
+  },
+  cardVisualClip: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20,
+    overflow: 'hidden',
     backgroundColor: '#FFFFFF',
   },
   cardInactive: {
@@ -711,7 +719,7 @@ const styles = StyleSheet.create({
   neonTag: {
     position: 'absolute',
     top: 10,
-    left: 6,
+    left: -22,
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 2,
