@@ -719,7 +719,7 @@ const styles = StyleSheet.create({
   neonTag: {
     position: 'absolute',
     top: 10,
-    left: -22,
+    left: -18,
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 2,
