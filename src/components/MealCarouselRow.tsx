@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: 'transparent',
     marginHorizontal: 0,
-    marginBottom: 20,
+    marginBottom: 40,
     paddingVertical: 0,
     shadowOpacity: 0,
     elevation: 0,
