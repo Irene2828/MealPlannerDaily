@@ -15,7 +15,6 @@ import {
   ActivityIndicator,
   TextInput,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { MealOption, MealSlot } from '../data/meals';
 import { useGrocery } from '../context/GroceryContext';
@@ -244,16 +243,6 @@ export const MealCarouselRow: React.FC<Props> = ({
           style={StyleSheet.absoluteFill as any}
           resizeMode="cover"
         />
-        {/* Softens the image edge behind the nutrition glass panel. */}
-        <LinearGradient
-          colors={[
-            'transparent',
-            'rgba(255, 255, 255, 0.08)',
-            'rgba(8, 12, 20, 0.42)',
-          ]}
-          style={styles.gradientOverlay}
-        />
-
         <Pressable
           style={[
             styles.neonTag,
@@ -685,13 +674,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     backgroundColor: '#FFFFFF',
   },
-  gradientOverlay: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: '64%',
-  },
   neonTag: {
     position: 'absolute',
     top: 14,
@@ -743,11 +725,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     gap: 10,
     paddingHorizontal: 16,
-    paddingTop: 36,
     paddingBottom: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.22)',
     zIndex: 9,
   },
   overlayTextGroup: {
