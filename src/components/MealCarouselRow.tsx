@@ -315,9 +315,12 @@ export const MealCarouselRow: React.FC<Props> = ({
         <View style={styles.bottomImageOverlay}>
           <View style={styles.overlayTextGroup}>
             <Text style={styles.overlayMealName} numberOfLines={2}>{item.title}</Text>
-            <Text style={styles.overlayMacros} numberOfLines={1}>
-              {macros.protein}g P   •   {macros.fats}g F   •   {macros.carbs}g C   •   {macros.calories} Cal
-            </Text>
+            <View style={styles.overlayMacroStack}>
+              <Text style={styles.overlayMacroLine}>{macros.protein}g Protein</Text>
+              <Text style={styles.overlayMacroLine}>{macros.fats}g Fat</Text>
+              <Text style={styles.overlayMacroLine}>{macros.carbs}g Carbs</Text>
+              <Text style={styles.overlayMacroCalories}>{macros.calories} Cal</Text>
+            </View>
           </View>
 
           <View style={styles.overlayActions}>
@@ -742,7 +745,21 @@ const styles = StyleSheet.create({
     textShadowRadius: 3,
     letterSpacing: 0,
   },
-  overlayMacros: {
+  overlayMacroStack: {
+    marginTop: 8,
+    gap: 1,
+  },
+  overlayMacroLine: {
+    fontFamily: 'DMSans_500Medium',
+    fontSize: 11,
+    lineHeight: 15,
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0, 0, 0, 0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+    letterSpacing: 0,
+  },
+  overlayMacroCalories: {
     fontFamily: 'DMSans_700Bold',
     fontSize: 12,
     lineHeight: 16,
@@ -751,7 +768,6 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 3,
     letterSpacing: 0,
-    marginTop: 5,
   },
   overlayActions: {
     flexDirection: 'row',
@@ -914,14 +930,14 @@ const styles = StyleSheet.create({
   },
   moreButton: {
     position: 'absolute',
-    bottom: 14,
+    top: 14,
     right: 14,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.18)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.6)',
+    borderColor: 'rgba(255, 255, 255, 0.46)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 11,
