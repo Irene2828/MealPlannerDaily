@@ -27,11 +27,11 @@ const DAYS_OF_WEEK = [
 ];
 
 const DRINKS = [
-  { id: 'espresso',  label: 'Espresso',  emoji: '☕',  cal: 5   },
-  { id: 'latte',     label: 'Latte',     emoji: '🥛',  cal: 80  },
-  { id: 'juice',     label: 'Juice',     emoji: '🍊',  cal: 110 },
-  { id: 'milk',      label: 'Milk',      emoji: '🍼',  cal: 120 },
-  { id: 'smoothie',  label: 'Smoothie',  emoji: '🫙',  cal: 180 },
+  { id: 'espresso',  label: 'Espresso',  icon: 'cafe-outline',       cal: 5   },
+  { id: 'latte',     label: 'Latte',     icon: 'pint-outline',       cal: 80  },
+  { id: 'juice',     label: 'Juice',     icon: 'nutrition-outline',  cal: 110 },
+  { id: 'milk',      label: 'Milk',      icon: 'water-outline',      cal: 120 },
+  { id: 'smoothie',  label: 'Smoothie',  icon: 'ice-cream-outline',  cal: 180 },
 ];
 
 export default function MealPlannerScreen() {
@@ -216,7 +216,11 @@ export default function MealPlannerScreen() {
                         <View key={d.id} style={styles.drinkItem}>
                           <Pressable onPress={() => handleTapDrink(d.id)}>
                             <View style={[styles.drinkCircle, count > 0 && styles.drinkCircleActive]}>
-                              <Text style={styles.drinkEmoji}>{d.emoji}</Text>
+                              <Ionicons
+                                name={d.icon as any}
+                                size={22}
+                                color={count > 0 ? '#111827' : '#1F2937'}
+                              />
                             </View>
                           </Pressable>
                           <Text style={[styles.drinkLabel, count > 0 && styles.drinkLabelActive]}>{d.label}</Text>
@@ -352,7 +356,7 @@ const styles = StyleSheet.create({
     minWidth: 64,
   },
   summaryCalValue: {
-    fontFamily: 'DMSans_700Bold',
+    fontFamily: 'DMSans_400Regular',
     fontSize: 30,
     color: '#4B5563',
     lineHeight: 34,
@@ -391,7 +395,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   summaryMacroVal: {
-    fontFamily: 'DMSans_700Bold',
+    fontFamily: 'DMSans_400Regular',
     fontSize: 13,
     color: '#1F2937',
     width: 36,
@@ -452,9 +456,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
     textAlign: 'center',
   },
-  drinkEmoji: {
-    fontSize: 20,
-  },
   drinkLabel: {
     fontFamily: 'DMSans_500Medium',
     fontSize: 9,
@@ -468,4 +469,3 @@ const styles = StyleSheet.create({
   },
 
 });
-
