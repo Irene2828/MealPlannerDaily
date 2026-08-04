@@ -292,7 +292,7 @@ export const MealCarouselRow: React.FC<Props> = ({
         >
           <View style={styles.neonTagContent}>
             <View style={[styles.neonTagCheckBox, isConfirmed && styles.neonTagCheckBoxConfirmed]}>
-              {isConfirmed && <Ionicons name="checkmark" size={10} color="#FF7A45" />}
+              {isConfirmed && <Ionicons name="checkmark" size={10} color="#16A34A" />}
             </View>
             <Text style={styles.neonTagText}>{slot.slotLabel}</Text>
           </View>
@@ -745,8 +745,8 @@ const styles = StyleSheet.create({
   },
   neonTag: {
     position: 'absolute',
-    top: 10,
-    left: -10,
+    top: 14,
+    left: -6,
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 2,
@@ -760,7 +760,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   neonTagConfirmed: {
-    borderColor: '#FF7A45',
+    borderColor: '#CCFF00',
   },
   neonTagText: {
     fontFamily: 'DMSans_700Bold',
@@ -785,7 +785,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   neonTagCheckBoxConfirmed: {
-    borderColor: '#FF7A45',
+    borderColor: '#CCFF00',
   },
   bottomImageOverlay: {
     position: 'absolute',
@@ -796,8 +796,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     gap: 10,
-    paddingHorizontal: 8,
-    paddingBottom: 8,
+    paddingHorizontal: 12,
+    paddingBottom: 12,
     zIndex: 9,
   },
   overlayTextGroup: {
@@ -1005,8 +1005,8 @@ const styles = StyleSheet.create({
   },
   moreButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 12,
+    right: 12,
     width: 32,
     height: 32,
     borderRadius: 16,
