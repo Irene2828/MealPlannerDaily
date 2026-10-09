@@ -8,120 +8,83 @@ import {
   Pressable,
   Dimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { MEAL_SLOTS } from '../data/meals';
-import { KIDS_MEAL_SLOTS } from '../data/kidsMeals';
-import { MealCarouselRow, getMealMacrosObj } from '../components/MealCarouselRow';
-import { useGrocery } from '../context/GroceryContext';
+import { MealCarouselRow } from '../components/MealCarouselRow';
+import { useMenuChoices, PROFILES, Profile } from '../hooks/useMenuChoices';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const DAYS_OF_WEEK = [
-  { id: 'mon', label: 'Mon' },
-  { id: 'tue', label: 'Tue' },
-  { id: 'wed', label: 'Wed' },
-  { id: 'thu', label: 'Thu' },
-  { id: 'fri', label: 'Fri' },
-  { id: 'sat', label: 'Sat' },
-  { id: 'sun', label: 'Sun' },
-];
-
-const DRINKS = [
-  { id: 'espresso',  label: 'Espresso',  icon: 'cafe-outline',       cal: 5   },
-  { id: 'latte',     label: 'Latte',     icon: 'pint-outline',       cal: 80  },
-  { id: 'juice',     label: 'Juice',     icon: 'nutrition-outline',  cal: 110 },
-  { id: 'milk',      label: 'Milk',      icon: 'water-outline',      cal: 120 },
-  { id: 'smoothie',  label: 'Smoothie',  icon: 'ice-cream-outline',  cal: 180 },
+  { id: 'mon', label: 'Пн' },
+  { id: 'tue', label: 'Вт' },
+  { id: 'wed', label: 'Ср' },
+  { id: 'thu', label: 'Чт' },
+  { id: 'fri', label: 'Пт' },
+  { id: 'sat', label: 'Сб' },
+  { id: 'sun', label: 'Нд' },
 ];
 
 export default function MealPlannerScreen() {
   const [selectedDay, setSelectedDay] = useState('mon');
-  const [mode, setMode] = useState<'adults' | 'kids'>('adults');
-  const { adultsMeals, kidsMeals } = useGrocery();
+  const [selectedProfile, setSelectedProfile] = useState<Profile>('Мама');
   
-  // Create indices state for both sets of data independently
-  const [adultsIndices, setAdultsIndices] = useState<Record<string, number>>(
-    Object.fromEntries(MEAL_SLOTS.map((s) => [s.slotId, 0]))
-  );
-  const [kidsIndices, setKidsIndices] = useState<Record<string, number>>(
-    Object.fromEntries(KIDS_MEAL_SLOTS.map((s) => [s.slotId, 0]))
-  );
-
-  const handleSelectDay = (dayId: string) => {
-    setSelectedDay(dayId);
-  };
+  const { setChoice, getChoice, getChoicesForDay } = useMenuChoices();
 
   const handleSelectIndex = (slotId: string, index: number) => {
-    if (mode === 'adults') {
-      setAdultsIndices((prev) => ({ ...prev, [slotId]: index }));
-    } else {
-      setKidsIndices((prev) => ({ ...prev, [slotId]: index }));
-    }
-  };
+    // We get index from carousel, map it to the actual mealId
+    const slot = MEAL_SLOTS.find(s => s.slotId === slotId);
+    if (!slot) return;
+    const mealId = slot.options[index]?.id || null;
 
-  const currentSlots = mode === 'adults' ? adultsMeals : kidsMeals;
-  const currentIndices = mode === 'adults' ? adultsIndices : kidsIndices;
-
-  // selectedDrinks: key = `${mode}-${day}`, value = record of drinkId -> count
-  const [selectedDrinks, setSelectedDrinks] = useState<Record<string, Record<string, number>>>({});
-
-  const drinkKey = `${mode}-${selectedDay}`;
-  const activeDrinks = selectedDrinks[drinkKey] ?? {};
-
-  const incrementDrink = (drinkId: string) => {
-    setSelectedDrinks(prev => {
-      const current = { ...(prev[drinkKey] || {}) };
-      current[drinkId] = (current[drinkId] || 0) + 1;
-      return { ...prev, [drinkKey]: current };
-    });
-  };
-
-  const decrementDrink = (drinkId: string) => {
-    setSelectedDrinks(prev => {
-      const current = { ...(prev[drinkKey] || {}) };
-      if (!current[drinkId]) return prev;
-      current[drinkId] -= 1;
-      if (current[drinkId] === 0) delete current[drinkId];
-      return { ...prev, [drinkKey]: current };
-    });
-  };
-
-  const handleTapDrink = (drinkId: string) => {
-    setSelectedDrinks(prev => {
-      const current = { ...(prev[drinkKey] || {}) };
-      const currentCount = current[drinkId] || 0;
-      if (currentCount > 0) {
-        delete current[drinkId];
-      } else {
-        current[drinkId] = 1;
-      }
-      return { ...prev, [drinkKey]: current };
-    });
+    setChoice(selectedDay, selectedProfile, slotId, mealId);
   };
 
   return (
     <View style={styles.root}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
+      {/* Profiles */}
+      <View style={styles.profilesWrapper}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.profilesScroll}>
+          {PROFILES.map((profile) => (
+            <Pressable
+              key={profile}
+              style={[
+                styles.profileChip,
+                selectedProfile === profile && styles.profileChipActive,
+              ]}
+              onPress={() => setSelectedProfile(profile)}
+            >
+              <Text
+                style={[
+                  styles.profileChipLabel,
+                  selectedProfile === profile && styles.profileChipLabelActive,
+                ]}
+              >
+                {profile}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      </View>
 
-      {/* ─── Days of the week strip ─── */}
-      <View style={styles.moodStripWrapper}>
+      {/* Days Scroll */}
+      <View style={styles.daysStripWrapper}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.moodStrip}
+          contentContainerStyle={styles.daysStrip}
         >
-          {DAYS_OF_WEEK.map((day) => {
-            const active = selectedDay === day.id;
+          {DAYS_OF_WEEK.map((d) => {
+            const isActive = selectedDay === d.id;
             return (
               <Pressable
-                key={day.id}
-                onPress={() => handleSelectDay(day.id)}
-                style={[styles.moodChip, active && styles.moodChipActive]}
+                key={d.id}
+                style={[styles.dayChip, isActive && styles.dayChipActive]}
+                onPress={() => setSelectedDay(d.id)}
               >
-                <Text style={[styles.moodChipLabel, active && styles.moodChipLabelActive]}>
-                  {day.label}
+                <Text style={[styles.dayText, isActive && styles.dayTextActive]}>
+                  {d.label}
                 </Text>
               </Pressable>
             );
@@ -129,166 +92,55 @@ export default function MealPlannerScreen() {
         </ScrollView>
       </View>
 
-      {/* ─── Main scroll ─── */}
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {currentSlots.map((slot, index) => (
-          <React.Fragment key={slot.slotId}>
-            {index > 0 && (
-              <View style={styles.mealRowDivider}>
-                <View style={styles.mealRowDividerLine} />
-              </View>
-            )}
-            <MealCarouselRow
-              day={selectedDay}
-              slot={slot}
-              isKids={mode === 'kids'}
-              selectedIndex={Math.min(
-                currentIndices[slot.slotId] ?? 0,
-                slot.options.length - 1
-              )}
-              onSelectIndex={(index) => handleSelectIndex(slot.slotId, index)}
-            />
-          </React.Fragment>
-        ))}
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        {MEAL_SLOTS.map((slot, index) => {
+          const currentChoiceId = getChoice(selectedDay, selectedProfile, slot.slotId);
+          // Find index of chosen meal to pass to carousel
+          const chosenIndex = currentChoiceId ? slot.options.findIndex(o => o.id === currentChoiceId) : -1;
 
-        {/* ── Daily Summary ── */}
-        {(() => {
-          let totalCalories = 0, totalProtein = 0, totalFats = 0, totalCarbs = 0;
-          currentSlots.forEach(slot => {
-            const idx = Math.min(currentIndices[slot.slotId] ?? 0, slot.options.length - 1);
-            const meal = slot.options[idx];
-            if (meal) {
-              const m = getMealMacrosObj(meal.title, meal.id);
-              totalCalories += m.calories;
-              totalProtein += m.protein;
-              totalFats += m.fats;
-              totalCarbs += m.carbs;
-            }
-          });
-          // Add selected drink calories
-          DRINKS.forEach(d => {
-            const count = activeDrinks[d.id] || 0;
-            totalCalories += count * d.cal;
-          });
           return (
-            <View style={styles.summaryWrapper}>
-              {/* Thin orange divider */}
-              <View style={styles.summaryDivider} />
-
-              <View style={styles.summaryContent}>
-
-                <Text style={styles.summaryCaption}>Your meals today:</Text>
-
-                {/* Macros left + calories right */}
-                <View style={styles.summaryMainRow}>
-                  {/* Macro bars column */}
-                  <View style={styles.summaryMacroColumn}>
-                    {[
-                      { label: 'Protein', val: totalProtein, color: '#9CA3AF' },
-                      { label: 'Fats',    val: totalFats,    color: '#D1D5DB' },
-                      { label: 'Carbs',   val: totalCarbs,   color: '#E5E7EB' },
-                    ].map(m => {
-                      const pct = Math.min((m.val / 60) * 100, 100);
-                      return (
-                        <View key={m.label} style={styles.summaryMacroRow}>
-                          <Text style={styles.summaryMacroLabel}>{m.label}</Text>
-                          <View style={styles.summaryBarBg}>
-                            <View style={[styles.summaryBarFill, { width: `${pct}%` as any, backgroundColor: m.color }]} />
-                          </View>
-                          <Text style={styles.summaryMacroVal}>{m.val}g</Text>
-                        </View>
-                      );
-                    })}
-                  </View>
-
-                  {/* Calories right column */}
-                  <View style={styles.summaryCalColumn}>
-                    <Text style={styles.summaryCalValue}>{totalCalories}</Text>
-                    <Text style={styles.summaryCalUnit}>kcal</Text>
-                  </View>
+            <View key={slot.slotId}>
+              <MealCarouselRow
+                day={selectedDay}
+                slot={slot}
+                isKids={false}
+                selectedIndex={chosenIndex}
+                onSelectIndex={(idx) => handleSelectIndex(slot.slotId, idx)}
+              />
+              {index < MEAL_SLOTS.length - 1 && (
+                <View style={styles.mealRowDivider}>
+                  <View style={styles.mealRowDividerLine} />
+                  <View style={[styles.mealRowDividerLine, { width: 4, height: 4 }]} />
+                  <View style={styles.mealRowDividerLine} />
                 </View>
-
-                {/* Drinks selector container with top border and horizontal ScrollView */}
-                <View style={styles.drinksContainer}>
-                  <Text style={styles.summaryCaption}>Add drinks if needed - they will update the stats!</Text>
-                  <View style={styles.drinksScrollFrame}>
-                    <ScrollView
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      contentContainerStyle={styles.drinksScrollContent}
-                    >
-                      {DRINKS.map(d => {
-                        const count = activeDrinks[d.id] || 0;
-                        return (
-                          <View key={d.id} style={styles.drinkItem}>
-                            <Pressable onPress={() => handleTapDrink(d.id)}>
-                              <View style={[styles.drinkCircle, count > 0 && styles.drinkCircleActive]}>
-                                <Ionicons
-                                  name={d.icon as any}
-                                  size={22}
-                                  color={count > 0 ? '#111827' : '#1F2937'}
-                                />
-                              </View>
-                            </Pressable>
-                            <Text style={[styles.drinkLabel, count > 0 && styles.drinkLabelActive]}>{d.label}</Text>
-                            
-                            {/* Digit under the icon/label */}
-                            <Text style={styles.drinkCount}>{count}</Text>
-
-                            {/* Minus and Plus controls */}
-                            <View style={styles.drinkControls}>
-                              <Pressable
-                                onPress={() => decrementDrink(d.id)}
-                                disabled={count === 0}
-                                hitSlop={6}
-                                style={({ pressed }) => [
-                                  styles.drinkStepBtn,
-                                  count === 0 && styles.drinkStepBtnDisabled,
-                                  pressed && count > 0 && styles.drinkStepBtnPressed,
-                                ]}
-                              >
-                                <Ionicons name="remove" size={15} color={count === 0 ? '#CBD5E1' : '#374151'} />
-                              </Pressable>
-                              <View style={styles.drinkStepDivider} />
-                              <Pressable
-                                onPress={() => incrementDrink(d.id)}
-                                hitSlop={6}
-                                style={({ pressed }) => [
-                                  styles.drinkStepBtn,
-                                  pressed && styles.drinkStepBtnPressed,
-                                ]}
-                              >
-                                <Ionicons name="add" size={15} color="#374151" />
-                              </Pressable>
-                            </View>
-                          </View>
-                        );
-                      })}
-                    </ScrollView>
-                    <LinearGradient
-                      pointerEvents="none"
-                      colors={['#FFFFFF', 'rgba(255, 255, 255, 0)']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={[styles.drinksEdgeFade, styles.drinksEdgeFadeLeft]}
-                    />
-                    <LinearGradient
-                      pointerEvents="none"
-                      colors={['rgba(255, 255, 255, 0)', '#FFFFFF']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={[styles.drinksEdgeFade, styles.drinksEdgeFadeRight]}
-                    />
-                  </View>
-                </View>
-              </View>
+              )}
             </View>
           );
-        })()}
+        })}
+
+        {/* Read-only summary for all members */}
+        <View style={styles.summaryWrapper}>
+          {(() => {
+            const dayObj = DAYS_OF_WEEK.find(d => d.id === selectedDay);
+            return <Text style={styles.summaryTitle}>Вибір на {dayObj?.label || selectedDay}</Text>;
+          })()}
+          <View style={styles.summaryContent}>
+            {PROFILES.map(profile => {
+              const choicesForDay = getChoicesForDay(selectedDay)[profile] || {};
+              const choicesText = MEAL_SLOTS.map(slot => {
+                const mealId = choicesForDay[slot.slotId];
+                const meal = mealId ? slot.options.find(o => o.id === mealId) : null;
+                return meal ? meal.title : '—';
+              }).join(' • ');
+
+              return (
+                <Text key={profile} style={styles.summaryLine}>
+                  <Text style={styles.summaryProfileName}>{profile}:</Text> {choicesText}
+                </Text>
+              );
+            })}
+          </View>
+        </View>
 
         <View style={{ height: 80 }} />
       </ScrollView>
@@ -301,18 +153,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'transparent',
   },
-  moodStripWrapper: {
+  profilesWrapper: {
     flexGrow: 0,
     marginTop: 12,
   },
-  moodStrip: {
+  profilesScroll: {
     paddingHorizontal: 20,
-    paddingBottom: 16,
+    paddingBottom: 8,
   },
-  moodChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
+  profileChip: {
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 999,
     backgroundColor: '#FFFFFF',
@@ -325,20 +175,45 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
-  moodChipActive: {
+  profileChipActive: {
     backgroundColor: '#FF7A45',
     borderColor: '#FF7A45',
   },
-  moodChipEmoji: {
-    fontSize: 15,
-    marginRight: 6,
+  profileChipLabel: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 14,
+    color: '#666',
   },
-  moodChipLabel: {
+  profileChipLabelActive: {
+    color: '#FFFFFF',
+  },
+  daysStripWrapper: {
+    flexGrow: 0,
+    marginTop: 4,
+  },
+  daysStrip: {
+    paddingHorizontal: 20,
+    paddingBottom: 16,
+  },
+  dayChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEFEF',
+    marginRight: 8,
+  },
+  dayChipActive: {
+    backgroundColor: '#111827',
+    borderColor: '#111827',
+  },
+  dayText: {
     fontFamily: 'DMSans_500Medium',
     fontSize: 13,
     color: '#666',
   },
-  moodChipLabelActive: {
+  dayTextActive: {
     color: '#FFFFFF',
   },
   scroll: {
@@ -362,210 +237,32 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: '#FF7A45',
   },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 80,
-  },
-  emptyEmoji: {
-    fontSize: 56,
-    marginBottom: 12,
-  },
-  emptyText: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 20,
-    color: '#1A1A1A',
-    marginBottom: 6,
-  },
-  emptySubText: {
-    fontFamily: 'DMSans_400Regular',
-    fontSize: 14,
-    color: '#666',
-  },
   summaryWrapper: {
     marginTop: 16,
     marginHorizontal: 20,
-  },
-  summaryDivider: {
-    height: 2,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 999,
-    marginBottom: 20,
-  },
-  summaryContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#EFEFEF',
   },
-  summaryCaption: {
-    fontFamily: 'DMSans_500Medium',
-    fontSize: 10,
-    lineHeight: 14,
-    color: '#9CA3AF',
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
+  summaryTitle: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 14,
+    color: '#1A1A1A',
     marginBottom: 12,
   },
-  summaryMainRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+  summaryContent: {
+    gap: 8,
   },
-  summaryMacroColumn: {
-    flex: 1,
-  },
-  summaryCalColumn: {
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    paddingLeft: 10,
-    borderLeftWidth: 1,
-    borderLeftColor: '#F3F4F6',
-    minWidth: 64,
-  },
-  summaryCalValue: {
-    fontFamily: 'DMSans_400Regular',
-    fontSize: 30,
-    color: '#4B5563',
-    lineHeight: 34,
-    textAlign: 'right',
-  },
-  summaryCalUnit: {
-    fontFamily: 'DMSans_500Medium',
-    fontSize: 11,
-    color: '#9CA3AF',
-    textAlign: 'right',
-    marginTop: 1,
-  },
-  summaryMacroRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginBottom: 10,
-  },
-  summaryMacroLabel: {
-    fontFamily: 'DMSans_700Bold',
-    fontSize: 11,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    color: '#4B5563',
-    width: 52,
-  },
-  summaryBarBg: {
-    flex: 1,
-    height: 7,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  summaryBarFill: {
-    height: '100%' as any,
-    borderRadius: 4,
-  },
-  summaryMacroVal: {
+  summaryLine: {
     fontFamily: 'DMSans_400Regular',
     fontSize: 13,
-    color: '#1F2937',
-    width: 36,
-    textAlign: 'right',
+    color: '#4B5563',
+    lineHeight: 18,
   },
-  drinksContainer: {
-    marginTop: 20,
-    paddingTop: 18,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-  },
-  drinksScrollContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexGrow: 1,
-    gap: 16,
-    paddingHorizontal: 8,
-  },
-  drinksScrollFrame: {
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  drinksEdgeFade: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: 24,
-    zIndex: 2,
-  },
-  drinksEdgeFadeLeft: {
-    left: 0,
-  },
-  drinksEdgeFadeRight: {
-    right: 0,
-  },
-  drinkItem: {
-    alignItems: 'center',
-    gap: 4,
-    minWidth: 56,
-  },
-  drinkCircle: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  drinkCircleActive: {
-    borderColor: '#4B5563',
-    backgroundColor: '#F9FAFB',
-    borderWidth: 1.5,
-  },
-  drinkControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 76,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    marginTop: 4,
-    overflow: 'hidden',
-  },
-  drinkStepBtn: {
-    width: 37,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  drinkStepBtnPressed: {
-    backgroundColor: '#EEF2F7',
-  },
-  drinkStepBtnDisabled: {
-    opacity: 0.55,
-  },
-  drinkStepDivider: {
-    width: 1,
-    height: 18,
-    backgroundColor: '#E5E7EB',
-  },
-  drinkCount: {
+  summaryProfileName: {
     fontFamily: 'DMSans_700Bold',
-    fontSize: 13,
-    color: '#374151',
-    marginTop: 2,
-    textAlign: 'center',
+    color: '#1A1A1A',
   },
-  drinkLabel: {
-    fontFamily: 'DMSans_500Medium',
-    fontSize: 9,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-    color: '#9CA3AF',
-  },
-  drinkLabelActive: {
-    color: '#374151',
-    fontFamily: 'DMSans_700Bold',
-  },
-
 });

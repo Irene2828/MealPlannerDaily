@@ -40,23 +40,7 @@ export default function MainLayout() {
         </Pressable>
 
         <View style={styles.headerRightContainer}>
-          <Pressable 
-            style={styles.headerIcon} 
-            onPress={() => setActiveTab('grocery')}
-          >
-            <View style={styles.iconContainer}>
-              <Ionicons 
-                name="basket-outline"
-                size={28} 
-                color={activeTab === 'grocery' ? '#1F2937' : '#6B7280'} 
-              />
-              {groceryList.size > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{groceryList.size}</Text>
-                </View>
-              )}
-            </View>
-          </Pressable>
+
         </View>
       </View>
 
