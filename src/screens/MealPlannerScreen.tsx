@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { MEAL_SLOTS, MealOption } from '../data/meals';
 import { MealCarouselRow } from '../components/MealCarouselRow';
-import { useMenuChoices, PROFILES, Profile, profileLabel } from '../hooks/useMenuChoices';
+import { useMenuChoices, PROFILES, Profile, profileLabel, PROFILE_COLORS } from '../hooks/useMenuChoices';
 import type { Lang } from '../hooks/useLanguage';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -27,7 +27,7 @@ const DAYS_OF_WEEK = [
 
 export default function MealPlannerScreen({ lang }: { lang: Lang }) {
   const [selectedDay, setSelectedDay] = useState('mon');
-  const [selectedProfile, setSelectedProfile] = useState<Profile>('Мама');
+  const [selectedProfile, setSelectedProfile] = useState<Profile>('Tato');
 
   const { setChoice, getChoice, getChoicesForDay } = useMenuChoices();
 
@@ -64,7 +64,10 @@ export default function MealPlannerScreen({ lang }: { lang: Lang }) {
               key={profile}
               style={[
                 styles.profileChip,
-                selectedProfile === profile && styles.profileChipActive,
+                selectedProfile === profile && {
+                  backgroundColor: PROFILE_COLORS[profile],
+                  borderColor: PROFILE_COLORS[profile],
+                },
               ]}
               onPress={() => setSelectedProfile(profile)}
             >
