@@ -8,27 +8,40 @@ import {
   Pressable,
   Dimensions,
 } from 'react-native';
-import { MEAL_SLOTS } from '../data/meals';
+import { MEAL_SLOTS, MealOption } from '../data/meals';
 import { MealCarouselRow } from '../components/MealCarouselRow';
-import { useMenuChoices, PROFILES, Profile } from '../hooks/useMenuChoices';
+import { useMenuChoices, PROFILES, Profile, profileLabel } from '../hooks/useMenuChoices';
+import type { Lang } from '../hooks/useLanguage';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const DAYS_OF_WEEK = [
-  { id: 'mon', label: 'Пн' },
-  { id: 'tue', label: 'Вт' },
-  { id: 'wed', label: 'Ср' },
-  { id: 'thu', label: 'Чт' },
-  { id: 'fri', label: 'Пт' },
-  { id: 'sat', label: 'Сб' },
-  { id: 'sun', label: 'Нд' },
+  { id: 'mon', uk: 'Пн', en: 'Mon' },
+  { id: 'tue', uk: 'Вт', en: 'Tue' },
+  { id: 'wed', uk: 'Ср', en: 'Wed' },
+  { id: 'thu', uk: 'Чт', en: 'Thu' },
+  { id: 'fri', uk: 'Пт', en: 'Fri' },
+  { id: 'sat', uk: 'Сб', en: 'Sat' },
+  { id: 'sun', uk: 'Нд', en: 'Sun' },
 ];
 
-export default function MealPlannerScreen() {
+export default function MealPlannerScreen({ lang }: { lang: Lang }) {
   const [selectedDay, setSelectedDay] = useState('mon');
   const [selectedProfile, setSelectedProfile] = useState<Profile>('Мама');
-  
+
   const { setChoice, getChoice, getChoicesForDay } = useMenuChoices();
+
+  const dayLabel = (id: string) => {
+    const d = DAYS_OF_WEEK.find(d => d.id === id);
+    if (!d) return id;
+    return lang === 'uk' ? d.uk : d.en;
+  };
+
+  const mealTitle = (meal: MealOption) =>
+    lang === 'en' && meal.titleEn ? meal.titleEn : meal.title;
+
+  const summaryTitle =
+    lang === 'uk' ? `Вибір на ${dayLabel(selectedDay)}` : `Choices for ${dayLabel(selectedDay)}`;
 
   const handleSelectIndex = (slotId: string, index: number) => {
     // We get index from carousel, map it to the actual mealId
@@ -61,7 +74,7 @@ export default function MealPlannerScreen() {
                   selectedProfile === profile && styles.profileChipLabelActive,
                 ]}
               >
-                {profile}
+                {profileLabel(profile, lang)}
               </Text>
             </Pressable>
           ))}
@@ -84,7 +97,7 @@ export default function MealPlannerScreen() {
                 onPress={() => setSelectedDay(d.id)}
               >
                 <Text style={[styles.dayText, isActive && styles.dayTextActive]}>
-                  {d.label}
+                  {lang === 'uk' ? d.uk : d.en}
                 </Text>
               </Pressable>
             );
@@ -106,6 +119,7 @@ export default function MealPlannerScreen() {
                 isKids={false}
                 selectedIndex={chosenIndex}
                 onSelectIndex={(idx) => handleSelectIndex(slot.slotId, idx)}
+                lang={lang}
               />
               {index < MEAL_SLOTS.length - 1 && (
                 <View style={styles.mealRowDivider}>
@@ -120,22 +134,19 @@ export default function MealPlannerScreen() {
 
         {/* Read-only summary for all members */}
         <View style={styles.summaryWrapper}>
-          {(() => {
-            const dayObj = DAYS_OF_WEEK.find(d => d.id === selectedDay);
-            return <Text style={styles.summaryTitle}>Вибір на {dayObj?.label || selectedDay}</Text>;
-          })()}
+          <Text style={styles.summaryTitle}>{summaryTitle}</Text>
           <View style={styles.summaryContent}>
             {PROFILES.map(profile => {
               const choicesForDay = getChoicesForDay(selectedDay)[profile] || {};
               const choicesText = MEAL_SLOTS.map(slot => {
                 const mealId = choicesForDay[slot.slotId];
                 const meal = mealId ? slot.options.find(o => o.id === mealId) : null;
-                return meal ? meal.title : '—';
+                return meal ? mealTitle(meal) : '—';
               }).join(' • ');
 
               return (
                 <Text key={profile} style={styles.summaryLine}>
-                  <Text style={styles.summaryProfileName}>{profile}:</Text> {choicesText}
+                  <Text style={styles.summaryProfileName}>{profileLabel(profile, lang)}:</Text> {choicesText}
                 </Text>
               );
             })}
