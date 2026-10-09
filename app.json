@@ -19,7 +19,8 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./public/icon-192.png"
+      "favicon": "./public/icon-192.png",
+      "bundler": "metro"
     }
   }
 }

@@ -6,15 +6,17 @@ import { LinearGradient } from 'expo-linear-gradient';
 import MealPlannerScreen from './MealPlannerScreen';
 import GroceryListScreen from './GroceryListScreen';
 import { useGrocery } from '../context/GroceryContext';
+import { useLanguage } from '../hooks/useLanguage';
 
 export default function MainLayout() {
   const [activeTab, setActiveTab] = useState<'home' | 'grocery'>('home');
   const insets = useSafeAreaInsets();
   const { groceryList } = useGrocery();
+  const { lang, toggleLang } = useLanguage();
 
   return (
-    <LinearGradient 
-      colors={['#FFEAD9', '#FFFFFF', '#FFFFFF', '#FFFFFF']} 
+    <LinearGradient
+      colors={['#FFEAD9', '#FFFFFF', '#FFFFFF', '#FFFFFF']}
       locations={[0, 0.25, 0.75, 1]}
       style={styles.container}
     >
@@ -28,11 +30,11 @@ export default function MainLayout() {
           </Pressable>
         </View>
 
-        <Pressable 
-          style={styles.headerTitleContainer} 
+        <Pressable
+          style={styles.headerTitleContainer}
           onPress={() => setActiveTab('home')}
         >
-          <Text style={styles.headerTitle}>Today's Menu</Text>
+          <Text style={styles.headerTitle}>{lang === 'uk' ? 'Меню на день' : "Today's Menu"}</Text>
           <View style={styles.underlineContainer}>
             <View style={[styles.underlineSegment, { transform: [{ rotate: '-2deg' }], opacity: 0.9 }]} />
             <View style={[styles.underlineSegment, { transform: [{ rotate: '-0.5deg' }], marginTop: -1, opacity: 0.8, width: '90%', alignSelf: 'center' }]} />
@@ -40,29 +42,15 @@ export default function MainLayout() {
         </Pressable>
 
         <View style={styles.headerRightContainer}>
-          <Pressable 
-            style={styles.headerIcon} 
-            onPress={() => setActiveTab('grocery')}
-          >
-            <View style={styles.iconContainer}>
-              <Ionicons 
-                name="basket-outline"
-                size={28} 
-                color={activeTab === 'grocery' ? '#1F2937' : '#6B7280'} 
-              />
-              {groceryList.size > 0 && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{groceryList.size}</Text>
-                </View>
-              )}
-            </View>
+          <Pressable style={styles.langToggle} onPress={toggleLang}>
+            <Text style={styles.langToggleText}>{lang === 'uk' ? 'EN' : 'УКР'}</Text>
           </Pressable>
         </View>
       </View>
 
       {/* Content Area */}
       <View style={styles.content}>
-        {activeTab === 'home' && <MealPlannerScreen />}
+        {activeTab === 'home' && <MealPlannerScreen lang={lang} />}
         {activeTab === 'grocery' && <GroceryListScreen />}
       </View>
     </LinearGradient>
@@ -106,6 +94,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'flex-end',
     justifyContent: 'center',
+  },
+  langToggle: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EFEFEF',
+  },
+  langToggleText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 12,
+    color: '#FF7A45',
   },
   headerIcon: {
     padding: 4,
