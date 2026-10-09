@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { MealOption, MealSlot } from '../data/meals';
+import type { Lang } from '../hooks/useLanguage';
 
 if (Platform.OS === 'android') {
   if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -28,12 +29,14 @@ interface Props {
   isKids: boolean;
   selectedIndex: number;
   onSelectIndex: (index: number) => void;
+  lang: Lang;
 }
 
 export const MealCarouselRow: React.FC<Props> = ({
   slot,
   selectedIndex,
   onSelectIndex,
+  lang,
 }) => {
   const { width: screenWidth } = useWindowDimensions();
   // We make it take most of the screen width
@@ -41,6 +44,11 @@ export const MealCarouselRow: React.FC<Props> = ({
   const CARD_HEIGHT = Math.min(CARD_WIDTH * 0.625, 240); // 16:10 aspect ratio approx
 
   const flatListRef = useRef<FlatList<MealOption>>(null);
+
+  const mealTitle = (item: MealOption) =>
+    lang === 'en' && item.titleEn ? item.titleEn : item.title;
+  const slotLabel =
+    lang === 'en' && slot.slotLabelEn ? slot.slotLabelEn : slot.slotLabel;
 
   // Scroll to selected if it changes
   useEffect(() => {
@@ -79,7 +87,7 @@ export const MealCarouselRow: React.FC<Props> = ({
           </View>
         )}
         <View style={styles.textContainer}>
-          <Text style={styles.mealName} numberOfLines={2}>{item.title}</Text>
+          <Text style={styles.mealName} numberOfLines={2}>{mealTitle(item)}</Text>
         </View>
       </Pressable>
     );
@@ -89,7 +97,7 @@ export const MealCarouselRow: React.FC<Props> = ({
     <View style={styles.container}>
       <View style={styles.slotHeader}>
         <Text style={styles.slotTitle}>
-          <Text style={styles.slotEmoji}>{slot.slotEmoji}</Text> {slot.slotLabel}
+          <Text style={styles.slotEmoji}>{slot.slotEmoji}</Text> {slotLabel}
         </Text>
       </View>
 
