@@ -1,15 +1,24 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
+import type { Lang } from './useLanguage';
 
-export type Profile = 'Мама' | 'Тато' | 'Марчик';
-export const PROFILES: Profile[] = ['Мама', 'Тато', 'Марчик'];
+export type Profile = 'Мама' | 'Тато' | 'A & M';
+export const PROFILES: Profile[] = ['Мама', 'Тато', 'A & M'];
+
+export const profileLabel = (p: Profile, lang: Lang): string => {
+  if (lang === 'en') {
+    if (p === 'Мама') return 'Mom';
+    if (p === 'Тато') return 'Dad';
+  }
+  return p;
+};
 
 type MenuChoices = {
   [day: string]: {
     [profile: string]: {
       [slotId: string]: string | null;
     }
-  }
+  };
 };
 
 const STORAGE_KEY = 'family-menu-choices-v1';
