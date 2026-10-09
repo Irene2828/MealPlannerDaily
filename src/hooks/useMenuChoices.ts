@@ -2,13 +2,19 @@ import { useState, useEffect, useCallback } from 'react';
 import { Platform } from 'react-native';
 import type { Lang } from './useLanguage';
 
-export type Profile = 'Мама' | 'Тато' | 'A & M';
-export const PROFILES: Profile[] = ['Мама', 'Тато', 'A & M'];
+export type Profile = 'Tato' | 'Alek' | 'Марк';
+export const PROFILES: Profile[] = ['Tato', 'Alek', 'Марк'];
+
+export const PROFILE_COLORS: Record<Profile, string> = {
+  'Tato': '#84CC16',
+  'Alek': '#FF7A45',
+  'Марк': '#38BDF8',
+};
 
 export const profileLabel = (p: Profile, lang: Lang): string => {
   if (lang === 'en') {
-    if (p === 'Мама') return 'Mom';
-    if (p === 'Тато') return 'Dad';
+    if (p === 'Tato') return 'Dad';
+    if (p === 'Марк') return 'Mark';
   }
   return p;
 };
