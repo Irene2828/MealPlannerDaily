@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,12 +7,26 @@ import MealPlannerScreen from './MealPlannerScreen';
 import GroceryListScreen from './GroceryListScreen';
 import { useGrocery } from '../context/GroceryContext';
 import { useLanguage } from '../hooks/useLanguage';
+import { useAutoUpdate } from '../hooks/useAutoUpdate';
 
 export default function MainLayout() {
   const [activeTab, setActiveTab] = useState<'home' | 'grocery'>('home');
   const insets = useSafeAreaInsets();
   const { groceryList } = useGrocery();
   const { lang, toggleLang } = useLanguage();
+  const { updateAvailable, applyUpdate } = useAutoUpdate();
+  /* Hide the app title when embedded as a widget (e.g. kids-routine tablet):
+     the host already shows its own "Меню дня" header. */
+  const [isEmbedded, setIsEmbedded] = useState(false);
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && window.self !== window.top) {
+        setIsEmbedded(true);
+      }
+    } catch (e) {
+      setIsEmbedded(true);
+    }
+  }, []);
 
   return (
     <LinearGradient
@@ -30,16 +44,18 @@ export default function MainLayout() {
           </Pressable>
         </View>
 
-        <Pressable
-          style={styles.headerTitleContainer}
-          onPress={() => setActiveTab('home')}
-        >
-          <Text style={styles.headerTitle}>{lang === 'uk' ? 'Меню на день' : "Today's Menu"}</Text>
-          <View style={styles.underlineContainer}>
-            <View style={[styles.underlineSegment, { transform: [{ rotate: '-2deg' }], opacity: 0.9 }]} />
-            <View style={[styles.underlineSegment, { transform: [{ rotate: '-0.5deg' }], marginTop: -1, opacity: 0.8, width: '90%', alignSelf: 'center' }]} />
-          </View>
-        </Pressable>
+        {!isEmbedded && (
+          <Pressable
+            style={styles.headerTitleContainer}
+            onPress={() => setActiveTab('home')}
+          >
+            <Text style={styles.headerTitle}>{lang === 'uk' ? 'Меню на день' : "Today's Menu"}</Text>
+            <View style={styles.underlineContainer}>
+              <View style={[styles.underlineSegment, { transform: [{ rotate: '-2deg' }], opacity: 0.9 }]} />
+              <View style={[styles.underlineSegment, { transform: [{ rotate: '-0.5deg' }], marginTop: -1, opacity: 0.8, width: '90%', alignSelf: 'center' }]} />
+            </View>
+          </Pressable>
+        )}
 
         <View style={styles.headerRightContainer}>
           <Pressable style={styles.langToggle} onPress={toggleLang}>
@@ -53,6 +69,15 @@ export default function MainLayout() {
         {activeTab === 'home' && <MealPlannerScreen lang={lang} />}
         {activeTab === 'grocery' && <GroceryListScreen />}
       </View>
+
+      {/* Update prompt: appears when a newer build was deployed */}
+      {updateAvailable && (
+        <Pressable style={styles.updatePill} onPress={applyUpdate}>
+          <Text style={styles.updatePillText}>
+            {lang === 'uk' ? 'Є оновлення • Оновити' : 'Update available • Refresh'}
+          </Text>
+        </Pressable>
+      )}
     </LinearGradient>
   );
 }
@@ -159,5 +184,25 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 10,
     fontFamily: 'DMSans_700Bold',
+  },
+  updatePill: {
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
+    backgroundColor: '#111827',
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 999,
+    zIndex: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  updatePillText: {
+    fontFamily: 'DMSans_700Bold',
+    fontSize: 13,
+    color: '#FFFFFF',
   },
 });

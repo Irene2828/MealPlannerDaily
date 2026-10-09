@@ -219,8 +219,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   dayChipActive: {
-    backgroundColor: '#111827',
+    backgroundColor: '#FFFFFF',
     borderColor: '#111827',
+    borderWidth: 2,
   },
   dayText: {
     fontFamily: 'DMSans_500Medium',
@@ -228,7 +229,8 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   dayTextActive: {
-    color: '#FFFFFF',
+    fontFamily: 'DMSans_700Bold',
+    color: '#111827',
   },
   scroll: {
     flex: 1,
